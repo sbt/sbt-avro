@@ -16,5 +16,5 @@ object build extends Build {
             scalacOptions in Compile ++= Seq("-deprecation"),
             description := "Sbt plugin for compiling Avro sources",
             publishTo := Some(Resolver.file("file",  new File( "/opt/www/files.cavorite.com/maven/" )) ),
-            publishMavenStyle := false))
+            publishMavenStyle := true))
 }
