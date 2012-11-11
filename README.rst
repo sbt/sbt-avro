@@ -2,7 +2,7 @@
 sbt-avro
 ========
 
-sbt-avro is a plugin for `sbt`_-0.11.2 for generating the Java sources for Avro_
+sbt-avro is a plugin for `sbt`_-0.11.3 for generating the Java sources for Avro_
 schemas and protocols.
 
 .. _sbt: https://github.com/harrah/xsbt/
