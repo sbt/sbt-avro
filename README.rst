@@ -2,8 +2,8 @@
 sbt-avro
 ========
 
-sbt-avro is a plugin for `sbt`_-0.11.3 for generating the Java sources for Avro_
-schemas and protocols.
+sbt-avro is a plugin for `sbt`_-0.12.1 for generating the Java sources for 
+Avro_ schemas and protocols.
 
 .. _sbt: https://github.com/harrah/xsbt/
 .. _Avro: http://avro.apache.org/ 
@@ -23,7 +23,7 @@ project directory::
 
     resolvers += "cavorite" at "http://files.cavorite.com/maven/"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.1")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.2")
 
 
 Import the plugin settings
@@ -49,7 +49,7 @@ Name                Name in shell            Default                            
 ===============     ====================     ================================     ===============
 sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc`` and ``*.avpr`` files.
 javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
-version             ``version``              ``1.6.1``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+version             ``version``              ``1.7.2``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
 ===============     ====================     ================================     ===============
 
 

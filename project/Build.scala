@@ -7,11 +7,11 @@ object build extends Build {
         base = file("."),
         settings = Defaults.defaultSettings ++ Seq[Project.Setting[_]](
             organization := "com.cavorite",
-            version := "0.1",
+            version := "0.2",
             sbtPlugin := true,
             libraryDependencies ++= Seq(
-                    "org.apache.avro" % "avro" % "1.6.1",
-                    "org.apache.avro" % "avro-compiler" % "1.6.1"
+                    "org.apache.avro" % "avro" % "1.7.2",
+                    "org.apache.avro" % "avro-compiler" % "1.7.2"
             ),
             scalacOptions in Compile ++= Seq("-deprecation"),
             description := "Sbt plugin for compiling Avro sources",
