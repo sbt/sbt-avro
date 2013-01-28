@@ -14,7 +14,8 @@ object build extends Build {
                     "org.apache.avro" % "avro-compiler" % "1.7.2"
             ),
             scalacOptions in Compile ++= Seq("-deprecation"),
+            crossScalaVersions := Seq("2.9.2", "2.10.0"),
             description := "Sbt plugin for compiling Avro sources",
-            publishTo := Some(Resolver.file("file",  new File( "/opt/www/files.cavorite.com/maven/" )) ),
+            publishTo := Some(Resolver.file("file",  new File( "/opt/local/www/files.cavorite.com/maven/" )) ),
             publishMavenStyle := true))
 }
