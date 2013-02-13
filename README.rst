@@ -23,7 +23,7 @@ project directory::
 
     resolvers += "cavorite" at "http://files.cavorite.com/maven/"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.2")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.2.1")
 
 
 Import the plugin settings
@@ -47,9 +47,9 @@ Settings
 ===============     ====================     ================================     ===============
 Name                Name in shell            Default                              Description
 ===============     ====================     ================================     ===============
-sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc`` and ``*.avpr`` files.
+sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
 javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
-version             ``version``              ``1.7.2``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+version             ``version``              ``1.7.3``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
 ===============     ====================     ================================     ===============
 
 
@@ -74,7 +74,15 @@ Credits
 (even this README file!). This is my first attempt to write an `sbt` plugin,
 so feel free to send your comments and bug reports.
 
+Contributors
+------------
+
+- `Brennan Saeta`_
+- `Daniel Lundin`_
+
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
+.. _`Brennan Saeta`: https://github.com/saeta
+.. _`Daniel Lundin`: https://github.com/dln
 .. __: http://cavorite.com
 
 
