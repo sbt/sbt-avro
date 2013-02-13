@@ -4,6 +4,8 @@ import sbt._
 import Process._
 import Keys._
 import java.io.File
+import org.apache.avro.Protocol
+import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
 
 /**
@@ -33,6 +35,15 @@ object SbtAvro extends Plugin {
 	  )
 
     private def compile(srcDir: File, target: File, log: Logger) = {
+        for (idl <- (srcDir ** "*.avdl").get){
+            log.info("Compiling Avro IDL %s".format(idl))
+            val parser = new Idl(idl.asFile)
+            val protocol = Protocol.parse(parser.CompilationUnit.toString)
+            val compiler = new SpecificCompiler(protocol)
+            compiler.setTemplateDir(srcDir.toString)
+            compiler.compileToDestination(null, target)
+        }
+
         for (schema <- (srcDir ** "*.avsc").get){
             log.info("Compiling Avro schema %s".format(schema))
         	SpecificCompiler.compileSchema(schema.asFile, target)
