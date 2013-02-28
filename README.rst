@@ -23,7 +23,7 @@ project directory::
 
     resolvers += "cavorite" at "http://files.cavorite.com/maven/"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.2.1")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.0")
 
 
 Import the plugin settings
@@ -50,7 +50,18 @@ Name                Name in shell            Default                            
 sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
 javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
 version             ``version``              ``1.7.3``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+stringType          ``string-type``          ``CharSequence``                     Java type for string elements. Possible values: ``CharSequence`` (by default), ``Utf8`` and ``String``.
 ===============     ====================     ================================     ===============
+
+Example
+-------
+
+For example, if you want to change the Java type of the string elements in 
+the schema, you can add the following lines to your ``build.sbt``  file: 
+    
+    seq( sbtavro.SbtAvro.avroSettings : _*)
+    
+    (stringType in avroConfig) := "String"
 
 
 Tasks
@@ -61,6 +72,7 @@ Name                Name in shell        Description
 ===============     ================    ==================
 generate            generate            Compiles the Avro files. This task is automatically executed everytime the project is compiled.
 ===============     ================    ==================
+
 
 License
 =======

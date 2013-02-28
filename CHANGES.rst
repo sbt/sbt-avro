@@ -5,6 +5,15 @@ sbt-avro
 Changelog
 =========
 
+0.3
+---
+
+*2013-02-27*
+
+Compiled schemas are added to the cache.
+Added setting to change the Java type of string elements.
+
+
 0.2
 ---
 
