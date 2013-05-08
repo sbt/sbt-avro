@@ -17,6 +17,10 @@ object build extends Build {
             scalacOptions in Compile ++= Seq("-deprecation"),
             crossScalaVersions := Seq("2.9.2", "2.10.0"),
             description := "Sbt plugin for compiling Avro sources",
-            publishTo := Some(Resolver.file("file",  new File( "/opt/local/www/files.cavorite.com/maven/" )) ),
-            publishMavenStyle := true))
+
+            publishTo := Some(Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)),
+
+            publishMavenStyle := false
+        )
+    )
 }
