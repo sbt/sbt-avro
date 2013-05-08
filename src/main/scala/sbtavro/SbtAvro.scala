@@ -80,7 +80,6 @@ object SbtAvro extends Plugin {
       val parser = new Idl(idl.asFile)
       val protocol = Protocol.parse(parser.CompilationUnit.toString)
       val compiler = new SpecificCompiler(protocol)
-      compiler.setTemplateDir(srcDir.toString)
       compiler.setStringType(stringType)
       compiler.compileToDestination(null, target)
     }
