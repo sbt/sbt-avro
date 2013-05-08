@@ -21,9 +21,9 @@ Add the plugin according to the `sbt documentation`_.
 For instance, add the following lines to the file ``hello/project/build.sbt`` in your
 project directory::
 
-    resolvers += "cavorite" at "http://files.cavorite.com/maven/"
+    resolvers += "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.0")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.1")
 
 
 Import the plugin settings
@@ -91,10 +91,12 @@ Contributors
 
 - `Brennan Saeta`_
 - `Daniel Lundin`_
+_ `Vince Tse`_
 
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
 .. _`Brennan Saeta`: https://github.com/saeta
 .. _`Daniel Lundin`: https://github.com/dln
+.. _`Vince Tse`: https://github.com/vtonehundred
 .. __: http://cavorite.com
 
 
