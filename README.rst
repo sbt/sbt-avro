@@ -2,8 +2,8 @@
 sbt-avro
 ========
 
-sbt-avro is a plugin for `sbt`_-0.12.1 for generating the Java sources for 
-Avro_ schemas and protocols.
+sbt-avro is a plugin for `sbt`_-0.13.0 (and 0.12.1) for generating the Java 
+sources for Avro_ schemas and protocols.
 
 .. _sbt: https://github.com/harrah/xsbt/
 .. _Avro: http://avro.apache.org/ 
@@ -23,7 +23,7 @@ project directory::
 
     resolvers += "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.1")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.2")
 
 
 Import the plugin settings

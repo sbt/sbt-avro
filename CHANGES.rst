@@ -5,6 +5,14 @@ sbt-avro
 Changelog
 =========
 
+0.3.2
+-----
+
+*2013-09-29*
+
+updated to the most recent versions of sbt (0.13.0) and Avro (1.7.5). Thanks
+to Dan Di Spaltro.
+
 0.3
 ---
 
