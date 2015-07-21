@@ -2,6 +2,17 @@
 sbt-avro
 ========
 
+Looking for maintainers
+=======================
+
+I'm looking for maintainers of this project. I'm not actively working on sbt or 
+Avro, and I won't be able to review pull-requests or fix bugs.
+
+If you're interested in taking over this project, please create an issue.
+
+Overview
+========
+
 sbt-avro is a plugin for `sbt`_-0.13.0 (and 0.12.1) for generating the Java 
 sources for Avro_ schemas and protocols.
 
@@ -91,12 +102,14 @@ Contributors
 
 - `Brennan Saeta`_
 - `Daniel Lundin`_
-_ `Vince Tse`_
+- `Vince Tse`_
+- `Ashwanth Kumar`_
 
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
 .. _`Brennan Saeta`: https://github.com/saeta
 .. _`Daniel Lundin`: https://github.com/dln
 .. _`Vince Tse`: https://github.com/vtonehundred
+.. _`Ashwanth Kumar`: https://github.com/ashwanthkumar
 .. __: http://cavorite.com
 
 
