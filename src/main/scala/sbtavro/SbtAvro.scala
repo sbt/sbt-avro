@@ -50,12 +50,16 @@ object SbtAvro extends Plugin {
   val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
     "Possible values: CharSequence, String, Utf8. Default: CharSequence.")
 
+  val fieldVisibility = SettingKey[String]("field-visibiliy", "Field Visibility for the properties" +
+    "Possible values: private, public, public_deprecated. Default: public_deprecated.")
+
   val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
 
   lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
     sourceDirectory <<= (sourceDirectory in Compile) { _ / "avro" },
     javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
     stringType := "CharSequence",
+    fieldVisibility := "public_deprecated",
     version := "1.7.3",
 
     managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
@@ -69,7 +73,7 @@ object SbtAvro extends Plugin {
     libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
     ivyConfigurations += avroConfig)
 
-  private def compile(srcDir: File, target: File, log: Logger, stringTypeName: String) = {
+  private def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
     val stringType = StringType.valueOf(stringTypeName);
     log.info("Avro compiler using stringType=%s".format(stringType));
 
@@ -81,6 +85,7 @@ object SbtAvro extends Plugin {
       val protocol = Protocol.parse(parser.CompilationUnit.toString)
       val compiler = new SpecificCompiler(protocol)
       compiler.setStringType(stringType)
+      compiler.setFieldVisibility(SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase))
       compiler.compileToDestination(null, target)
     }
 
@@ -104,12 +109,13 @@ object SbtAvro extends Plugin {
     sourceDirectory in avroConfig,
     javaSource in avroConfig,
     stringType,
+    fieldVisibility,
     cacheDirectory) map {
-      (out, srcDir, targetDir, stringTypeName, cache) =>
+      (out, srcDir, targetDir, stringTypeName, fieldVisibilityName, cache) =>
         val cachedCompile = FileFunction.cached(cache / "avro",
           inStyle = FilesInfo.lastModified,
           outStyle = FilesInfo.exists) { (in: Set[File]) =>
-            compile(srcDir, targetDir, out.log, stringTypeName)
+            compile(srcDir, targetDir, out.log, stringTypeName, fieldVisibilityName)
           }
         cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
     }
