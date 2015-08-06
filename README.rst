@@ -2,22 +2,11 @@
 sbt-avro
 ========
 
-Looking for maintainers
-=======================
-
-I'm looking for maintainers of this project. I'm not actively working on sbt or 
-Avro, and I won't be able to review pull-requests or fix bugs.
-
-If you're interested in taking over this project, please create an issue.
-
 Overview
 ========
+This is a fork of https://github.com/cavorite/sbt-avro
 
-sbt-avro is a plugin for `sbt`_-0.13.0 (and 0.12.1) for generating the Java 
-sources for Avro_ schemas and protocols.
-
-.. _sbt: https://github.com/harrah/xsbt/
-.. _Avro: http://avro.apache.org/ 
+My aim here is to sort avsc files so that type that are re-used are compiled first
 
 Usage
 =====

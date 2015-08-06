@@ -6,16 +6,15 @@ object build extends Build {
         id = "sbt-avro",
         base = file("."),
         settings = Defaults.defaultSettings ++ Seq[Project.Setting[_]](
-            organization := "com.cavorite",
-            version := "0.3.2",
+            organization := "com.c4soft",
+            version := "1.0.0",
             sbtPlugin := true,
             libraryDependencies ++= Seq(
-                    "org.apache.avro" % "avro" % "1.7.5",
-                    "org.apache.avro" % "avro-compiler" % "1.7.5"
+                    "org.apache.avro" % "avro" % "1.7.7",
+                    "org.apache.avro" % "avro-compiler" % "1.7.7",
+                    "org.specs2" %% "specs2-core" % "3.6.4" % "test"
             ),
-            scalaVersion := "2.10.2",
             scalacOptions in Compile ++= Seq("-deprecation"),
-            crossScalaVersions := Seq("2.10.2"),
             description := "Sbt plugin for compiling Avro sources",
 
             publishTo := Some(Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)),
