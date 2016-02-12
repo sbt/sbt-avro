@@ -134,14 +134,16 @@ object SbtAvro extends Plugin {
   }
 
   def strContainsType(str: String, fullName: String): Boolean = {
-    val typeRegex = "\\\"type\\\"\\s*:\\s*\\\"" + fullName + "\\\""
+    val typeRegex = "\\\"type\\\"\\s*:\\s*(\\\"" + fullName + "\\\")|(\\[[^\\]]*\\\"" + fullName + "\\\"\\])"
     typeRegex.r.findFirstIn(str).isDefined
   }
 
   def usedUnusedSchemas(files: Traversable[File]): (Traversable[File], Traversable[File]) = {
     val usedUnused = files.map { f =>
       val fullName = extractFullName(f)
-      (f, files.count { candidate => strContainsType(fileText(candidate), fullName) } )
+      (f, files.count { candidate =>
+        strContainsType(fileText(candidate), fullName)
+      } )
     }.partition(_._2 > 0)
     (usedUnused._1.map(_._1), usedUnused._2.map(_._1))
   }
