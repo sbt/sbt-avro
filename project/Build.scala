@@ -6,9 +6,10 @@ object build extends Build {
         id = "sbt-avro",
         base = file("."),
         settings = Defaults.defaultSettings ++ Seq[Project.Setting[_]](
-            organization := "com.c4soft",
+            organization := "com.cavorite",
             version := "1.0.1",
             sbtPlugin := true,
+            scalaVersion := appConfiguration.value.provider.scalaProvider.version,
             libraryDependencies ++= Seq(
                     "org.apache.avro" % "avro" % "1.7.7",
                     "org.apache.avro" % "avro-compiler" % "1.7.7",
@@ -19,7 +20,7 @@ object build extends Build {
 
             publishTo := Some(Resolver.url("sbt-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)),
 
-            publishMavenStyle := false
+            publishMavenStyle := true
         )
     )
 }

@@ -2,11 +2,23 @@
 sbt-avro
 ========
 
+Looking for maintainers
+=======================
+
+I'm looking for maintainers of this project. I'm not actively working on sbt or
+Avro, and I won't be able to review pull-requests or fix bugs.
+
+If you're interested in taking over this project, please create an issue.
+
 Overview
 ========
-This is a fork of https://github.com/cavorite/sbt-avro
 
-My aim here is to sort avsc files so that type that are re-used are compiled first
+sbt-avro is a plugin for `sbt`_-0.13.0 (and 0.12.1) for generating the Java
+sources for Avro_ schemas and protocols.
+It tries to be clever in compiling schemas with referenced types before dependent ones.
+
+.. _sbt: https://github.com/harrah/xsbt/
+.. _Avro: http://avro.apache.org/
 
 Usage
 =====
@@ -23,7 +35,7 @@ project directory::
 
     resolvers += "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
 
-    addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.2")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "1.0.1")
 
 
 Import the plugin settings
@@ -93,12 +105,12 @@ Contributors
 - `Daniel Lundin`_
 - `Vince Tse`_
 - `Ashwanth Kumar`_
+- `Jérôme - Ch4mpy - Wacongne`_
 
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
 .. _`Brennan Saeta`: https://github.com/saeta
 .. _`Daniel Lundin`: https://github.com/dln
 .. _`Vince Tse`: https://github.com/vtonehundred
 .. _`Ashwanth Kumar`: https://github.com/ashwanthkumar
+.. _`Ch4mpy`: https://github.com/ch4mpy
 .. __: http://cavorite.com
-
-

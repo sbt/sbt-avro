@@ -1,13 +1,13 @@
 {
     "type": "record",
-    "namespace": "com.c4soft.sbtavro",
+    "namespace": "com.cavorite",
     "name": "A",
     "fields": [{
             "name": "b",
-            "type": ["null", "com.c4soft.sbtavro.B"]
+            "type": ["null", "com.cavorite.B"]
         },{
             "name": "c",
-            "type": "com.c4soft.sbtavro.C"
+            "type": "com.cavorite.C"
         }
     ]
 }

@@ -1,4 +1,4 @@
-package com.c4soft.sbtavro
+package sbtavro
 
 import java.io.File
 
@@ -22,7 +22,7 @@ class SbtAvroSpec extends Specification {
 
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
     val parser = new Schema.Parser()
-    val packageDir = new File(targetDir, "com/c4soft/sbtavro")
+    val packageDir = new File(targetDir, "com/cavorite")
     val aJavaFile = new File(packageDir, "A.java")
     val bJavaFile = new File(packageDir, "B.java")
     val cJavaFile = new File(packageDir, "C.java")

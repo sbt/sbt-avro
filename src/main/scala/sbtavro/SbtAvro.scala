@@ -1,44 +1,15 @@
-package com.c4soft.sbtavro;
+package sbtavro
 
 import java.io.File
 
-import org.apache.avro.Protocol
-import org.apache.avro.Schema
+import org.apache.avro.{Protocol, Schema}
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
 import org.apache.avro.generic.GenericData.StringType
-
-import sbt.Classpaths
-import sbt.Compile
 import sbt.ConfigKey.configurationToKey
-import sbt.FileFunction
-import sbt.FilesInfo
-import sbt.Keys.cacheDirectory
-import sbt.Keys.classpathTypes
-import sbt.Keys.cleanFiles
-import sbt.Keys.ivyConfigurations
-import sbt.Keys.javaSource
-import sbt.Keys.libraryDependencies
-import sbt.Keys.managedClasspath
-import sbt.Keys.managedSourceDirectories
-import sbt.Keys.sourceDirectory
-import sbt.Keys.sourceGenerators
-import sbt.Keys.sourceManaged
-import sbt.Keys.streams
-import sbt.Keys.update
-import sbt.Keys.version
-import sbt.Logger
-import sbt.Plugin
+import sbt.Keys.{cacheDirectory, classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
 import sbt.Scoped.t2ToTable2
-import sbt.Setting
-import sbt.SettingKey
-import sbt.TaskKey
-import sbt.config
-import sbt.globFilter
-import sbt.inConfig
-import sbt.richFile
-import sbt.singleFileFinder
-import sbt.toGroupID
+import sbt.{Classpaths, Compile, FileFunction, FilesInfo, Logger, Plugin, Setting, SettingKey, TaskKey, config, globFilter, inConfig, richFile, singleFileFinder, toGroupID}
 
 import scala.collection.mutable
 import scala.io.Source
