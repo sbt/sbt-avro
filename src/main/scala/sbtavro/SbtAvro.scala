@@ -1,45 +1,18 @@
-package sbtavro;
+package sbtavro
 
 import java.io.File
 
-import org.apache.avro.Protocol
-import org.apache.avro.Schema
+import org.apache.avro.{Protocol, Schema}
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
 import org.apache.avro.generic.GenericData.StringType
-
-import sbt.Classpaths
-import sbt.Compile
 import sbt.ConfigKey.configurationToKey
-import sbt.FileFunction
-import sbt.FilesInfo
-import sbt.Keys.cacheDirectory
-import sbt.Keys.classpathTypes
-import sbt.Keys.cleanFiles
-import sbt.Keys.ivyConfigurations
-import sbt.Keys.javaSource
-import sbt.Keys.libraryDependencies
-import sbt.Keys.managedClasspath
-import sbt.Keys.managedSourceDirectories
-import sbt.Keys.sourceDirectory
-import sbt.Keys.sourceGenerators
-import sbt.Keys.sourceManaged
-import sbt.Keys.streams
-import sbt.Keys.update
-import sbt.Keys.version
-import sbt.Logger
-import sbt.Plugin
+import sbt.Keys.{cacheDirectory, classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
 import sbt.Scoped.t2ToTable2
-import sbt.Scoped.t5ToTable5
-import sbt.Setting
-import sbt.SettingKey
-import sbt.TaskKey
-import sbt.config
-import sbt.globFilter
-import sbt.inConfig
-import sbt.richFile
-import sbt.singleFileFinder
-import sbt.toGroupID
+import sbt.{Classpaths, Compile, FileFunction, FilesInfo, Logger, Plugin, Setting, SettingKey, TaskKey, config, globFilter, inConfig, richFile, singleFileFinder, toGroupID}
+
+import scala.collection.mutable
+import scala.io.Source
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -89,9 +62,9 @@ object SbtAvro extends Plugin {
       compiler.compileToDestination(null, target)
     }
 
-    for (schema <- (srcDir ** "*.avsc").get) {
-      log.info("Compiling Avro schema %s".format(schema))
-      val schemaAvr = schemaParser.parse(schema.asFile)
+    for (schemaFile <- sortSchemaFiles((srcDir ** "*.avsc").get)) {
+      log.info("Compiling Avro schema %s".format(schemaFile))
+      val schemaAvr = schemaParser.parse(schemaFile)
       val compiler = new SpecificCompiler(schemaAvr)
       compiler.setStringType(stringType)
       compiler.compileToDestination(null, target)
@@ -119,5 +92,54 @@ object SbtAvro extends Plugin {
           }
         cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
     }
+
+  def sortSchemaFiles(files: Traversable[File]): Seq[File] = {
+    val reversed = mutable.MutableList.empty[File]
+    var used: Traversable[File] = files
+    while(!used.isEmpty) {
+      val usedUnused = usedUnusedSchemas(used)
+      reversed ++= usedUnused._2
+      used = usedUnused._1
+    }
+    reversed.reverse.toSeq
+  }
+
+  def strContainsType(str: String, fullName: String): Boolean = {
+    val typeRegex = "\\\"type\\\"\\s*:\\s*(\\\"" + fullName + "\\\")|(\\[[^\\]]*\\\"" + fullName + "\\\"\\])"
+    typeRegex.r.findFirstIn(str).isDefined
+  }
+
+  def usedUnusedSchemas(files: Traversable[File]): (Traversable[File], Traversable[File]) = {
+    val usedUnused = files.map { f =>
+      val fullName = extractFullName(f)
+      (f, files.count { candidate =>
+        strContainsType(fileText(candidate), fullName)
+      } )
+    }.partition(_._2 > 0)
+    (usedUnused._1.map(_._1), usedUnused._2.map(_._1))
+  }
+
+  def extractFullName(f: File): String = {
+    val txt = fileText(f)
+    val namespace = namespaceRegex.findFirstMatchIn(txt)
+    val name = nameRegex.findFirstMatchIn(txt)
+    if(namespace == None) {
+      return name.get.group(1)
+    } else {
+      return s"${namespace.get.group(1)}.${name.get.group(1)}"
+    }
+  }
+
+  def fileText(f: File): String = {
+    val src = Source.fromFile(f)
+    try {
+      return src.getLines.mkString
+    } finally {
+      src.close()
+    }
+  }
+
+  val namespaceRegex = "\\\"namespace\\\"\\s*:\\s*\"([^\\\"]+)\\\"".r
+  val nameRegex = "\\\"name\\\"\\s*:\\s*\"([^\\\"]+)\\\"".r
 
 }

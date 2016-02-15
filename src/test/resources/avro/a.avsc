@@ -1,0 +1,13 @@
+{
+    "type": "record",
+    "namespace": "com.cavorite",
+    "name": "A",
+    "fields": [{
+            "name": "b",
+            "type": ["null", "com.cavorite.B"]
+        },{
+            "name": "c",
+            "type": "com.cavorite.C"
+        }
+    ]
+}
