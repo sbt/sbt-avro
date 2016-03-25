@@ -2,14 +2,6 @@
 sbt-avro
 ========
 
-Looking for maintainers
-=======================
-
-I'm looking for maintainers of this project. I'm not actively working on sbt or
-Avro, and I won't be able to review pull-requests or fix bugs.
-
-If you're interested in taking over this project, please create an issue.
-
 Overview
 ========
 
@@ -94,23 +86,26 @@ more details.
 Credits
 =======
 
-`sbt-avro` is maintained by `Juan Manuel Caicedo`__. I wrote it based on `sbt-protobuf`_
-(even this README file!). This is my first attempt to write an `sbt` plugin,
-so feel free to send your comments and bug reports.
+`sbt-avro` is maintained by the `sbt Community`_. The inial code was based on a 
+similar plugin: `sbt-protobuf`_. Feel free to send your comments and bug 
+reports.
 
 Contributors
 ------------
 
+- `Juan Manuel Caicedo`_
 - `Brennan Saeta`_
 - `Daniel Lundin`_
 - `Vince Tse`_
 - `Ashwanth Kumar`_
 - `Jérôme - Ch4mpy - Wacongne`_
 
+.. _`sbt Community`: http://www.scala-sbt.org/release/docs/Community-Plugins.html
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
+.. _`Juan Manuel Caicedo`: https://cavorite.com
 .. _`Brennan Saeta`: https://github.com/saeta
 .. _`Daniel Lundin`: https://github.com/dln
 .. _`Vince Tse`: https://github.com/vtonehundred
 .. _`Ashwanth Kumar`: https://github.com/ashwanthkumar
-.. _`Ch4mpy`: https://github.com/ch4mpy
-.. __: http://cavorite.com
+.. _`Jérôme - Ch4mpy - Wacongne`: https://github.com/ch4mpy
+
