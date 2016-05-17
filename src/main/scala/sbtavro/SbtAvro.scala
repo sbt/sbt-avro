@@ -46,7 +46,7 @@ object SbtAvro extends Plugin {
     libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
     ivyConfigurations += avroConfig)
 
-  private def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
+  private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
     val stringType = StringType.valueOf(stringTypeName);
     log.info("Avro compiler using stringType=%s".format(stringType));
 
