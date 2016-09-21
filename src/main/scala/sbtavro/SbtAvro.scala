@@ -1,23 +1,24 @@
 package sbtavro
 
 import java.io.File
+import scala.collection.mutable
+import scala.io.Source
 
 import org.apache.avro.{Protocol, Schema}
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
 import org.apache.avro.generic.GenericData.StringType
+
+import sbt._
 import sbt.ConfigKey.configurationToKey
 import sbt.Keys.{cacheDirectory, classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
 import sbt.Scoped.t2ToTable2
-import sbt.{AutoPlugin, Classpaths, Compile, FileFunction, FilesInfo, Logger, Setting, SettingKey, TaskKey, config, globFilter, inConfig, richFile, singleFileFinder, toGroupID}
-
-import scala.collection.mutable
-import scala.io.Source
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
  */
 object SbtAvro extends AutoPlugin {
+
   val avroConfig = config("avro")
 
   val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
@@ -39,13 +40,14 @@ object SbtAvro extends AutoPlugin {
       managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
         Classpaths.managedJars(avroConfig, ct, report)
       },
-
-      generate <<= sourceGeneratorTask)) ++ Seq[Setting[_]](
+      generate <<= sourceGeneratorTask)
+    ) ++ Seq[Setting[_]](
       sourceGenerators in Compile <+= (generate in avroConfig),
       managedSourceDirectories in Compile <+= (javaSource in avroConfig),
       cleanFiles <+= (javaSource in avroConfig),
       libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
-      ivyConfigurations += avroConfig)
+      ivyConfigurations += avroConfig
+    )
   }
 
   import autoImport._
@@ -53,6 +55,9 @@ object SbtAvro extends AutoPlugin {
 
   // This plugin is automatically enabled for projects which are JvmPlugin.
   override def trigger = allRequirements
+
+  // a group of settings that are automatically added to projects.
+  override val projectSettings = avroSettings
 
   private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
     val stringType = StringType.valueOf(stringTypeName);

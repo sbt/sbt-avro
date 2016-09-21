@@ -5,11 +5,10 @@ sbt-avro
 Overview
 ========
 
-sbt-avro is a plugin for `sbt`_-0.13.0 (and 0.12.1) for generating the Java
-sources for Avro_ schemas and protocols.
+sbt-avro is a plugin for `sbt`_-0.13 for generating the Java sources for Avro_ schemas and protocols.
 It tries to be clever in compiling schemas with referenced types before dependent ones.
 
-.. _sbt: https://github.com/harrah/xsbt/
+.. _sbt: http://www.scala-sbt.org/
 .. _Avro: http://avro.apache.org/
 
 Usage
@@ -20,9 +19,9 @@ Install the plugin
 
 Add the plugin according to the `sbt documentation`_.
 
-.. _`sbt documentation`: https://github.com/harrah/xsbt/wiki/Getting-Started-Using-Plugins
+.. _`sbt documentation`: http://www.scala-sbt.org/0.13/docs/Using-Plugins.html
 
-For instance, add the following lines to the file ``hello/project/build.sbt`` in your
+For instance, add the following lines to the file ``project/plugins.sbt`` in your
 project directory::
 
     addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.2")
@@ -50,9 +49,7 @@ Example
 -------
 
 For example, if you want to change the Java type of the string elements in 
-the schema, you can add the following lines to your ``build.sbt``  file: 
-    
-    seq( sbtavro.SbtAvro.avroSettings : _*)
+the schema, you can add the following lines to your ``build.sbt`` file::
     
     (stringType in avroConfig) := "String"
 
@@ -88,6 +85,7 @@ Contributors
 - `Vince Tse`_
 - `Ashwanth Kumar`_
 - `Jérôme - Ch4mpy - Wacongne`_
+- `Ben McCann`_
 
 .. _`sbt Community`: http://www.scala-sbt.org/release/docs/Community-Plugins.html
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
@@ -97,4 +95,4 @@ Contributors
 .. _`Vince Tse`: https://github.com/vtonehundred
 .. _`Ashwanth Kumar`: https://github.com/ashwanthkumar
 .. _`Jérôme - Ch4mpy - Wacongne`: https://github.com/ch4mpy
-
+.. _`Ben McCann`: http://www.benmccann.com

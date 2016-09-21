@@ -1,0 +1,9 @@
+{
+    "type": "record",
+    "name": "com.cavorite.C",
+    "fields": [{
+            "name": "str",
+            "type": "string"
+        }
+    ]
+}
