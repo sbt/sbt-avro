@@ -9,7 +9,7 @@ import org.apache.avro.generic.GenericData.StringType
 import sbt.ConfigKey.configurationToKey
 import sbt.Keys.{cacheDirectory, classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
 import sbt.Scoped.t2ToTable2
-import sbt.{Classpaths, Compile, FileFunction, FilesInfo, Logger, Plugin, Setting, SettingKey, TaskKey, config, globFilter, inConfig, richFile, singleFileFinder, toGroupID}
+import sbt.{AutoPlugin, Classpaths, Compile, FileFunction, FilesInfo, Logger, Setting, SettingKey, TaskKey, config, globFilter, inConfig, richFile, singleFileFinder, toGroupID}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -17,7 +17,7 @@ import scala.io.Source
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
  */
-object SbtAvro extends Plugin {
+object SbtAvro extends AutoPlugin {
   val avroConfig = config("avro")
 
   val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
@@ -28,23 +28,31 @@ object SbtAvro extends Plugin {
 
   val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
 
-  lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
-    sourceDirectory <<= (sourceDirectory in Compile) { _ / "avro" },
-    javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
-    stringType := "CharSequence",
-    fieldVisibility := "public_deprecated",
-    version := "1.7.3",
+  object autoImport {
+    lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
+      sourceDirectory <<= (sourceDirectory in Compile) { _ / "avro" },
+      javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
+      stringType := "CharSequence",
+      fieldVisibility := "public_deprecated",
+      version := "1.7.3",
 
-    managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-      Classpaths.managedJars(avroConfig, ct, report)
-    },
+      managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
+        Classpaths.managedJars(avroConfig, ct, report)
+      },
 
-    generate <<= sourceGeneratorTask)) ++ Seq[Setting[_]](
-    sourceGenerators in Compile <+= (generate in avroConfig),
-    managedSourceDirectories in Compile <+= (javaSource in avroConfig),
-    cleanFiles <+= (javaSource in avroConfig),
-    libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
-    ivyConfigurations += avroConfig)
+      generate <<= sourceGeneratorTask)) ++ Seq[Setting[_]](
+      sourceGenerators in Compile <+= (generate in avroConfig),
+      managedSourceDirectories in Compile <+= (javaSource in avroConfig),
+      cleanFiles <+= (javaSource in avroConfig),
+      libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
+      ivyConfigurations += avroConfig)
+  }
+
+  import autoImport._
+  override def requires = sbt.plugins.JvmPlugin
+
+  // This plugin is automatically enabled for projects which are JvmPlugin.
+  override def trigger = allRequirements
 
   private def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
     val stringType = StringType.valueOf(stringTypeName);
