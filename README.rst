@@ -25,8 +25,6 @@ Add the plugin according to the `sbt documentation`_.
 For instance, add the following lines to the file ``hello/project/build.sbt`` in your
 project directory::
 
-    resolvers += "sbt-plugin-releases" at "http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
-
     addSbtPlugin("com.cavorite" % "sbt-avro" % "0.3.2")
  
 
