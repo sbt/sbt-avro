@@ -54,7 +54,7 @@ object SbtAvro extends AutoPlugin {
   // This plugin is automatically enabled for projects which are JvmPlugin.
   override def trigger = allRequirements
 
-  private def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
+  private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
     val stringType = StringType.valueOf(stringTypeName);
     log.info("Avro compiler using stringType=%s".format(stringType));
 
