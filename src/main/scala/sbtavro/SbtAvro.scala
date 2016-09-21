@@ -19,17 +19,18 @@ import sbt.Scoped.t2ToTable2
  */
 object SbtAvro extends AutoPlugin {
 
-  val avroConfig = config("avro")
-
-  val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
-    "Possible values: CharSequence, String, Utf8. Default: CharSequence.")
-
-  val fieldVisibility = SettingKey[String]("field-visibiliy", "Field Visibility for the properties" +
-    "Possible values: private, public, public_deprecated. Default: public_deprecated.")
-
-  val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
-
   object autoImport {
+
+    val avroConfig = config("avro")
+
+    val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
+      "Possible values: CharSequence, String, Utf8. Default: CharSequence.")
+
+    val fieldVisibility = SettingKey[String]("field-visibiliy", "Field Visibility for the properties" +
+      "Possible values: private, public, public_deprecated. Default: public_deprecated.")
+
+    val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
+
     lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
       sourceDirectory <<= (sourceDirectory in Compile) { _ / "avro" },
       javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
