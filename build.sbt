@@ -15,10 +15,11 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "3.6.4" % "test"
 )
 
+licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE"))
 publishMavenStyle := false
 bintrayOrganization := Some("sbt")
 bintrayRepository := "sbt-plugin-releases"
-bintrayPackage := "sbt-avro"
+bintrayPackage := "sbt-avro-1.7"
 bintrayReleaseOnPublish := false
 
 ScriptedPlugin.scriptedSettings
