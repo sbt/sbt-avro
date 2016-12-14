@@ -1,8 +1,8 @@
-name := "sbt-avro"
+name := "sbt-avro-1.7"
 organization := "com.cavorite"
 description := "Sbt plugin for compiling Avro sources"
 
-version := "1.1.0-SNAPSHOT"
+version := "1.1.2"
 
 sbtPlugin := true
 
@@ -19,7 +19,7 @@ licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LI
 publishMavenStyle := false
 bintrayOrganization := Some("sbt")
 bintrayRepository := "sbt-plugin-releases"
-bintrayPackage := "sbt-avro-1.7"
+bintrayPackage := name.value
 bintrayReleaseOnPublish := false
 
 ScriptedPlugin.scriptedSettings
