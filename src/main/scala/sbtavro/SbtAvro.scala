@@ -36,7 +36,7 @@ object SbtAvro extends AutoPlugin {
       javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
       stringType := "CharSequence",
       fieldVisibility := "public_deprecated",
-      version := "1.7.3",
+      version := "1.7.7",
 
       managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
         Classpaths.managedJars(avroConfig, ct, report)
