@@ -32,21 +32,21 @@ object SbtAvro extends AutoPlugin {
     val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
 
     lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
-      sourceDirectory <<= (sourceDirectory in Compile) { _ / "avro" },
-      javaSource <<= (sourceManaged in Compile) { _ / "compiled_avro" },
+      sourceDirectory := (sourceDirectory in Compile).value / "avro",
+      javaSource := (sourceManaged in Compile).value / "compiled_avro",
       stringType := "CharSequence",
       fieldVisibility := "public_deprecated",
       version := "1.7.7",
 
-      managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-        Classpaths.managedJars(avroConfig, ct, report)
+      managedClasspath := {
+        Classpaths.managedJars(avroConfig, classpathTypes.value, update.value)
       },
-      generate <<= sourceGeneratorTask)
+      generate := sourceGeneratorTask.value)
     ) ++ Seq[Setting[_]](
-      sourceGenerators in Compile <+= (generate in avroConfig),
-      managedSourceDirectories in Compile <+= (javaSource in avroConfig),
-      cleanFiles <+= (javaSource in avroConfig),
-      libraryDependencies <+= (version in avroConfig)("org.apache.avro" % "avro-compiler" % _),
+      sourceGenerators in Compile += (generate in avroConfig).taskValue,
+      managedSourceDirectories in Compile += (javaSource in avroConfig).value,
+      cleanFiles += (javaSource in avroConfig).value,
+      libraryDependencies += "org.apache.avro" % "avro-compiler" % (version in avroConfig).value,
       ivyConfigurations += avroConfig
     )
   }
@@ -92,20 +92,16 @@ object SbtAvro extends AutoPlugin {
     (target ** "*.java").get.toSet
   }
 
-  private def sourceGeneratorTask = (streams,
-    sourceDirectory in avroConfig,
-    javaSource in avroConfig,
-    stringType,
-    fieldVisibility,
-    cacheDirectory) map {
-      (out, srcDir, targetDir, stringTypeName, fieldVisibilityName, cache) =>
-        val cachedCompile = FileFunction.cached(cache / "avro",
-          inStyle = FilesInfo.lastModified,
-          outStyle = FilesInfo.exists) { (in: Set[File]) =>
-            compile(srcDir, targetDir, out.log, stringTypeName, fieldVisibilityName)
-          }
-        cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
-    }
+  private def sourceGeneratorTask = Def.task {
+    val out = streams.value
+    val srcDir = (sourceDirectory in avroConfig).value
+    val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
+      inStyle = FilesInfo.lastModified,
+      outStyle = FilesInfo.exists) { (in: Set[File]) =>
+        compile(srcDir, (javaSource in avroConfig).value, out.log, stringType.value, fieldVisibility.value)
+      }
+    cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
+  }
 
   def sortSchemaFiles(files: Traversable[File]): Seq[File] = {
     val reversed = mutable.MutableList.empty[File]
