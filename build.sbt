@@ -24,6 +24,6 @@ bintrayReleaseOnPublish := false
 
 ScriptedPlugin.scriptedSettings
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
-  Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+  Seq("-Xmx1024M", "-Dplugin.name=" + name.value.replace('.', '-'), "-Dplugin.version=" + version.value)
 }
 scriptedBufferLog := false
