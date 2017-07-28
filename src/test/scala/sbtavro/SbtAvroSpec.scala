@@ -3,7 +3,7 @@ package sbtavro
 import java.io.File
 
 import org.apache.avro.Schema
-import org.apache.avro.compiler.specific.SpecificCompiler
+import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
 
@@ -31,10 +31,7 @@ class SbtAvroSpec extends Specification {
     cJavaFile.delete()
 
     for(schemaFile <- SbtAvro.sortSchemaFiles(sourceFiles)) {
-      val schemaAvr = parser.parse(schemaFile)
-      val compiler = new SpecificCompiler(schemaAvr)
-      compiler.setStringType(StringType.CharSequence)
-      compiler.compileToDestination(null, targetDir)
+      SbtAvro.compileAvsc(schemaFile, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED)
     }
 
     aJavaFile.isFile must beTrue

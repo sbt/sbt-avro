@@ -1,0 +1,11 @@
+{
+    "name": "Avsc",
+    "namespace": "com.cavorite.test.settings",
+    "type": "record",
+    "fields": [
+        {
+            "name": "stringField",
+            "type": "string"
+        }
+    ]
+}

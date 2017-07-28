@@ -1,0 +1,16 @@
+{
+    "namespace": "com.cavorite.test.settings",
+    "protocol": "ProtocolAvpr",
+    "types": [
+        {
+            "name": "Avpr",
+            "type": "record",
+            "fields": [
+                {
+                    "name": "stringField",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}

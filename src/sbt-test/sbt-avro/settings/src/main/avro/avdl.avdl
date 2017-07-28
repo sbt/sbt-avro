@@ -1,0 +1,6 @@
+@namespace("com.cavorite.test.settings")
+protocol ProtocolAvdl {
+    record Avdl {
+        string stringField;
+    }
+}

@@ -1,12 +1,14 @@
 package sbtavro
 
 import java.io.File
+
 import scala.collection.mutable
 import scala.io.Source
 
 import org.apache.avro.{Protocol, Schema}
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
+import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 
 import sbt._
@@ -60,33 +62,51 @@ object SbtAvro extends AutoPlugin {
   // a group of settings that are automatically added to projects.
   override val projectSettings = avroSettings
 
-  private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String) = {
-    val stringType = StringType.valueOf(stringTypeName);
-    log.info("Avro compiler using stringType=%s".format(stringType));
+  def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility) {
+    val parser = new Idl(idl)
+    val protocol = Protocol.parse(parser.CompilationUnit.toString)
+    val compiler = new SpecificCompiler(protocol)
+    compiler.setStringType(stringType)
+    compiler.setFieldVisibility(fieldVisibility)
+    compiler.compileToDestination(null, target)
+  }
 
-    val schemaParser = new Schema.Parser();
+  private lazy val schemaParser = new Schema.Parser()
+
+  def compileAvsc(avsc: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility) {
+    val schema = schemaParser.parse(avsc)
+    val compiler = new SpecificCompiler(schema)
+    compiler.setStringType(stringType)
+    compiler.setFieldVisibility(fieldVisibility)
+    compiler.compileToDestination(null, target)
+  }
+
+  def compileAvpr(avpr: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility) {
+    val protocol = Protocol.parse(avpr)
+    val compiler = new SpecificCompiler(protocol)
+    compiler.setStringType(stringType)
+    compiler.setFieldVisibility(fieldVisibility)
+    compiler.compileToDestination(null, target)
+  }
+
+  private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String): Set[File] = {
+    val stringType = StringType.valueOf(stringTypeName)
+    val fieldVisibility = SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase)
+    log.info("Avro compiler using stringType=%s".format(stringType))
 
     for (idl <- (srcDir ** "*.avdl").get) {
       log.info("Compiling Avro IDL %s".format(idl))
-      val parser = new Idl(idl.asFile)
-      val protocol = Protocol.parse(parser.CompilationUnit.toString)
-      val compiler = new SpecificCompiler(protocol)
-      compiler.setStringType(stringType)
-      compiler.setFieldVisibility(SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase))
-      compiler.compileToDestination(null, target)
+      compileIdl(idl, target, stringType, fieldVisibility)
     }
 
-    for (schemaFile <- sortSchemaFiles((srcDir ** "*.avsc").get)) {
-      log.info("Compiling Avro schema %s".format(schemaFile))
-      val schemaAvr = schemaParser.parse(schemaFile)
-      val compiler = new SpecificCompiler(schemaAvr)
-      compiler.setStringType(stringType)
-      compiler.compileToDestination(null, target)
+    for (avsc <- sortSchemaFiles((srcDir ** "*.avsc").get)) {
+      log.info("Compiling Avro schema %s".format(avsc))
+      compileAvsc(avsc, target, stringType, fieldVisibility)
     }
 
-    for (protocol <- (srcDir ** "*.avpr").get) {
-      log.info("Compiling Avro protocol %s".format(protocol))
-      SpecificCompiler.compileProtocol(protocol.asFile, target)
+    for (avpr <- (srcDir ** "*.avpr").get) {
+      log.info("Compiling Avro protocol %s".format(avpr))
+      compileAvpr(avpr, target, stringType, fieldVisibility)
     }
 
     (target ** "*.java").get.toSet
