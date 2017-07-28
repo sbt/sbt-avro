@@ -2,6 +2,9 @@
 sbt-avro
 ========
 
+.. image:: https://travis-ci.org/sbt/sbt-avro.svg?branch=master
+        :target: https://travis-ci.org/sbt/sbt-avro
+
 Overview
 ========
 
@@ -58,9 +61,9 @@ Tasks
 =====
 
 ===============     ================    ==================
-Name                Name in shell        Description
+Name                Name in shell       Description
 ===============     ================    ==================
-generate            generate            Compiles the Avro files. This task is automatically executed everytime the project is compiled.
+generate            generate            Compiles the Avro files. This task is automatically executed every time the project is compiled.
 ===============     ================    ==================
 
 
@@ -72,7 +75,7 @@ more details.
 Credits
 =======
 
-`sbt-avro` is maintained by the `sbt Community`_. The inial code was based on a 
+`sbt-avro` is maintained by the `sbt Community`_. The initial code was based on a
 similar plugin: `sbt-protobuf`_. Feel free to send your comments and bug 
 reports.
 
