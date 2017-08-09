@@ -51,10 +51,10 @@ stringType          ``string-type``          ``CharSequence``                   
 Example
 -------
 
-For example, if you want to change the Java type of the string elements in 
+For example, if you want to change the Java type of the string elements in
 the schema, you can add the following lines to your ``build.sbt`` file::
-    
-    (stringType in avroConfig) := "String"
+
+    (stringType in AvroConfig) := "String"
 
 
 Tasks

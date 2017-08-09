@@ -8,11 +8,12 @@ sbtPlugin := true
 
 scalaVersion := appConfiguration.value.provider.scalaProvider.version
 scalacOptions in Compile ++= Seq("-deprecation")
+crossSbtVersions := Seq("0.13.16", "1.0.0-RC3")
 
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.8.1",
   "org.apache.avro" % "avro-compiler" % "1.8.1",
-  "org.specs2" %% "specs2-core" % "3.6.4" % "test"
+  "org.specs2" %% "specs2-core" % "3.9.4" % "test"
 )
 
 licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE"))

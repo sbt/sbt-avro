@@ -1,12 +1,12 @@
 > compile
 
-$ exists target/scala-2.10/src_managed/main/compiled_avro/com/cavorite/A.java
-$ exists target/scala-2.10/classes/com/cavorite/A.class
+$ exists target/scala-2.11/src_managed/main/compiled_avro/com/cavorite/A.java
+$ exists target/scala-2.11/classes/com/cavorite/A.class
 
-$ exists target/scala-2.10/src_managed/main/compiled_avro/com/cavorite/B.java
-$ exists target/scala-2.10/classes/com/cavorite/B.class
+$ exists target/scala-2.11/src_managed/main/compiled_avro/com/cavorite/B.java
+$ exists target/scala-2.11/classes/com/cavorite/B.class
 
-$ exists target/scala-2.10/src_managed/main/compiled_avro/com/cavorite/C.java
-$ exists target/scala-2.10/classes/com/cavorite/C.class
+$ exists target/scala-2.11/src_managed/main/compiled_avro/com/cavorite/C.java
+$ exists target/scala-2.11/classes/com/cavorite/C.class
 
 > clean

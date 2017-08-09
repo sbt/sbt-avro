@@ -13,8 +13,7 @@ import org.apache.avro.generic.GenericData.StringType
 
 import sbt._
 import sbt.ConfigKey.configurationToKey
-import sbt.Keys.{cacheDirectory, classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
-import sbt.Scoped.t2ToTable2
+import sbt.Keys.{classpathTypes, cleanFiles, ivyConfigurations, javaSource, libraryDependencies, managedClasspath, managedSourceDirectories, sourceDirectory, sourceGenerators, sourceManaged, streams, update, version}
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -23,7 +22,7 @@ object SbtAvro extends AutoPlugin {
 
   object autoImport {
 
-    val avroConfig = config("avro")
+    val AvroConfig = config("avro")
 
     val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
       "Possible values: CharSequence, String, Utf8. Default: CharSequence.")
@@ -33,7 +32,7 @@ object SbtAvro extends AutoPlugin {
 
     val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
 
-    lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
+    lazy val avroSettings: Seq[Setting[_]] = inConfig(AvroConfig)(Seq[Setting[_]](
       sourceDirectory := (sourceDirectory in Compile).value / "avro",
       javaSource := (sourceManaged in Compile).value / "compiled_avro",
       stringType := "CharSequence",
@@ -41,15 +40,15 @@ object SbtAvro extends AutoPlugin {
       version := "1.8.1",
 
       managedClasspath := {
-        Classpaths.managedJars(avroConfig, classpathTypes.value, update.value)
+        Classpaths.managedJars(AvroConfig, classpathTypes.value, update.value)
       },
       generate := sourceGeneratorTask.value)
     ) ++ Seq[Setting[_]](
-      sourceGenerators in Compile += (generate in avroConfig).taskValue,
-      managedSourceDirectories in Compile += (javaSource in avroConfig).value,
-      cleanFiles += (javaSource in avroConfig).value,
-      libraryDependencies += "org.apache.avro" % "avro-compiler" % (version in avroConfig).value,
-      ivyConfigurations += avroConfig
+      sourceGenerators in Compile += (generate in AvroConfig).taskValue,
+      managedSourceDirectories in Compile += (javaSource in AvroConfig).value,
+      cleanFiles += (javaSource in AvroConfig).value,
+      libraryDependencies += "org.apache.avro" % "avro-compiler" % (version in AvroConfig).value,
+      ivyConfigurations += AvroConfig
     )
   }
 
@@ -114,11 +113,14 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask = Def.task {
     val out = streams.value
-    val srcDir = (sourceDirectory in avroConfig).value
+    val srcDir = (sourceDirectory in AvroConfig).value
+    val javaSrc = (javaSource in AvroConfig).value
+    val strType = stringType.value
+    val fieldVis = fieldVisibility.value
     val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
       inStyle = FilesInfo.lastModified,
       outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(srcDir, (javaSource in avroConfig).value, out.log, stringType.value, fieldVisibility.value)
+        compile(srcDir, javaSrc, out.log, strType, fieldVis)
       }
     cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
   }
