@@ -8,7 +8,7 @@ sbtPlugin := true
 
 scalaVersion := appConfiguration.value.provider.scalaProvider.version
 scalacOptions in Compile ++= Seq("-deprecation")
-crossSbtVersions := Seq("0.13.16", "1.0.0-RC3")
+crossSbtVersions := Seq("0.13.16", "1.0.0")
 
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.8.1",
