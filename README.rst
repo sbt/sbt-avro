@@ -27,7 +27,7 @@ Add the plugin according to the `sbt documentation`_.
 For instance, add the following lines to the file ``project/plugins.sbt`` in your
 project directory::
 
-    addSbtPlugin("com.cavorite" % "sbt-avro-1-7" % "1.1.2")
+    addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.3")
  
 
 Scope
@@ -44,7 +44,7 @@ Name                Name in shell            Default                            
 ===============     ====================     ================================     ===============
 sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
 javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
-version             ``version``              ``1.7.3``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+version             ``version``              ``1.8.2``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
 stringType          ``string-type``          ``CharSequence``                     Java type for string elements. Possible values: ``CharSequence`` (by default), ``Utf8`` and ``String``.
 ===============     ====================     ================================     ===============
 
