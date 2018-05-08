@@ -11,6 +11,7 @@ scalacOptions in Compile ++= Seq("-deprecation")
 crossSbtVersions := Seq("0.13.16", "1.0.0")
 
 libraryDependencies ++= Seq(
+  "io.spray" %%  "spray-json" % "1.3.2",
   "org.apache.avro" % "avro" % "1.8.2",
   "org.apache.avro" % "avro-compiler" % "1.8.2",
   "org.specs2" %% "specs2-core" % "3.9.4" % "test"

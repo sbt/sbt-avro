@@ -89,6 +89,10 @@ Contributors
 - `Ashwanth Kumar`_
 - `Jérôme - Ch4mpy - Wacongne`_
 - `Ben McCann`_
+- `Ryan Koval`_
+- `Saket`_
+- `Julian Peeters`_
+- `Przemysław Dubaniewicz`_
 
 .. _`sbt Community`: http://www.scala-sbt.org/release/docs/Community-Plugins.html
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
@@ -99,3 +103,7 @@ Contributors
 .. _`Ashwanth Kumar`: https://github.com/ashwanthkumar
 .. _`Jérôme - Ch4mpy - Wacongne`: https://github.com/ch4mpy
 .. _`Ben McCann`: http://www.benmccann.com
+.. _`Ryan Koval`: https://github.com/rkoval
+.. _`Saket`: https://github.com/skate056
+.. _`Julian Peeters`: https://github.com/julianpeeters
+.. _`Przemysław Dubaniewicz`: https://github.com/przemekd

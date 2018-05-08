@@ -1,7 +1,6 @@
 {
     "type": "record",
-    "namespace": "com.cavorite",
-    "name": "B",
+    "name": "com.cavorite.D",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "c",
