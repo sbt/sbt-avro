@@ -27,7 +27,7 @@ Add the plugin according to the `sbt documentation`_.
 For instance, add the following lines to the file ``project/plugins.sbt`` in your
 project directory::
 
-    addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.3")
+    addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.4")
  
 
 Scope
