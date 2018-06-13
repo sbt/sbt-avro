@@ -60,7 +60,7 @@ object AvscFileSorter {
   }
 
   def fileText(f: File): String = {
-    val src = Source.fromFile(f)
+    val src = Source.fromFile(f, "UTF-8")
     try {
       src.getLines.mkString
     } finally {
