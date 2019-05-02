@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.2",
   "org.apache.avro" % "avro" % "1.8.2",
   "org.apache.avro" % "avro-compiler" % "1.8.2",
-  "org.specs2" %% "specs2-core" % "3.9.4" % "test"
+  "org.specs2" %% "specs2-core" % "3.9.5" % "test"
 )
 
 licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE"))
