@@ -3,6 +3,7 @@ package sbtavro
 import filesorter.AvscFileSorter
 
 import java.io.File
+import java.util.concurrent.atomic.AtomicReference
 
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
@@ -49,6 +50,10 @@ object SbtAvro extends AutoPlugin {
       sourceGenerators in Compile += (generate in AvroConfig).taskValue,
       managedSourceDirectories in Compile += (javaSource in AvroConfig).value,
       cleanFiles += (javaSource in AvroConfig).value,
+      clean := {
+        schemaParser.set(new Schema.Parser())
+        clean.value
+      },
       libraryDependencies += "org.apache.avro" % "avro-compiler" % (version in AvroConfig).value,
       ivyConfigurations += AvroConfig
     )
@@ -73,10 +78,10 @@ object SbtAvro extends AutoPlugin {
     compiler.compileToDestination(null, target)
   }
 
-  private lazy val schemaParser = new Schema.Parser()
+  private lazy val schemaParser = new AtomicReference(new Schema.Parser())
 
   def compileAvsc(avsc: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
-    val schema = schemaParser.parse(avsc)
+    val schema = schemaParser.get().parse(avsc)
     val compiler = new SpecificCompiler(schema)
     compiler.setStringType(stringType)
     compiler.setFieldVisibility(fieldVisibility)
