@@ -40,7 +40,7 @@ object SbtAvro extends AutoPlugin {
       stringType := "CharSequence",
       fieldVisibility := "public_deprecated",
       enableDecimalLogicalType := true,
-      version := "1.8.2",
+      version := "1.9.0",
 
       managedClasspath := {
         Classpaths.managedJars(AvroConfig, classpathTypes.value, update.value)
