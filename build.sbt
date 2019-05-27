@@ -8,7 +8,7 @@ sbtPlugin := true
 
 scalaVersion := appConfiguration.value.provider.scalaProvider.version
 scalacOptions in Compile ++= Seq("-deprecation")
-crossSbtVersions := Seq("0.13.17", "1.1.5")
+crossSbtVersions := Seq("0.13.18", "1.2.8")
 
 libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.5",
@@ -24,7 +24,7 @@ bintrayRepository := "sbt-plugin-releases"
 bintrayPackage := name.value
 bintrayReleaseOnPublish := false
 
-ScriptedPlugin.scriptedSettings
+enablePlugins(SbtPlugin)
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq("-Xmx1024M", "-Dplugin.name=" + name.value.replace('.', '-'), "-Dplugin.version=" + version.value)
 }
