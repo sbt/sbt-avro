@@ -2,3 +2,7 @@ target
 .idea
 *.DS_Store
 *~
+
+.bloop
+.metals
+.java-version
