@@ -8,7 +8,7 @@ sbt-avro
 Overview
 ========
 
-sbt-avro is a plugin for `sbt`_-0.13 for generating the Java sources for Avro_ schemas and protocols.
+sbt-avro is a `sbt` plugin for generating the Java sources for Avro schemas and protocols.
 It tries to be clever in compiling schemas with referenced types before dependent ones.
 
 .. _sbt: http://www.scala-sbt.org/
@@ -54,7 +54,7 @@ Example
 For example, if you want to change the Java type of the string elements in
 the schema, you can add the following lines to your ``build.sbt`` file::
 
-    (stringType in AvroConfig) := "String"
+    AvroConfig / stringType := "String"
 
 
 Tasks
@@ -93,6 +93,7 @@ Contributors
 - `Saket`_
 - `Julian Peeters`_
 - `Przemysław Dubaniewicz`_
+- `Neville Li`_
 
 .. _`sbt Community`: http://www.scala-sbt.org/release/docs/Community-Plugins.html
 .. _`sbt-protobuf`: https://github.com/gseitz/sbt-protobuf
@@ -107,3 +108,4 @@ Contributors
 .. _`Saket`: https://github.com/skate056
 .. _`Julian Peeters`: https://github.com/julianpeeters
 .. _`Przemysław Dubaniewicz`: https://github.com/przemekd
+.. _`Neville Li`: https://github.com/nevillelyh
