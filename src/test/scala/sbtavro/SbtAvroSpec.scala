@@ -1,7 +1,5 @@
 package sbtavro
 
-import filesorter.AvscFileSorter
-
 import java.io.File
 
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
@@ -45,13 +43,6 @@ class SbtAvroSpec extends Specification {
 
   val sourceFiles = fullyQualifiedNames ++ simpleNames
 
-  "Schema files should be sorted with re-used types schemas first, whatever input order" >> {
-    AvscFileSorter.sortSchemaFiles(fullyQualifiedNames) must beEqualTo(expectedOrderFullyQualifiedNames)
-    AvscFileSorter.sortSchemaFiles(fullyQualifiedNames.reverse) must beEqualTo(expectedOrderFullyQualifiedNames)
-    AvscFileSorter.sortSchemaFiles(simpleNames) must beEqualTo(expectedOrderSimpleNames)
-    AvscFileSorter.sortSchemaFiles(simpleNames.reverse) must beEqualTo(expectedOrderSimpleNames)
-  }
-
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
     val packageDir = new File(targetDir, "com/cavorite")
 
@@ -79,9 +70,7 @@ class SbtAvroSpec extends Specification {
     _dJavaFile.delete()
     _eJavaFile.delete()
 
-    for (schemaFile <- AvscFileSorter.sortSchemaFiles(sourceFiles)) {
-      SbtAvro.compileAvsc(schemaFile, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true)
-    }
+    SbtAvro.compileAvscs(sourceDir, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false)
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue
