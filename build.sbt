@@ -2,7 +2,7 @@ name := "sbt-avro-1.9"
 organization := "com.cavorite"
 description := "Sbt plugin for compiling Avro sources"
 
-version := "1.1.8"
+version := "1.1.9-SNAPSHOT"
 
 sbtPlugin := true
 
