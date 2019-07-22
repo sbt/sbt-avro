@@ -29,8 +29,8 @@ public class AvscFilesCompiler {
   private Map<AvroFileRef, Exception> compileExceptions;
   private boolean logCompileExceptions;
 
-  public AvscFilesCompiler() {
-    schemaParser = new Schema.Parser();
+  public AvscFilesCompiler(Schema.Parser schemaParser) {
+    this.schemaParser = schemaParser;
 //    schemaParser.setValidateDefaults(true);  // In avro 1.7.7
   }
 
