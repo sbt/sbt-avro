@@ -3,7 +3,6 @@ package sbtavro
 import java.io.File
 
 import org.apache.avro.Schema
-import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
 

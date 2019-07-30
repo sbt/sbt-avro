@@ -56,7 +56,7 @@ object SbtAvro extends AutoPlugin {
         schemaParser.set(new Schema.Parser())
         clean.value
       },
-      libraryDependencies += "org.apache.avro" % "avro-compiler" % (version in AvroConfig).value,
+      libraryDependencies += "org.apache.avro" % "avro" % (version in AvroConfig).value,
       ivyConfigurations += AvroConfig
     )
   }
