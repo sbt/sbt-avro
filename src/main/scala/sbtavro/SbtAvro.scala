@@ -80,7 +80,7 @@ object SbtAvro extends AutoPlugin {
     compiler.compileToDestination(null, target)
   }
 
-  lazy val schemaParser = new AtomicReference(new Schema.Parser())
+  val schemaParser = new AtomicReference(new Schema.Parser())
 
   def compileAvscs(srcDir: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean) {
     import com.spotify.avro.mojo._
@@ -89,7 +89,13 @@ object SbtAvro extends AutoPlugin {
       new AvroFileRef(srcDir, avsc.relativeTo(srcDir).get.toString)
     }
 
-    val compiler = new AvscFilesCompiler(schemaParser.get())
+    val global = schemaParser.get()
+    // copy of global schemaParser to avoid race condition
+    val parser = new Schema.Parser()
+      .addTypes(global.getTypes)
+      .setValidate(global.getValidate)
+      .setValidateDefaults(global.getValidateDefaults)
+    val compiler = new AvscFilesCompiler(parser)
     compiler.setStringType(stringType)
     compiler.setFieldVisibility(fieldVisibility)
     compiler.setUseNamespace(useNamespace)
