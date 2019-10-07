@@ -12,8 +12,8 @@ crossSbtVersions := Seq("0.13.18", "1.2.8")
 
 libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.5",
-  "org.apache.avro" % "avro" % "1.9.1",
-  "org.apache.avro" % "avro-compiler" % "1.9.1",
+  "org.apache.avro" % "avro" % "1.9.0",
+  "org.apache.avro" % "avro-compiler" % "1.9.0",
   "org.specs2" %% "specs2-core" % "3.10.0" % "test"
 )
 
