@@ -1,6 +1,7 @@
 name := "sbt-avro-1.9"
 organization := "com.cavorite"
 description := "Sbt plugin for compiling Avro sources"
+homepage := Some(url("https://github.com/sbt/sbt-avro"))
 
 version := "1.1.10-SNAPSHOT"
 
