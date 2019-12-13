@@ -9,7 +9,7 @@ sbtPlugin := true
 
 scalaVersion := appConfiguration.value.provider.scalaProvider.version
 scalacOptions in Compile ++= Seq("-deprecation")
-crossSbtVersions := Seq("0.13.18", "1.3.4")
+crossSbtVersions := Seq("0.13.18", "1.3.5")
 
 
 libraryDependencies ++= Seq(
