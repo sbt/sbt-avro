@@ -47,7 +47,7 @@ Name                Name in shell            Default                            
 ===============     ====================     ================================     ===============
 sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
 javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
-version             ``version``              ``1.9.0``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+version             ``version``              ``1.9.1``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
 stringType          ``string-type``          ``CharSequence``                     Java type for string elements. Possible values: ``CharSequence`` (by default), ``Utf8`` and ``String``.
 useNamespace        ``use-namespace``        ``false``                            Validate that directory layout reflects namespaces, i.e. ``src/main/avro/com/myorg/MyRecord.avsc``.
 ===============     ====================     ================================     ===============
