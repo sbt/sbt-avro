@@ -14,8 +14,8 @@ crossSbtVersions := Seq("0.13.18", "1.3.6")
 
 libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.5",
-  "org.apache.avro" % "avro" % "1.9.1",
-  "org.apache.avro" % "avro-compiler" % "1.9.1",
+  "org.apache.avro" % "avro" % "1.9.2",
+  "org.apache.avro" % "avro-compiler" % "1.9.2",
   {
     val v = if (scalaBinaryVersion.value == "2.10") "3.10.0" else "4.7.1"
     "org.specs2" %% "specs2-core" % v % "test"
