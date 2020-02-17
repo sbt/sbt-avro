@@ -42,7 +42,7 @@ object SbtAvro extends AutoPlugin {
       fieldVisibility := "public_deprecated",
       enableDecimalLogicalType := true,
       useNamespace := false,
-      version := "1.9.1",
+      version := "1.9.2",
 
       managedClasspath := {
         Classpaths.managedJars(AvroConfig, classpathTypes.value, update.value)
