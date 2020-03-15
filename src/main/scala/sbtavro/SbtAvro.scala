@@ -67,7 +67,7 @@ object SbtAvro extends AutoPlugin {
     avroStringType := "CharSequence",
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
-    avroUseNamespace := false,
+    avroUseNamespace := false
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
