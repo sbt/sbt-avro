@@ -1,5 +1,5 @@
 name := "settings-test"
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
 
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "3.10.0" % "test"
