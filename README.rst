@@ -33,24 +33,19 @@ project directory::
     addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.7")
 
 
-Scope
-=====
-All settings and tasks are in the ``avro`` scope. If you want to execute the
-``generate`` task directly, just run ``avro:generate``.
-
-
 Settings
 ========
 
-===============     ====================     ================================     ===============
-Name                Name in shell            Default                              Description
-===============     ====================     ================================     ===============
-sourceDirectory     ``source-directory``     ``src/main/avro``                    Path containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
-javaSource          ``java-source``          ``$sourceManaged/compiled_avro``     Path for the generated ``*.java`` files.
-version             ``version``              ``1.9.2``                            Version of the Avro library should be used. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
-stringType          ``string-type``          ``CharSequence``                     Java type for string elements. Possible values: ``CharSequence`` (by default), ``Utf8`` and ``String``.
-useNamespace        ``use-namespace``        ``false``                            Validate that directory layout reflects namespaces, i.e. ``src/main/avro/com/myorg/MyRecord.avsc``.
-===============     ====================     ================================     ===============
+===============               ===================================   =============
+Name                          Default                               Description
+===============               ===================================   =============
+avroSource                    ``avro`` folder in config directory   Default avro source directory containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
+avroVersion                   ``1.9.2``                             Apache avro library version. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+avroStringType                ``CharSequence``                      Type for representing strings. Possible values: ``CharSequence``, ``String``, ``Utf8``.
+avroUseNamespace              ``false``                             Validate that directory layout reflects namespaces, i.e. ``src/main/avro/com/myorg/MyRecord.avsc``.
+avroFieldVisibility           ``public_deprecated``                 Field Visibility for the properties. Possible values: ``private``, ``public``, ``public_deprecated``.
+avroEnableDecimalLogicalType  ``true``                              Set to true to use ``java.math.BigDecimal`` instead of ``java.nio.ByteBuffer`` for logical type ``decimal``.
+===============               ===================================   =============
 
 Example
 -------
@@ -58,17 +53,17 @@ Example
 For example, if you want to change the Java type of the string elements in
 the schema, you can add the following lines to your ``build.sbt`` file::
 
-    AvroConfig / stringType := "String"
+    avroStringType := "String"
 
 
 Tasks
 =====
 
-===============     ================    ==================
-Name                Name in shell       Description
-===============     ================    ==================
-generate            generate            Compiles the Avro files. This task is automatically executed every time the project is compiled.
-===============     ================    ==================
+===============   ==================
+Name              Description
+===============   ==================
+avroGenerate      Generate the Java sources for the Avro files. This task is automatically executed every time the project is compiled.
+===============   ==================
 
 
 License
