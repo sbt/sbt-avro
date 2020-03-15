@@ -11,7 +11,7 @@ script: sbt "^^ $SBT_VERSION" clean test scripted
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt"
+    - $HOME/.sbt
 before_cache:
 # Cleanup the cached directories to avoid unnecessary cache updates
 - rm -fv $HOME/.ivy2/.sbt.ivy.lock
