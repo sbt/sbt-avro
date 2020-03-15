@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "com.cavorite.Z",
+  "doc": "Fully-qualified dependency",
+  "fields": [{
+    "name": "str",
+    "type": "string"
+  }
+  ]
+}
