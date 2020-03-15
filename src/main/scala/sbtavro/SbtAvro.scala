@@ -8,7 +8,6 @@ import org.apache.avro.compiler.specific.SpecificCompiler
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.apache.avro.{Protocol, Schema}
-import sbt.ConfigKey.configurationToKey
 import sbt.Keys._
 import sbt._
 
@@ -17,58 +16,58 @@ import sbt._
  */
 object SbtAvro extends AutoPlugin {
 
+  private val AvroAvrpFilter: NameFilter = "*.avpr"
+  private val AvroAvdlFilter: NameFilter = "*.avdl"
+  private val AvroAvscFilter: NameFilter = "*.avsc"
+  private val AvroFilter: NameFilter = AvroAvscFilter | AvroAvdlFilter | AvroAvrpFilter
+
   object autoImport {
+    // format: off
+    val avroLibVersion = settingKey[String]("Apache Avro library version.")
+    val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
+    val avroEnableDecimalLogicalType = settingKey[Boolean]("Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\".")
+    val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
+    val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
+    val avroSource = settingKey[File]("Default Avro source directory.")
 
-    val AvroConfig = config("avro")
+    val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
 
-    val stringType = SettingKey[String]("string-type", "Type for representing strings. " +
-      "Possible values: CharSequence, String, Utf8. Default: CharSequence.")
+    lazy val defaultSettings: Seq[Setting[_]] = Seq(
+      libraryDependencies += "org.apache.avro" % "avro" % avroLibVersion.value
+    )
 
-    val enableDecimalLogicalType = SettingKey[Boolean]("enableDecimalLogicalType",
-      "Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\"")
+    // settings to be applied for both Compile and Test
+    lazy val configScopedSettings: Seq[Setting[_]] = Seq(
+      avroSource := sourceDirectory.value / "avro",
 
-    val fieldVisibility = SettingKey[String]("field-visibiliy", "Field Visibility for the properties" +
-      "Possible values: private, public, public_deprecated. Default: public_deprecated.")
-
-    val useNamespace = SettingKey[Boolean]("use-namespace", "Validate that directory layout reflects namespaces, i.e. " +
-      "src/main/avro/com/myorg/MyRecord.avsc")
-
-    val generate = TaskKey[Seq[File]]("generate", "Generate the Java sources for the Avro files.")
-
-    lazy val avroSettings: Seq[Setting[_]] = inConfig(AvroConfig)(Seq[Setting[_]](
-      sourceDirectory := (sourceDirectory in Compile).value / "avro",
-      javaSource := (sourceManaged in Compile).value / "compiled_avro",
-      stringType := "CharSequence",
-      fieldVisibility := "public_deprecated",
-      enableDecimalLogicalType := true,
-      useNamespace := false,
-      version := "1.9.2",
-
-      managedClasspath := {
-        Classpaths.managedJars(AvroConfig, classpathTypes.value, update.value)
-      },
-      generate := sourceGeneratorTask.value)
-    ) ++ Seq[Setting[_]](
-      sourceGenerators in Compile += (generate in AvroConfig).taskValue,
-      managedSourceDirectories in Compile += (javaSource in AvroConfig).value,
-      cleanFiles += (javaSource in AvroConfig).value,
+      // source generation
+      avroGenerate := sourceGeneratorTask(avroGenerate).value,
+      sourceGenerators += avroGenerate.taskValue,
+      compile := compile.dependsOn(avroGenerate).value,
+      // clean
       clean := {
         schemaParser.set(new Schema.Parser())
         clean.value
-      },
-      libraryDependencies += "org.apache.avro" % "avro" % (version in AvroConfig).value,
-      ivyConfigurations += AvroConfig
+      }
     )
   }
 
   import autoImport._
-  override def requires = sbt.plugins.JvmPlugin
 
-  // This plugin is automatically enabled for projects which are JvmPlugin.
   override def trigger = allRequirements
 
-  // a group of settings that are automatically added to projects.
-  override val projectSettings = avroSettings
+  override def requires = sbt.plugins.JvmPlugin
+
+  override lazy val globalSettings: Seq[Setting[_]] = Seq(
+    avroLibVersion := "1.9.2",
+    avroStringType := "CharSequence",
+    avroFieldVisibility := "public_deprecated",
+    avroEnableDecimalLogicalType := true,
+    avroUseNamespace := false
+  )
+
+  override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
+    Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
   def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
     val parser = new Idl(idl)
@@ -84,7 +83,7 @@ object SbtAvro extends AutoPlugin {
 
   def compileAvscs(srcDir: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean) {
     import com.spotify.avro.mojo._
-    val refs = (srcDir ** "*.avsc").get.map { avsc =>
+    val refs = (srcDir ** AvroAvscFilter).get.map { avsc =>
       sbt.ConsoleLogger().info("Compiling Avro schemas %s".format(avsc))
       new AvroFileRef(srcDir, avsc.relativeTo(srcDir).get.toString)
     }
@@ -117,19 +116,19 @@ object SbtAvro extends AutoPlugin {
     compiler.compileToDestination(null, target)
   }
 
-  private[this] def compile(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String, enableDecimalLogicalType: Boolean, useNamespace: Boolean): Set[File] = {
+  private[this] def compileAvroSchema(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String, enableDecimalLogicalType: Boolean, useNamespace: Boolean): Set[File] = {
     val stringType = StringType.valueOf(stringTypeName)
     val fieldVisibility = SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase)
     log.info("Avro compiler using stringType=%s".format(stringType))
 
-    for (idl <- (srcDir ** "*.avdl").get) {
+    for (idl <- (srcDir ** AvroAvdlFilter).get) {
       log.info("Compiling Avro IDL %s".format(idl))
       compileIdl(idl, target, stringType, fieldVisibility, enableDecimalLogicalType)
     }
 
     compileAvscs(srcDir, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace)
 
-    for (avpr <- (srcDir ** "*.avpr").get) {
+    for (avpr <- (srcDir ** AvroAvrpFilter).get) {
       log.info("Compiling Avro protocol %s".format(avpr))
       compileAvpr(avpr, target, stringType, fieldVisibility, enableDecimalLogicalType)
     }
@@ -137,20 +136,20 @@ object SbtAvro extends AutoPlugin {
     (target ** "*.java").get.toSet
   }
 
-  private def sourceGeneratorTask = Def.task {
-    val out = streams.value
-    val srcDir = (sourceDirectory in AvroConfig).value
-    val javaSrc = (javaSource in AvroConfig).value
-    val strType = stringType.value
-    val fieldVis = fieldVisibility.value
-    val enbDecimal = enableDecimalLogicalType.value
-    val useNs = useNamespace.value
+  private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
+    val out = (key / streams).value
+    val srcDir = (key / sourceDirectory).value
+    val outDir = (key / sourceManaged).value
+    val strType = avroStringType.value
+    val fieldVis = avroFieldVisibility.value
+    val enbDecimal = avroEnableDecimalLogicalType.value
+    val useNs = avroUseNamespace.value
     val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
       inStyle = FilesInfo.lastModified,
       outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compile(srcDir, javaSrc, out.log, strType, fieldVis, enbDecimal, useNs)
+        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
       }
-    cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
+    cachedCompile((srcDir ** AvroFilter).get.toSet).toSeq
   }
 
 }

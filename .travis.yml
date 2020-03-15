@@ -1,19 +1,22 @@
 language: scala
 matrix:
   include:
-  - env: SBT_VERSION="0.13.18"
+  - env: SBT_VERSION="1.3.9"
     jdk: openjdk8
-  - env: SBT_VERSION="1.3.6"
-    jdk: openjdk8
-  - env: SBT_VERSION="1.3.6"
+  - env: SBT_VERSION="1.3.9"
     jdk: openjdk11
+
 script: sbt "^^ $SBT_VERSION" clean test scripted
+
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt"
+    - $HOME/.cache/coursier
+    - $HOME/.sbt
+
 before_cache:
 # Cleanup the cached directories to avoid unnecessary cache updates
 - rm -fv $HOME/.ivy2/.sbt.ivy.lock
-- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-- find $HOME/.sbt        -name "*.lock"               -print -delete
+- find $HOME/.ivy2/cache     -name "ivydata-*.properties" -print -delete
+- find $HOME/.cache/coursier -name                        -print -delete
+- find $HOME/.sbt            -name "*.lock"               -print -delete

@@ -1,0 +1,36 @@
+> avroGenerate
+
+$ exists target/scala-2.12/src_managed/main/com/cavorite/A.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/B.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/C.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/D.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/E.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/_A.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/_B.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/_C.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/_D.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/_E.java
+
+> compile
+
+$ exists target/scala-2.12/classes/com/cavorite/A.class
+$ exists target/scala-2.12/classes/com/cavorite/B.class
+$ exists target/scala-2.12/classes/com/cavorite/C.class
+$ exists target/scala-2.12/classes/com/cavorite/D.class
+$ exists target/scala-2.12/classes/com/cavorite/E.class
+$ exists target/scala-2.12/classes/com/cavorite/_A.class
+$ exists target/scala-2.12/classes/com/cavorite/_B.class
+$ exists target/scala-2.12/classes/com/cavorite/_C.class
+$ exists target/scala-2.12/classes/com/cavorite/_D.class
+$ exists target/scala-2.12/classes/com/cavorite/_E.class
+
+> test:compile
+
+$ exists target/scala-2.12/src_managed/test/com/cavorite/X.java
+$ exists target/scala-2.12/src_managed/test/com/cavorite/Y.java
+$ exists target/scala-2.12/src_managed/test/com/cavorite/Z.java
+$ exists target/scala-2.12/test-classes/com/cavorite/X.class
+$ exists target/scala-2.12/test-classes/com/cavorite/Y.class
+$ exists target/scala-2.12/test-classes/com/cavorite/Z.class
+
+> clean
