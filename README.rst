@@ -39,7 +39,7 @@ Settings
 Name                          Default                               Description
 ===============               ===================================   =============
 avroSource                    ``avro`` folder in config directory   Default avro source directory containing ``*.avsc``, ``*.avdl`` and ``*.avpr`` files.
-avroVersion                   ``1.9.2``                             Apache avro library version. A dependency to ``"org.apache.avro" % "avro-compiler" % "$version"`` is automatically added to ``libraryDependencies``.
+avroVersion                   ``1.9.2``                             Apache avro library version. A dependency to ``"org.apache.avro" % "avro" % "$version"`` is automatically added to ``libraryDependencies``.
 avroStringType                ``CharSequence``                      Type for representing strings. Possible values: ``CharSequence``, ``String``, ``Utf8``.
 avroUseNamespace              ``false``                             Validate that directory layout reflects namespaces, i.e. ``src/main/avro/com/myorg/MyRecord.avsc``.
 avroFieldVisibility           ``public_deprecated``                 Field Visibility for the properties. Possible values: ``private``, ``public``, ``public_deprecated``.
