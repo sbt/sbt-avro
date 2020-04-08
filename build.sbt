@@ -9,8 +9,6 @@ sbtPlugin := true
 
 scalaVersion := appConfiguration.value.provider.scalaProvider.version
 scalacOptions in Compile ++= Seq("-deprecation")
-crossSbtVersions := Seq("0.13.18", "1.3.6")
-
 
 libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.5",
