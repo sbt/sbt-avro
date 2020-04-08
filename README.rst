@@ -27,10 +27,9 @@ Add the plugin according to the `sbt documentation`_.
 For instance, add the following lines to the file ``project/plugins.sbt`` in your
 project directory::
 
-    // for Avro 1.9.x
-    addSbtPlugin("com.cavorite" % "sbt-avro-1-9" % "1.1.7")
-    // for Avro 1.8.x
-    addSbtPlugin("com.cavorite" % "sbt-avro-1-8" % "1.1.7")
+    addSbtPlugin("com.cavorite" % "sbt-avro" % "1.1.7")
+    libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.9.x" // or 1.8.x depending on the avroVersion you want to use
+
 
 
 Settings
