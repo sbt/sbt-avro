@@ -32,7 +32,7 @@ lazy val `sbt-avro`: Project = project
       publishMavenStyle := false,
       bintrayOrganization := Some("sbt"),
       bintrayRepository := "sbt-plugin-releases",
-      bintrayPackage := name.value,
+      bintrayPackage := "sbt-avro2",
       bintrayReleaseOnPublish := false,
 
       scriptedLaunchOpts := scriptedLaunchOpts.value ++ Seq(
