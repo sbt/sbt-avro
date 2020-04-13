@@ -31,7 +31,6 @@ public class AvscFilesCompiler {
 
   public AvscFilesCompiler(Schema.Parser schemaParser) {
     this.schemaParser = schemaParser;
-//    schemaParser.setValidateDefaults(true);  // In avro 1.7.7
   }
 
   public void compileFiles(Set<AvroFileRef> files, File outputDirectory) {
@@ -79,7 +78,6 @@ public class AvscFilesCompiler {
     // We want last successful state.
     Schema.Parser successfulSchemaParser = new Schema.Parser();
     successfulSchemaParser.addTypes(schemaParser.getTypes());
-//    successfulSchemaParser.setValidateDefaults(schemaParser.getValidateDefaults());  // in avro 1.7.7
 
     try {
       Schema schema = schemaParser.parse(src.getFile());
