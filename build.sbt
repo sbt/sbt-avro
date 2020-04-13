@@ -16,7 +16,7 @@ lazy val `sbt-avro`: Project = project
       description := "Sbt plugin for compiling Avro sources",
       homepage := Some(url("https://github.com/sbt/sbt-avro")),
 
-      version := "1.1.10-SNAPSHOT",
+      version := "2.0.0-SNAPSHOT",
 
       sbtPlugin := true,
 
