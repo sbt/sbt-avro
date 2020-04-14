@@ -37,7 +37,7 @@ object SbtAvro extends AutoPlugin {
     val avroSource = settingKey[File]("Default Avro source directory.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
-    val packageAvro = taskKey[File]("Produces a avro artifact, such as a jar containing avro schemas.")
+    val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
 
     lazy val defaultSettings: Seq[Setting[_]] = Seq(

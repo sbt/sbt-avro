@@ -47,6 +47,25 @@ avroStringType := "String"
 | Name           | Description |
 |:---------------|:------------|
 | `avroGenerate` | Generate Java sources for Avro schemas. This task is automatically executed before `compile`.
+| `packageAvro`  | Produces an avro artifact, such as a jar containing avro schemas.
+
+## Packaging Avro files
+
+Avro sources (`*.avsc`, `*.avdl` and `*.avpr` files) can be packaged in a separate jar with the `avro` classifier
+by running `packageAvro`.
+
+By default, `sbt-avro` does not publish this. You can enable it with
+```sbt
+packageAvro / publishArtifact := true
+```
+
+## Declaring dependencies
+
+You can specify a dependency on an avro source artifact that contains the schemas like so:
+
+```sbt
+libraryDependencies += "some.groupID" % "some.artifactID" % "1.0" classifier "avro"
+```
 
 # License
 This program is distributed under the BSD license. See the file `LICENSE` for more details.
