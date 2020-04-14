@@ -1,0 +1,28 @@
+> external/publishLocal
+
+> transitive/publishLocal
+
+> avroUnpackDependencies
+
+$ exists target/avro/src_managed/main/com.cavorite/external/avdl.avdl
+$ exists target/avro/src_managed/main/com.cavorite/external/avpr.avpr
+$ exists target/avro/src_managed/main/com.cavorite/external/avsc.avsc
+$ exists target/avro/src_managed/main/com.cavorite/transitive_2.12/avsc.avsc
+
+> avroGenerate
+
+$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avdl.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avpr.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avsc.java
+$ exists target/scala-2.12/src_managed/main/com/cavorite/transitive/Avsc.java
+
+> compile
+
+$ exists target/scala-2.12/classes/com/cavorite/external/Avdl.class
+$ exists target/scala-2.12/classes/com/cavorite/external/Avpr.class
+$ exists target/scala-2.12/classes/com/cavorite/external/Avsc.class
+$ exists target/scala-2.12/classes/com/cavorite/transitive/Avsc.class
+
+> clean
+
+

@@ -10,11 +10,14 @@ import org.apache.avro.generic.GenericData.StringType
 import org.apache.avro.{Protocol, Schema}
 import sbt.Keys._
 import sbt._
+import Path.relativeTo
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
  */
 object SbtAvro extends AutoPlugin {
+
+  val AvroClassifier = "avro"
 
   private val AvroAvrpFilter: NameFilter = "*.avpr"
   private val AvroAvdlFilter: NameFilter = "*.avdl"
@@ -22,6 +25,9 @@ object SbtAvro extends AutoPlugin {
   private val AvroFilter: NameFilter = AvroAvscFilter | AvroAvdlFilter | AvroAvrpFilter
 
   object autoImport {
+
+    import Defaults._
+
     // format: off
     val avroLibVersion = settingKey[String]("Apache Avro library version.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
@@ -29,34 +35,47 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
-
+    val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
+    val packageAvro = taskKey[File]("Produces a avro artifact, such as a jar containing avro schemas.")
+    // format: on
 
     lazy val defaultSettings: Seq[Setting[_]] = Seq(
       libraryDependencies += "org.apache.avro" % "avro" % avroLibVersion.value
-    )
+    ) ++ addArtifact(Compile / packageAvro / artifact, Compile / packageAvro)
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
-
+      // dependencies
+      avroUnpackDependencies / target := target.value / "avro" / "src_managed" / nameForSrc(configuration.value.name),
+      avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
       // source generation
-      avroGenerate := sourceGeneratorTask(avroGenerate).value,
+      avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
+      // packaging
+      packageAvro / artifactClassifier := Some(AvroClassifier),
+      packageAvro / publishArtifact := false,
       // clean
       clean := {
         schemaParser.set(new Schema.Parser())
         clean.value
       }
+    ) ++ packageTaskSettings(packageAvro, packageAvroMappings) ++ Seq(
+      packageAvro / artifact := (packageAvro / artifact).value.withType(Artifact.SourceType)
     )
   }
 
   import autoImport._
 
-  override def trigger = allRequirements
+  def packageAvroMappings = Def.task {
+    (avroSource.value ** AvroFilter) pair relativeTo(avroSource.value)
+  }
 
-  override def requires = sbt.plugins.JvmPlugin
+  override def trigger: PluginTrigger = allRequirements
+
+  override def requires: Plugins = sbt.plugins.JvmPlugin
 
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
     avroLibVersion := "1.9.2",
@@ -68,6 +87,48 @@ object SbtAvro extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
+
+  private def unpack(deps: Seq[(ModuleID, File)],
+                     extractTarget: File,
+                     streams: TaskStreams): Seq[File] = {
+    def cachedExtractDep(module: ModuleID, jar: File): Seq[File] = {
+      val cached = FileFunction.cached(
+        streams.cacheDirectory / jar.name,
+        inStyle = FilesInfo.lastModified,
+        outStyle = FilesInfo.exists
+      ) { deps =>
+        val moduleTarget = extractTarget / module.organization / module.name
+        IO.createDirectory(moduleTarget)
+        deps.flatMap { dep =>
+          val set = IO.unzip(dep, moduleTarget, AvroFilter)
+          if (set.nonEmpty) {
+            streams.log.info(
+              "Extracted from " + dep + set.mkString(":\n * ", "\n * ", "")
+            )
+          }
+          set
+        }
+      }
+      cached(Set(jar)).toSeq
+    }
+
+    deps.flatMap { case (module, jar) => cachedExtractDep(module, jar) }
+  }
+
+  private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
+    val avroArtifacts = update
+      .value
+      .filter(artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier))
+      .toSeq.map {
+      case (_, module, _, file) => module -> file
+    }.distinct
+
+    unpack(
+      avroArtifacts,
+      (key / target).value,
+      (key / streams).value
+    )
+  }
 
   def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
     val parser = new Idl(idl)
@@ -138,18 +199,22 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
+    val externalSrcDir = (avroUnpackDependencies / target).value
     val srcDir = (key / sourceDirectory).value
     val outDir = (key / sourceManaged).value
     val strType = avroStringType.value
     val fieldVis = avroFieldVisibility.value
     val enbDecimal = avroEnableDecimalLogicalType.value
     val useNs = avroUseNamespace.value
-    val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
-      inStyle = FilesInfo.lastModified,
-      outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
-      }
-    cachedCompile((srcDir ** AvroFilter).get.toSet).toSeq
+
+    def cachedCompile(dir: File) = {
+      val schemas = (dir ** AvroFilter).get.toSet
+      FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
+        compileAvroSchema(dir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
+      }(schemas)
+    }
+
+    Seq(externalSrcDir, srcDir).flatMap(cachedCompile)
   }
 
 }

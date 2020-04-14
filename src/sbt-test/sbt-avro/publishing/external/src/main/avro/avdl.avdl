@@ -1,0 +1,6 @@
+@namespace("com.cavorite.external")
+protocol ProtocolAvdl {
+    record Avdl {
+        string stringField;
+    }
+}
