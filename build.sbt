@@ -24,7 +24,7 @@ lazy val `sbt-avro`: Project = project
 
       ivyConfigurations += CompileOnly,
       libraryDependencies ++= Seq(
-        "org.apache.avro" % "avro-compiler" % avroVersion,
+        "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
         "org.specs2" %% "specs2-core" % specs2Version % Test
       ),
       unmanagedClasspath in Compile ++= update.value.select(configurationFilter(CompileOnly.name)),

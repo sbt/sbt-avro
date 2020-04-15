@@ -23,7 +23,6 @@ object SbtAvro extends AutoPlugin {
 
   object autoImport {
     // format: off
-    val avroLibVersion = settingKey[String]("Apache Avro library version.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\".")
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
@@ -31,10 +30,6 @@ object SbtAvro extends AutoPlugin {
     val avroSource = settingKey[File]("Default Avro source directory.")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
-
-    lazy val defaultSettings: Seq[Setting[_]] = Seq(
-      libraryDependencies += "org.apache.avro" % "avro" % avroLibVersion.value
-    )
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
@@ -59,14 +54,13 @@ object SbtAvro extends AutoPlugin {
   override def requires = sbt.plugins.JvmPlugin
 
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
-    avroLibVersion := "1.9.2",
     avroStringType := "CharSequence",
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
     avroUseNamespace := false
   )
 
-  override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
+  override lazy val projectSettings: Seq[Setting[_]] =
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
   def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
