@@ -17,6 +17,7 @@ lazy val `sbt-avro`: Project = project
       homepage := Some(url("https://github.com/sbt/sbt-avro")),
 
       sbtPlugin := true,
+      pluginCrossBuild / sbtVersion := "1.2.8",
 
       scalaVersion := appConfiguration.value.provider.scalaProvider.version,
       scalacOptions in Compile ++= Seq("-deprecation"),
