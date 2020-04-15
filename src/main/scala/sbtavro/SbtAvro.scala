@@ -138,7 +138,7 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
-    val srcDir = (key / sourceDirectory).value
+    val srcDir = (key / avroSource).value
     val outDir = (key / sourceManaged).value
     val strType = avroStringType.value
     val fieldVis = avroFieldVisibility.value
