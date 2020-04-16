@@ -3,4 +3,4 @@ sys.props.get("plugin.version") match {
   case _ => sys.error("""|The system property 'plugin.version' is not defined.
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
-dependencyOverrides += "org.apache.avro" % "avro-compiler" % "1.8.2"
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.8.2"

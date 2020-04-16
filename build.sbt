@@ -17,13 +17,14 @@ lazy val `sbt-avro`: Project = project
       homepage := Some(url("https://github.com/sbt/sbt-avro")),
 
       sbtPlugin := true,
+      pluginCrossBuild / sbtVersion := "1.2.8",
 
       scalaVersion := appConfiguration.value.provider.scalaProvider.version,
       scalacOptions in Compile ++= Seq("-deprecation"),
 
       ivyConfigurations += CompileOnly,
       libraryDependencies ++= Seq(
-        "org.apache.avro" % "avro-compiler" % avroVersion,
+        "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
         "org.specs2" %% "specs2-core" % specs2Version % Test
       ),
       unmanagedClasspath in Compile ++= update.value.select(configurationFilter(CompileOnly.name)),

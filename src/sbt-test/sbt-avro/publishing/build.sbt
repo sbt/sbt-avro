@@ -2,7 +2,10 @@ import sbt.Keys.scalaVersion
 
 lazy val commonSettings = Seq(
   organization := "com.cavorite",
-  publishTo := Some(Opts.resolver.sonatypeReleases)
+  publishTo := Some(Opts.resolver.sonatypeReleases),
+  libraryDependencies ++= Seq(
+    "org.apache.avro" % "avro-compiler" % "1.9.2"
+  )
 )
 
 lazy val `external`: Project = project

@@ -13,14 +13,22 @@ sbt-avro
 
 Add the plugin according to the [sbt documentation](https://www.scala-sbt.org/1.x/docs/Using-Plugins.html).
 
-For instance, add the following lines to `project/plugins.sbt` in your project directory:
+For instance, add the following lines to `project/plugins.sbt`:
 
 ```
 addSbtPlugin("com.cavorite" % "sbt-avro" % "2.0.0")
 
-// Uncomment to override with a specific version of `avro-compiler`
-// It should match `avroLibVersion`
-// dependencyOverrides += "org.apache.avro" % "avro-compiler" % "1.8.2"
+// Java sources compiled with one version of Avro might be incompatible with a
+// different version of the Avro library. Therefore we specify the compiler
+// version here explicitly.
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.9.2"
+```
+
+Add the library dependency to `build.sbt`:
+
+```
+// Version must match that of `avro-compiler` in `project/plugins/sbt`
+libraryDependencies += "org.apache.avro" % "avro" % "1.9.2"
 ```
 
 ## Settings
@@ -28,7 +36,6 @@ addSbtPlugin("com.cavorite" % "sbt-avro" % "2.0.0")
 | Name                           | Default                           | Description |
 |:-------------------------------|:----------------------------------|:------------|
 | `avroSource`                   | `sourceDirectory` / `avro`        | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files. |
-| `avroLibVersion`               | `1.9.2`                           | Apache Avro library version. A dependency to `"org.apache.avro" % "avro" % "$avroLibVersion"` is automatically added to `libraryDependencies`. |
 | `avroStringType`               | `CharSequence`                    | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
 | `avroUseNamespace`             | `false`                           | Validate that directory layout reflects namespaces, i.e. `src/main/avro/com/myorg/MyRecord.avsc`. |
 | `avroFieldVisibility`          | `public_deprecated`               | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |

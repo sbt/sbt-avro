@@ -29,7 +29,6 @@ object SbtAvro extends AutoPlugin {
     import Defaults._
 
     // format: off
-    val avroLibVersion = settingKey[String]("Apache Avro library version.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\".")
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
@@ -40,9 +39,8 @@ object SbtAvro extends AutoPlugin {
     val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
 
-    lazy val defaultSettings: Seq[Setting[_]] = Seq(
-      libraryDependencies += "org.apache.avro" % "avro" % avroLibVersion.value
-    ) ++ addArtifact(Compile / packageAvro / artifact, Compile / packageAvro)
+    lazy val defaultSettings: Seq[Setting[_]] =
+      addArtifact(Compile / packageAvro / artifact, Compile / packageAvro)
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
@@ -78,7 +76,6 @@ object SbtAvro extends AutoPlugin {
   override def requires: Plugins = sbt.plugins.JvmPlugin
 
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
-    avroLibVersion := "1.9.2",
     avroStringType := "CharSequence",
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
@@ -200,7 +197,7 @@ object SbtAvro extends AutoPlugin {
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
     val externalSrcDir = (avroUnpackDependencies / target).value
-    val srcDir = (key / sourceDirectory).value
+    val srcDir = (key / avroSource).value
     val outDir = (key / sourceManaged).value
     val strType = avroStringType.value
     val fieldVis = avroFieldVisibility.value
