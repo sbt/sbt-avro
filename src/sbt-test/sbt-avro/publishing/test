@@ -11,10 +11,10 @@ $ exists target/avro/src_managed/main/com.cavorite/transitive_2.12/avsc.avsc
 
 > avroGenerate
 
-$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avdl.java
-$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avpr.java
-$ exists target/scala-2.12/src_managed/main/com/cavorite/external/Avsc.java
-$ exists target/scala-2.12/src_managed/main/com/cavorite/transitive/Avsc.java
+$ exists target/scala-2.12/avro_managed/main/com/cavorite/external/Avdl.java
+$ exists target/scala-2.12/avro_managed/main/com/cavorite/external/Avpr.java
+$ exists target/scala-2.12/avro_managed/main/com/cavorite/external/Avsc.java
+$ exists target/scala-2.12/avro_managed/main/com/cavorite/transitive/Avsc.java
 
 > compile
 
