@@ -1,3 +1,7 @@
+> external/packageAvro
+
+$ exists external/target/external-0.0.1-SNAPSHOT-avro.jar
+
 > external/publishLocal
 
 > transitive/publishLocal
@@ -8,6 +12,7 @@ $ exists target/avro/src_managed/main/com.cavorite/external/avdl.avdl
 $ exists target/avro/src_managed/main/com.cavorite/external/avpr.avpr
 $ exists target/avro/src_managed/main/com.cavorite/external/avsc.avsc
 $ exists target/avro/src_managed/main/com.cavorite/transitive_2.12/avsc.avsc
+$ exists target/avro/src_managed/main/org.apache.avro/avro/org/apache/avro/data/Json.avsc
 
 > avroGenerate
 
