@@ -36,6 +36,7 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.9.2"
 | Name                           | Default                           | Description |
 |:-------------------------------|:----------------------------------|:------------|
 | `avroSource`                   | `sourceDirectory` / `avro`        | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files. |
+| `avroGeneratedSource`          | `sourceManaged` / `compiled_avro` | Source directory for generated `.java` files. |
 | `avroStringType`               | `CharSequence`                    | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
 | `avroUseNamespace`             | `false`                           | Validate that directory layout reflects namespaces, i.e. `src/main/avro/com/myorg/MyRecord.avsc`. |
 | `avroFieldVisibility`          | `public_deprecated`               | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |
