@@ -8,4 +8,4 @@ libraryDependencies ++= Seq(
 avroStringType := "String"
 avroFieldVisibility := "public"
 (Compile / avroSource) := (Compile / sourceDirectory).value / "avro_source"
-avroGeneratedSource := sourceManaged.value / "avro"
+(Compile / avroGeneratedSource) := (Compile / sourceManaged).value / "avro"
