@@ -28,14 +28,14 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
-    val avroGeneratedSource = settingKey[File]("Default Avro generated source directory.")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
-      avroGeneratedSource := sourceManaged.value / "compiled_avro",
+      avroGenerate / target := sourceManaged.value / "compiled_avro",
+      sourceDirectories += (avroGenerate / target).value,
 
       // source generation
       avroGenerate := sourceGeneratorTask(avroGenerate).value,
@@ -135,7 +135,7 @@ object SbtAvro extends AutoPlugin {
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
     val srcDir = (key / avroSource).value
-    val outDir = (key / avroGeneratedSource).value
+    val outDir = (key / avroGenerate / target).value
     val strType = avroStringType.value
     val fieldVis = avroFieldVisibility.value
     val enbDecimal = avroEnableDecimalLogicalType.value
