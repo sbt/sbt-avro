@@ -38,7 +38,6 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
-    val avroGeneratedSource = settingKey[File]("Default Avro generated source directory.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
@@ -52,11 +51,11 @@ object SbtAvro extends AutoPlugin {
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
-      avroGeneratedSource := sourceManaged.value / "compiled_avro",
       // dependencies
-      avroUnpackDependencies / target := target.value / "avro" / "src_managed" / nameForSrc(configuration.value.name),
+      avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
       // source generation
+      avroGenerate / target := sourceManaged.value / "compiled_avro",
       avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
@@ -208,7 +207,7 @@ object SbtAvro extends AutoPlugin {
     val out = (key / streams).value
     val externalSrcDir = (avroUnpackDependencies / target).value
     val srcDir = (key / avroSource).value
-    val outDir = (key / avroGeneratedSource).value
+    val outDir = (key / target).value
     val strType = StringType.valueOf(avroStringType.value)
     val fieldVis = SpecificCompiler.FieldVisibility.valueOf(avroFieldVisibility.value.toUpperCase)
     val enbDecimal = avroEnableDecimalLogicalType.value

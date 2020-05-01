@@ -33,15 +33,16 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.9.2"
 
 ## Settings
 
-| Name                           | Default                                    | Description |
-|:-------------------------------|:-------------------------------------------|:------------|
-| `avroSource`                   | `sourceDirectory` / `avro`                 | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files. |
-| `avroGeneratedSource`          | `sourceManaged` / `compiled_avro` | Source directory for generated `.java` files. |
-| `avroDependencyIncludeFilter`  | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation |
-| `avroStringType`               | `CharSequence`                             | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
-| `avroUseNamespace`             | `false`                                    | Validate that directory layout reflects namespaces, i.e. `src/main/avro/com/myorg/MyRecord.avsc`. |
-| `avroFieldVisibility`          | `public_deprecated`                        | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |
-| `avroEnableDecimalLogicalType` | `true`                                     | Set to true to use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
+| Name                                | Default                                    | Description |
+|:------------------------------------|:-------------------------------------------|:------------|
+| `avroSource`                        | `sourceDirectory` / `avro`                 | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files. |
+| `avroUnpackDependencies` / `target` | `sourceManaged` / `avro`                   | Source directory for schemas packaged in the dependencies |
+| `avroGenerate` / `taget`            | `sourceManaged` / `compiled_avro`          | Source directory for generated `.java` files. |
+| `avroDependencyIncludeFilter`       | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation |
+| `avroStringType`                    | `CharSequence`                             | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
+| `avroUseNamespace`                  | `false`                                    | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`. |
+| `avroFieldVisibility`               | `public_deprecated`                        | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |
+| `avroEnableDecimalLogicalType`      | `true`                                     | Set to true to use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
 
 ## Examples
 
@@ -53,10 +54,11 @@ avroStringType := "String"
 
 ## Tasks
 
-| Name           | Description |
-|:---------------|:------------|
-| `avroGenerate` | Generate Java sources for Avro schemas. This task is automatically executed before `compile`.
-| `packageAvro`  | Produces an avro artifact, such as a jar containing avro schemas.
+| Name                     | Description |
+|:-------------------------|:------------|
+| `avroUnpackDependencies` | Unpack avro schemas from dependencies. This task is automatically executed before `avroGenerate`.
+| `avroGenerate`           | Generate Java sources for Avro schemas. This task is automatically executed before `compile`.
+| `packageAvro`            | Produces an avro artifact, such as a jar containing avro schemas.
 
 ## Packaging Avro files
 
