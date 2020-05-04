@@ -35,7 +35,7 @@ object SbtAvro extends AutoPlugin {
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
       avroGenerate / target := sourceManaged.value / "compiled_avro",
-      sourceDirectories += (avroGenerate / target).value,
+      managedSourceDirectories += (avroGenerate / target).value,
 
       // source generation
       avroGenerate := sourceGeneratorTask(avroGenerate).value,
