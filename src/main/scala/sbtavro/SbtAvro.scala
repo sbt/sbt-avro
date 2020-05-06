@@ -56,6 +56,7 @@ object SbtAvro extends AutoPlugin {
       avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
       // source generation
       avroGenerate / target := sourceManaged.value / "compiled_avro",
+      managedSourceDirectories += (avroGenerate / target).value,
       avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
@@ -206,7 +207,7 @@ object SbtAvro extends AutoPlugin {
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
     val externalSrcDir = (avroUnpackDependencies / target).value
-    val srcDir = (key / avroSource).value
+    val srcDir = avroSource.value
     val outDir = (key / target).value
     val strType = StringType.valueOf(avroStringType.value)
     val fieldVis = SpecificCompiler.FieldVisibility.valueOf(avroFieldVisibility.value.toUpperCase)
