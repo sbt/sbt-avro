@@ -8,11 +8,11 @@ $ exists external/target/external-0.0.1-SNAPSHOT-avro.jar
 
 > avroUnpackDependencies
 
-$ exists target/scala-2.12/src_managed/main/avro/com.cavorite/external/avdl.avdl
-$ exists target/scala-2.12/src_managed/main/avro/com.cavorite/external/avpr.avpr
-$ exists target/scala-2.12/src_managed/main/avro/com.cavorite/external/avsc.avsc
-$ exists target/scala-2.12/src_managed/main/avro/com.cavorite/transitive_2.12/avsc.avsc
-$ exists target/scala-2.12/src_managed/main/avro/org.apache.avro/avro/org/apache/avro/data/Json.avsc
+$ exists target/scala-2.12/src_managed/main/avro/com/cavorite/external/avdl.avdl
+$ exists target/scala-2.12/src_managed/main/avro/com/cavorite/external/avpr.avpr
+$ exists target/scala-2.12/src_managed/main/avro/com/cavorite/external/avsc.avsc
+$ exists target/scala-2.12/src_managed/main/avro/com/cavorite/transitive/avsc.avsc
+$ exists target/scala-2.12/src_managed/main/avro/org/apache/avro/data/Json.avsc
 
 > avroGenerate
 

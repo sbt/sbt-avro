@@ -12,7 +12,7 @@ import sbt.Keys._
 import sbt._
 import Path.relativeTo
 import com.spotify.avro.mojo.AvroFileRef
-import sbt.librarymanagement.{ArtifactFilter, DependencyFilter, SubDepFilter}
+import sbt.librarymanagement.DependencyFilter
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -93,23 +93,20 @@ object SbtAvro extends AutoPlugin {
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
-  private def unpack(deps: Seq[(ModuleID, File)],
+  private def unpack(deps: Seq[File],
                      extractTarget: File,
                      streams: TaskStreams): Seq[File] = {
-    def cachedExtractDep(module: ModuleID, jar: File): Seq[File] = {
+    def cachedExtractDep(jar: File): Seq[File] = {
       val cached = FileFunction.cached(
         streams.cacheDirectory / jar.name,
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { deps =>
-        val moduleTarget = extractTarget / module.organization / module.name
-        IO.createDirectory(moduleTarget)
+        IO.createDirectory(extractTarget)
         deps.flatMap { dep =>
-          val set = IO.unzip(dep, moduleTarget, AvroFilter)
+          val set = IO.unzip(dep, extractTarget, AvroFilter)
           if (set.nonEmpty) {
-            streams.log.info(
-              "Extracted from " + dep + set.mkString(":\n * ", "\n * ", "")
-            )
+            streams.log.info("Extracted from " + dep + set.mkString(":\n * ", "\n * ", ""))
           }
           set
         }
@@ -117,16 +114,14 @@ object SbtAvro extends AutoPlugin {
       cached(Set(jar)).toSeq
     }
 
-    deps.flatMap { case (module, jar) => cachedExtractDep(module, jar) }
+    deps.flatMap(cachedExtractDep)
   }
 
   private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
     val avroArtifacts = update
       .value
       .filter((key / avroDependencyIncludeFilter).value)
-      .toSeq.map {
-      case (_, module, _, file) => module -> file
-    }.distinct
+      .toSeq.map { case (_, _, _, file) => file }.distinct
 
     unpack(
       avroArtifacts,
