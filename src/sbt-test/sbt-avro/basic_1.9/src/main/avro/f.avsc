@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "com.cavorite.F",
+  "doc": "Wrong default for field",
+  "fields": [
+    {
+      "name": "f",
+      "type": "boolean",
+      "default": "invalid default value"
+    }
+  ]
+}
