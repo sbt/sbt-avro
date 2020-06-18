@@ -70,7 +70,7 @@ class SbtAvroSpec extends Specification {
     _dJavaFile.delete()
     _eJavaFile.delete()
 
-    SbtAvro.compileAvscs(sourceDir, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false)
+    SbtAvro.compileAvscs(sourceDir, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, true, true)
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue

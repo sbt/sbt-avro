@@ -28,6 +28,8 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
+    val avroValidate = settingKey[Boolean]("Avro Schema.Parser name validation. Default: `new Schema.Parser.getValidate()`")
+    val avroValidateDefaults = settingKey[Boolean]("Avro Schema.Parser default value validation. Default: `new Schema.Parser.getValidateDefaults()`")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
 
@@ -59,7 +61,9 @@ object SbtAvro extends AutoPlugin {
     avroStringType := "CharSequence",
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
-    avroUseNamespace := false
+    avroUseNamespace := false,
+    avroValidate := schemaParser.get().getValidate,
+    avroValidateDefaults := schemaParser.get().getValidateDefaults
   )
 
   override lazy val projectSettings: Seq[Setting[_]] =
@@ -77,7 +81,7 @@ object SbtAvro extends AutoPlugin {
 
   val schemaParser = new AtomicReference(new Schema.Parser())
 
-  def compileAvscs(srcDir: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean) {
+  def compileAvscs(srcDir: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean) {
     import com.spotify.avro.mojo._
     val refs = (srcDir ** AvroAvscFilter).get.map { avsc =>
       sbt.ConsoleLogger().info("Compiling Avro schemas %s".format(avsc))
@@ -88,8 +92,8 @@ object SbtAvro extends AutoPlugin {
     // copy of global schemaParser to avoid race condition
     val parser = new Schema.Parser()
       .addTypes(global.getTypes)
-      .setValidate(global.getValidate)
-      .setValidateDefaults(global.getValidateDefaults)
+      .setValidate(validate)
+      .setValidateDefaults(validateDefaults)
     val compiler = new AvscFilesCompiler(parser)
     compiler.setStringType(stringType)
     compiler.setFieldVisibility(fieldVisibility)
@@ -112,7 +116,7 @@ object SbtAvro extends AutoPlugin {
     compiler.compileToDestination(null, target)
   }
 
-  private[this] def compileAvroSchema(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String, enableDecimalLogicalType: Boolean, useNamespace: Boolean): Set[File] = {
+  private[this] def compileAvroSchema(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean): Set[File] = {
     val stringType = StringType.valueOf(stringTypeName)
     val fieldVisibility = SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase)
     log.info("Avro compiler using stringType=%s".format(stringType))
@@ -122,7 +126,7 @@ object SbtAvro extends AutoPlugin {
       compileIdl(idl, target, stringType, fieldVisibility, enableDecimalLogicalType)
     }
 
-    compileAvscs(srcDir, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace)
+    compileAvscs(srcDir, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, validate, validateDefaults)
 
     for (avpr <- (srcDir ** AvroAvrpFilter).get) {
       log.info("Compiling Avro protocol %s".format(avpr))
@@ -140,10 +144,12 @@ object SbtAvro extends AutoPlugin {
     val fieldVis = avroFieldVisibility.value
     val enbDecimal = avroEnableDecimalLogicalType.value
     val useNs = avroUseNamespace.value
+    val validate = avroValidate.value
+    val validateDefaults = avroValidateDefaults.value
     val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
       inStyle = FilesInfo.lastModified,
       outStyle = FilesInfo.exists) { (in: Set[File]) =>
-        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
+        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs, validate, validateDefaults)
       }
     cachedCompile((srcDir ** AvroFilter).get.toSet).toSeq
   }

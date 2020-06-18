@@ -78,6 +78,8 @@ public class AvscFilesCompiler {
     // We want last successful state.
     Schema.Parser successfulSchemaParser = new Schema.Parser();
     successfulSchemaParser.addTypes(schemaParser.getTypes());
+    successfulSchemaParser.setValidate(schemaParser.getValidate());
+    successfulSchemaParser.setValidateDefaults(schemaParser.getValidateDefaults());
 
     try {
       Schema schema = schemaParser.parse(src.getFile());
