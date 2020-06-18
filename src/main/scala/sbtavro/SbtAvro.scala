@@ -10,18 +10,28 @@ import org.apache.avro.generic.GenericData.StringType
 import org.apache.avro.{Protocol, Schema}
 import sbt.Keys._
 import sbt._
+import Path.relativeTo
+import com.spotify.avro.mojo.AvroFileRef
+import sbt.librarymanagement.DependencyFilter
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
  */
 object SbtAvro extends AutoPlugin {
 
+  val AvroClassifier = "avro"
+
   private val AvroAvrpFilter: NameFilter = "*.avpr"
   private val AvroAvdlFilter: NameFilter = "*.avdl"
   private val AvroAvscFilter: NameFilter = "*.avsc"
   private val AvroFilter: NameFilter = AvroAvscFilter | AvroAvdlFilter | AvroAvrpFilter
 
+  private val JavaFileFilter: NameFilter = "*.java"
+
   object autoImport {
+
+    import Defaults._
+
     // format: off
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\".")
@@ -30,32 +40,51 @@ object SbtAvro extends AutoPlugin {
     val avroSource = settingKey[File]("Default Avro source directory.")
     val avroValidate = settingKey[Boolean]("Avro Schema.Parser name validation. Default: `new Schema.Parser.getValidate()`")
     val avroValidateDefaults = settingKey[Boolean]("Avro Schema.Parser default value validation. Default: `new Schema.Parser.getValidateDefaults()`")
+    val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
+    val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
+    val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
+    // format: on
+
+    lazy val defaultSettings: Seq[Setting[_]] = Seq(
+      avroDependencyIncludeFilter := artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier)
+    ) ++ addArtifact(Compile / packageAvro / artifact, Compile / packageAvro)
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
+      // dependencies
+      avroUnpackDependencies / target := sourceManaged.value / "avro",
+      avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
+      // source generation
       avroGenerate / target := sourceManaged.value / "compiled_avro",
       managedSourceDirectories += (avroGenerate / target).value,
-
-      // source generation
-      avroGenerate := sourceGeneratorTask(avroGenerate).value,
+      avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
+      // packaging
+      packageAvro / artifactClassifier := Some(AvroClassifier),
+      packageAvro / publishArtifact := false,
       // clean
       clean := {
         schemaParser.set(new Schema.Parser())
         clean.value
       }
+    ) ++ packageTaskSettings(packageAvro, packageAvroMappings) ++ Seq(
+      packageAvro / artifact := (packageAvro / artifact).value.withType(Artifact.SourceType)
     )
   }
 
   import autoImport._
 
-  override def trigger = allRequirements
+  def packageAvroMappings = Def.task {
+    (avroSource.value ** AvroFilter) pair relativeTo(avroSource.value)
+  }
 
-  override def requires = sbt.plugins.JvmPlugin
+  override def trigger: PluginTrigger = allRequirements
+
+  override def requires: Plugins = sbt.plugins.JvmPlugin
 
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
     avroStringType := "CharSequence",
@@ -66,8 +95,45 @@ object SbtAvro extends AutoPlugin {
     avroValidateDefaults := schemaParser.get().getValidateDefaults
   )
 
-  override lazy val projectSettings: Seq[Setting[_]] =
+  override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
+
+  private def unpack(deps: Seq[File],
+                     extractTarget: File,
+                     streams: TaskStreams): Seq[File] = {
+    def cachedExtractDep(jar: File): Seq[File] = {
+      val cached = FileFunction.cached(
+        streams.cacheDirectory / jar.name,
+        inStyle = FilesInfo.lastModified,
+        outStyle = FilesInfo.exists
+      ) { deps =>
+        IO.createDirectory(extractTarget)
+        deps.flatMap { dep =>
+          val set = IO.unzip(dep, extractTarget, AvroFilter)
+          if (set.nonEmpty) {
+            streams.log.info("Extracted from " + dep + set.mkString(":\n * ", "\n * ", ""))
+          }
+          set
+        }
+      }
+      cached(Set(jar)).toSeq
+    }
+
+    deps.flatMap(cachedExtractDep)
+  }
+
+  private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
+    val avroArtifacts = update
+      .value
+      .filter((key / avroDependencyIncludeFilter).value)
+      .toSeq.map { case (_, _, _, file) => file }.distinct
+
+    unpack(
+      avroArtifacts,
+      (key / target).value,
+      (key / streams).value
+    )
+  }
 
   def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
     val parser = new Idl(idl)
@@ -81,12 +147,8 @@ object SbtAvro extends AutoPlugin {
 
   val schemaParser = new AtomicReference(new Schema.Parser())
 
-  def compileAvscs(srcDir: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean) {
+  def compileAvscs(refs: Seq[AvroFileRef], target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean) {
     import com.spotify.avro.mojo._
-    val refs = (srcDir ** AvroAvscFilter).get.map { avsc =>
-      sbt.ConsoleLogger().info("Compiling Avro schemas %s".format(avsc))
-      new AvroFileRef(srcDir, avsc.relativeTo(srcDir).get.toString)
-    }
 
     val global = schemaParser.get()
     // copy of global schemaParser to avoid race condition
@@ -116,42 +178,55 @@ object SbtAvro extends AutoPlugin {
     compiler.compileToDestination(null, target)
   }
 
-  private[this] def compileAvroSchema(srcDir: File, target: File, log: Logger, stringTypeName: String, fieldVisibilityName: String, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean): Set[File] = {
-    val stringType = StringType.valueOf(stringTypeName)
-    val fieldVisibility = SpecificCompiler.FieldVisibility.valueOf(fieldVisibilityName.toUpperCase)
-    log.info("Avro compiler using stringType=%s".format(stringType))
-
-    for (idl <- (srcDir ** AvroAvdlFilter).get) {
-      log.info("Compiling Avro IDL %s".format(idl))
+  private[this] def compileAvroSchema(srcDir: File,
+                                      target: File,
+                                      log: Logger,
+                                      stringType: StringType,
+                                      fieldVisibility: FieldVisibility,
+                                      enableDecimalLogicalType: Boolean,
+                                      useNamespace: Boolean,
+                                      validate: Boolean,
+                                      validateDefaults: Boolean): Set[File] = {
+    (srcDir ** AvroAvdlFilter).get.foreach { idl =>
+      log.info(s"Compiling Avro IDL $idl")
       compileIdl(idl, target, stringType, fieldVisibility, enableDecimalLogicalType)
     }
 
-    compileAvscs(srcDir, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, validate, validateDefaults)
+    val avscs = (srcDir ** AvroAvscFilter).get.map { avsc =>
+      log.info(s"Compiling Avro schemas $avsc")
+      new AvroFileRef(srcDir, avsc.relativeTo(srcDir).get.toString)
+    }
+    compileAvscs(avscs, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, validate, validateDefaults)
 
-    for (avpr <- (srcDir ** AvroAvrpFilter).get) {
-      log.info("Compiling Avro protocol %s".format(avpr))
+    (srcDir ** AvroAvrpFilter).get.foreach { avpr =>
+      log.info(s"Compiling Avro protocol $avpr")
       compileAvpr(avpr, target, stringType, fieldVisibility, enableDecimalLogicalType)
     }
 
-    (target ** "*.java").get.toSet
+    (target ** JavaFileFilter).get.toSet
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
-    val srcDir = (key / avroSource).value
-    val outDir = (key / avroGenerate / target).value
-    val strType = avroStringType.value
-    val fieldVis = avroFieldVisibility.value
+    val externalSrcDir = (avroUnpackDependencies / target).value
+    val srcDir = avroSource.value
+    val outDir = (key / target).value
+    val strType = StringType.valueOf(avroStringType.value)
+    val fieldVis = SpecificCompiler.FieldVisibility.valueOf(avroFieldVisibility.value.toUpperCase)
     val enbDecimal = avroEnableDecimalLogicalType.value
     val useNs = avroUseNamespace.value
     val validate = avroValidate.value
     val validateDefaults = avroValidateDefaults.value
-    val cachedCompile = FileFunction.cached(out.cacheDirectory / "avro",
-      inStyle = FilesInfo.lastModified,
-      outStyle = FilesInfo.exists) { (in: Set[File]) =>
+    val cachedCompile = {
+      FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
+        out.log.info(s"Avro compiler using stringType=$strType")
+        compileAvroSchema(externalSrcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs, validate, validateDefaults)
         compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs, validate, validateDefaults)
+
       }
-    cachedCompile((srcDir ** AvroFilter).get.toSet).toSeq
+    }
+
+    cachedCompile(((externalSrcDir +++ srcDir) ** AvroFilter).get.toSet).toSeq
   }
 
 }

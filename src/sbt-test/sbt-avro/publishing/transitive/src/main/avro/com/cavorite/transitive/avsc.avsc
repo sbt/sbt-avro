@@ -1,0 +1,11 @@
+{
+  "name": "Avsc",
+  "namespace": "com.cavorite.transitive",
+  "type": "record",
+  "fields": [
+    {
+      "name": "stringField",
+      "type": "string"
+    }
+  ]
+}
