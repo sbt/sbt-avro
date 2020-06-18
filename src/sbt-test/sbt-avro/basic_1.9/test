@@ -1,3 +1,4 @@
+> set avroValidateDefaults := false
 > avroGenerate
 
 $ exists target/scala-2.12/src_managed/main/compiled_avro/com/cavorite/A.java
@@ -34,3 +35,8 @@ $ exists target/scala-2.12/test-classes/com/cavorite/Y.class
 $ exists target/scala-2.12/test-classes/com/cavorite/Z.class
 
 > clean
+
+> set avroValidateDefaults := true
+
+# should fail because f.avsc has invalid default value
+-> avroGenerate

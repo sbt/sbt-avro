@@ -72,7 +72,7 @@ class SbtAvroSpec extends Specification {
     _eJavaFile.delete()
 
     val refs = sourceFiles.map(s => new AvroFileRef(sourceDir, s.getName))
-    SbtAvro.compileAvscs(refs, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false)
+    SbtAvro.compileAvscs(refs, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, true, true)
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue

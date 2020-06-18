@@ -38,8 +38,11 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
+    val avroValidate = settingKey[Boolean]("Avro Schema.Parser name validation. Default: `new Schema.Parser.getValidate()`")
+    val avroValidateDefaults = settingKey[Boolean]("Avro Schema.Parser default value validation. Default: `new Schema.Parser.getValidateDefaults()`")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
+
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
     val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
@@ -87,7 +90,9 @@ object SbtAvro extends AutoPlugin {
     avroStringType := "CharSequence",
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
-    avroUseNamespace := false
+    avroUseNamespace := false,
+    avroValidate := schemaParser.get().getValidate,
+    avroValidateDefaults := schemaParser.get().getValidateDefaults
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
@@ -142,15 +147,15 @@ object SbtAvro extends AutoPlugin {
 
   val schemaParser = new AtomicReference(new Schema.Parser())
 
-  def compileAvscs(refs: Seq[AvroFileRef], target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean) {
+  def compileAvscs(refs: Seq[AvroFileRef], target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, validate: Boolean, validateDefaults: Boolean) {
     import com.spotify.avro.mojo._
 
     val global = schemaParser.get()
     // copy of global schemaParser to avoid race condition
     val parser = new Schema.Parser()
       .addTypes(global.getTypes)
-      .setValidate(global.getValidate)
-      .setValidateDefaults(global.getValidateDefaults)
+      .setValidate(validate)
+      .setValidateDefaults(validateDefaults)
     val compiler = new AvscFilesCompiler(parser)
     compiler.setStringType(stringType)
     compiler.setFieldVisibility(fieldVisibility)
@@ -179,7 +184,9 @@ object SbtAvro extends AutoPlugin {
                                       stringType: StringType,
                                       fieldVisibility: FieldVisibility,
                                       enableDecimalLogicalType: Boolean,
-                                      useNamespace: Boolean): Set[File] = {
+                                      useNamespace: Boolean,
+                                      validate: Boolean,
+                                      validateDefaults: Boolean)): Set[File] = {
     (srcDir ** AvroAvdlFilter).get.foreach { idl =>
       log.info(s"Compiling Avro IDL $idl")
       compileIdl(idl, target, stringType, fieldVisibility, enableDecimalLogicalType)
@@ -208,12 +215,14 @@ object SbtAvro extends AutoPlugin {
     val fieldVis = SpecificCompiler.FieldVisibility.valueOf(avroFieldVisibility.value.toUpperCase)
     val enbDecimal = avroEnableDecimalLogicalType.value
     val useNs = avroUseNamespace.value
-
+    val validate = avroValidate.value
+    val validateDefaults = avroValidateDefaults.value
     val cachedCompile = {
       FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
         out.log.info(s"Avro compiler using stringType=$strType")
         compileAvroSchema(externalSrcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
-        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs)
+        compileAvroSchema(srcDir, outDir, out.log, strType, fieldVis, enbDecimal, useNs, validate, validateDefaults)
+
       }
     }
 
