@@ -16,7 +16,7 @@ lazy val `external`: Project = project
     version := "0.0.1-SNAPSHOT",
     crossPaths := false,
     autoScalaLibrary := false,
-    packageAvro / publishArtifact := true
+    Compile / packageAvro / publishArtifact := true
   )
 
 lazy val `transitive`: Project = project
@@ -26,7 +26,7 @@ lazy val `transitive`: Project = project
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.12.11",
-    packageAvro / publishArtifact := true,
+    Compile / packageAvro / publishArtifact := true,
     libraryDependencies ++= Seq(
       "com.cavorite" % "external" % "0.0.1-SNAPSHOT" classifier "avro",
     )
