@@ -1,5 +1,5 @@
 
-lazy val avroVersion = "1.9.2"
+lazy val avroVersion = "1.10.0"
 lazy val specs2Version = "4.9.3"
 
 // Provided configuration includes the lib at Runtime
