@@ -47,9 +47,14 @@ object SbtAvro extends AutoPlugin {
     val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
 
+    lazy val avroArtifactTasks: Seq[TaskKey[File]] = Seq(Compile, Test).map(_ / packageAvro)
+
     lazy val defaultSettings: Seq[Setting[_]] = Seq(
-      avroDependencyIncludeFilter := artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier)
-    ) ++ addArtifact(Compile / packageAvro / artifact, Compile / packageAvro)
+      avroDependencyIncludeFilter := artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier),
+      // addArtifact doesn't take publishArtifact setting in account
+      artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
+      packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
+    )
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(

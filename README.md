@@ -67,7 +67,7 @@ Avro sources (`*.avsc`, `*.avdl` and `*.avpr` files) can be packaged in a separa
 
 By default, `sbt-avro` does not publish this. You can enable it with
 ```sbt
-packageAvro / publishArtifact := true
+Compile / packageAvro / publishArtifact := true
 ```
 
 ## Declaring dependencies
