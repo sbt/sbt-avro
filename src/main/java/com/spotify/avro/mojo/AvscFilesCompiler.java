@@ -13,12 +13,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AvscFilesCompiler {
 
   private static final Logger LOG = LoggerFactory.getLogger(AvscFilesCompiler.class);
 
+  private final Supplier<Schema.Parser> schemaParserSupplier;
   private Schema.Parser schemaParser;
   private String templateDirectory;
   private GenericData.StringType stringType;
@@ -29,8 +31,9 @@ public class AvscFilesCompiler {
   private Map<AvroFileRef, Exception> compileExceptions;
   private boolean logCompileExceptions;
 
-  public AvscFilesCompiler(Schema.Parser schemaParser) {
-    this.schemaParser = schemaParser;
+  public AvscFilesCompiler(Supplier<Schema.Parser> schemaParserSupplier) {
+    this.schemaParserSupplier = schemaParserSupplier;
+    this.schemaParser = schemaParserSupplier.get();
   }
 
   public void compileFiles(Set<AvroFileRef> files, File outputDirectory) {
@@ -74,52 +77,67 @@ public class AvscFilesCompiler {
   }
 
   private boolean tryCompile(AvroFileRef src, File outputDirectory) {
-    // on failure Schema.Parser changes cache state.
-    // We want last successful state.
-    Schema.Parser successfulSchemaParser = new Schema.Parser();
-    successfulSchemaParser.addTypes(schemaParser.getTypes());
-    successfulSchemaParser.setValidate(schemaParser.getValidate());
-    successfulSchemaParser.setValidateDefaults(schemaParser.getValidateDefaults());
-
+    Schema.Parser successfulSchemaParser = stashParser();
+    final Schema schema;
     try {
-      Schema schema = schemaParser.parse(src.getFile());
-
-      if (useNamespace) {
-        if (schema.getType() != Schema.Type.RECORD && schema.getType() != Schema.Type.ENUM) {
-          throw new SchemaGenerationException(String.format(
-              "Error compiling schema file %s. "
-                  + "Only one root RECORD or ENUM type is allowed per file.",
-              src
-          ));
-        } else if (!src.pathToClassName().equals(schema.getFullName())) {
-          throw new SchemaGenerationException(String.format(
-              "Error compiling schema file %s. "
-                  + "File class name %s does not match record class name %s",
-              src,
-              src.pathToClassName(),
-              schema.getFullName()
-          ));
-        }
-      }
-
-      SpecificCompiler compiler = new SpecificCompiler(schema);
-      compiler.setTemplateDir(templateDirectory);
-      compiler.setStringType(stringType);
-      compiler.setFieldVisibility(fieldVisibility);
-      compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
-      compiler.setCreateSetters(createSetters);
-      compiler.compileToDestination(src.getFile(), outputDirectory);
-
+      schema = schemaParser.parse(src.getFile());
+      validateParsedSchema(src, schema);
     } catch (SchemaParseException e) {
       schemaParser = successfulSchemaParser;
       compileExceptions.put(src, e);
       return false;
+    } catch (IOException e) {
+      throw new SchemaGenerationException(String.format("Error parsing schema file %s", src), e);
+    }
+
+    SpecificCompiler compiler = new SpecificCompiler(schema);
+    compiler.setTemplateDir(templateDirectory);
+    compiler.setStringType(stringType);
+    compiler.setFieldVisibility(fieldVisibility);
+    compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
+    compiler.setCreateSetters(createSetters);
+    try {
+      compiler.compileToDestination(src.getFile(), outputDirectory);
     } catch (IOException e) {
       throw new SchemaGenerationException(
           String.format("Error compiling schema file %s to %s", src, outputDirectory), e);
     }
 
     return true;
+  }
+
+  private Schema.Parser stashParser() {
+    // on failure Schema.Parser changes cache state.
+    // We want last successful state.
+    Schema.Parser parser = schemaParserSupplier.get();
+    Set<String> predefinedTypes = parser.getTypes().keySet();
+    Map<String, Schema> compiledTypes = schemaParser.getTypes().entrySet().stream()
+        .filter(entry -> !predefinedTypes.contains(entry.getKey()))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    parser.addTypes(compiledTypes);
+    parser.setValidate(schemaParser.getValidate());
+    parser.setValidateDefaults(schemaParser.getValidateDefaults());
+    return parser;
+  }
+
+  private void validateParsedSchema(AvroFileRef src, Schema schema) {
+    if (useNamespace) {
+      if (schema.getType() != Schema.Type.RECORD && schema.getType() != Schema.Type.ENUM) {
+        throw new SchemaGenerationException(String.format(
+            "Error compiling schema file %s. "
+                + "Only one root RECORD or ENUM type is allowed per file.",
+            src
+        ));
+      } else if (!src.pathToClassName().equals(schema.getFullName())) {
+        throw new SchemaGenerationException(String.format(
+            "Error compiling schema file %s. "
+                + "File class name %s does not match record class name %s",
+            src,
+            src.pathToClassName(),
+            schema.getFullName()
+        ));
+      }
+    }
   }
 
   public void setTemplateDirectory(String templateDirectory) {

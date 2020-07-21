@@ -1,0 +1,11 @@
+{
+    "name": "A",
+    "namespace": "com.cavorite.test.avscparser",
+    "type": "record",
+    "fields": [
+        {
+            "name": "supportsCustomRegisteredType",
+            "type": "B"
+        }
+    ]
+}

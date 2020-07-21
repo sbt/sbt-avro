@@ -3,6 +3,7 @@ package sbtavro
 import java.io.File
 
 import com.spotify.avro.mojo.AvroFileRef
+import org.apache.avro.Schema
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
@@ -72,7 +73,7 @@ class SbtAvroSpec extends Specification {
     _eJavaFile.delete()
 
     val refs = sourceFiles.map(s => new AvroFileRef(sourceDir, s.getName))
-    SbtAvro.compileAvscs(refs, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, true, true)
+    SbtAvro.compileAvscs(refs, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, () => new Schema.Parser())
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue
