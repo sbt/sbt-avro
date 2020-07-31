@@ -108,3 +108,4 @@ This program is distributed under the BSD license. See the file `LICENSE` for mo
 - [Przemysław Dubaniewicz](https://github.com/przemekd)
 - [Neville Li](https://github.com/nevillelyh)
 - [Michel Davit](https://github.com/RustedBones)
+- [Mārtiņš Kalvāns](https://github.com/sisidra)
