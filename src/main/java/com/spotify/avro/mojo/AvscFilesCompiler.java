@@ -13,14 +13,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AvscFilesCompiler {
 
   private static final Logger LOG = LoggerFactory.getLogger(AvscFilesCompiler.class);
 
-  private final Supplier<Schema.Parser> schemaParserSupplier;
+  private final SchemaParserBuilder builder;
   private Schema.Parser schemaParser;
   private String templateDirectory;
   private GenericData.StringType stringType;
@@ -31,9 +30,9 @@ public class AvscFilesCompiler {
   private Map<AvroFileRef, Exception> compileExceptions;
   private boolean logCompileExceptions;
 
-  public AvscFilesCompiler(Supplier<Schema.Parser> schemaParserSupplier) {
-    this.schemaParserSupplier = schemaParserSupplier;
-    this.schemaParser = schemaParserSupplier.get();
+  public AvscFilesCompiler(SchemaParserBuilder builder) {
+    this.builder = builder;
+    this.schemaParser = builder.build();
   }
 
   public void compileFiles(Set<AvroFileRef> files, File outputDirectory) {
@@ -109,14 +108,11 @@ public class AvscFilesCompiler {
   private Schema.Parser stashParser() {
     // on failure Schema.Parser changes cache state.
     // We want last successful state.
-    Schema.Parser parser = schemaParserSupplier.get();
+    Schema.Parser parser = builder.build();
     Set<String> predefinedTypes = parser.getTypes().keySet();
-    Map<String, Schema> compiledTypes = schemaParser.getTypes().entrySet().stream()
-        .filter(entry -> !predefinedTypes.contains(entry.getKey()))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    Map<String, Schema> compiledTypes = schemaParser.getTypes();
+    compiledTypes.keySet().removeAll(predefinedTypes);
     parser.addTypes(compiledTypes);
-    parser.setValidate(schemaParser.getValidate());
-    parser.setValidateDefaults(schemaParser.getValidateDefaults());
     return parser;
   }
 
