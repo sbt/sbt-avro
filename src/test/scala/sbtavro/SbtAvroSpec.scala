@@ -1,8 +1,9 @@
 package sbtavro
 
 import java.io.File
+import java.util.Collections
 
-import com.spotify.avro.mojo.{AvroFileRef, SchemaParserBuilder}
+import com.spotify.avro.mojo.AvroFileRef
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
@@ -11,7 +12,7 @@ import org.specs2.mutable.Specification
   * Created by jeromewacongne on 06/08/2015.
   */
 class SbtAvroSpec extends Specification {
-  val builder = SchemaParserBuilder.newBuilder()
+  val builder = DefaultSchemaParserBuilder.default()
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
   val targetDir = new File(sourceDir.getParentFile, "generated")
 

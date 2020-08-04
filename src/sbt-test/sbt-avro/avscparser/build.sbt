@@ -1,4 +1,4 @@
-import java.util.Collections
+import java.util.Collections.{singletonMap, singletonList}
 import org.apache.avro.Schema
 
 name := "avscparser-test"
@@ -10,6 +10,6 @@ libraryDependencies ++= Seq(
 
 avroSchemaParserBuilder := AnnotateWithArtifactSchemaParser
   .newBuilder(projectID.value)
-  .withTypes(Collections.singletonMap(
-    "B", Schema.createEnum("B", null, "com.cavorite.test.avscparser", Collections.singletonList("B1"))
+  .copy(types = singletonMap(
+    "B", Schema.createEnum("B", null, "com.cavorite.test.avscparser", singletonList("B1"))
   ))

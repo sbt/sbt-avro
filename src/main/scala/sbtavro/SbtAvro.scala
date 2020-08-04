@@ -3,11 +3,11 @@ package sbtavro
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
-import org.apache.avro.{Protocol, Schema}
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
+import org.apache.avro.{Protocol, Schema}
 import sbt.Keys._
 import sbt._
 import Path.relativeTo
@@ -39,10 +39,6 @@ object SbtAvro extends AutoPlugin {
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
 
-    @deprecated("Use avroSchemaParserBuilder setting instead", "2.2.0")
-    val avroValidate = settingKey[Boolean]("Avro Schema.Parser name validation. Default: `new Schema.Parser().getValidate()`")
-    @deprecated("Use avroSchemaParserBuilder setting instead", "2.2.0")
-    val avroValidateDefaults = settingKey[Boolean]("Avro Schema.Parser default value validation. Default: `new Schema.Parser().getValidateDefaults()`")
     val avroSchemaParserBuilder = settingKey[SchemaParserBuilder](".avsc schema parser builder")
 
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
@@ -96,12 +92,7 @@ object SbtAvro extends AutoPlugin {
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
     avroUseNamespace := false,
-    avroValidate := new Schema.Parser().getValidate,
-    avroValidateDefaults := new Schema.Parser().getValidateDefaults,
-    avroSchemaParserBuilder := SchemaParserBuilder
-      .newBuilder(schemaParser.get())
-      .withValidate(avroValidate.value)
-      .withValidateDefaults(avroValidateDefaults.value)
+    avroSchemaParserBuilder := DefaultSchemaParserBuilder.default()
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
@@ -153,9 +144,6 @@ object SbtAvro extends AutoPlugin {
     compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
     compiler.compileToDestination(null, target)
   }
-
-  @deprecated("Use avroSchemaParserBuilder setting instead", "2.2.0")
-  val schemaParser = new AtomicReference(new Schema.Parser())
 
   def compileAvscs(refs: Seq[AvroFileRef], target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, builder: SchemaParserBuilder) {
     import com.spotify.avro.mojo._

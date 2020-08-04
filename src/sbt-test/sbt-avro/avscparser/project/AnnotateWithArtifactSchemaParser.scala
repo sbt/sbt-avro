@@ -4,14 +4,10 @@ import sbt.ModuleID
 
 class AnnotateWithArtifactSchemaParser(
   moduleID: ModuleID,
-  types: java.util.Map[String, Schema],
-  validate: Boolean,
-  validateDefaults: Boolean
+  types: java.util.Map[String, Schema]
 ) extends org.apache.avro.Schema.Parser {
 
   addTypes(types)
-  setValidate(validate)
-  setValidateDefaults(validateDefaults)
 
   override def parse(file: java.io.File): org.apache.avro.Schema = {
     val schema = super.parse(file)
@@ -25,16 +21,14 @@ class AnnotateWithArtifactSchemaParser(
 
 object AnnotateWithArtifactSchemaParser {
 
-  class Builder(moduleID: ModuleID) extends SchemaParserBuilder {
+  case class Builder(moduleID: ModuleID, types: java.util.Map[String, Schema])
+      extends SchemaParserBuilder {
 
-    override def build(): Schema.Parser = new AnnotateWithArtifactSchemaParser(
-      moduleID,
-      types,
-      validate,
-      validateDefaults
-    )
+    override def build(): Schema.Parser =
+      new AnnotateWithArtifactSchemaParser(moduleID, types)
   }
 
-  def newBuilder(moduleID: ModuleID): AnnotateWithArtifactSchemaParser.Builder = new Builder(moduleID: ModuleID)
+  def newBuilder(moduleID: ModuleID): AnnotateWithArtifactSchemaParser.Builder =
+    new Builder(moduleID, java.util.Collections.emptyMap())
 
 }
