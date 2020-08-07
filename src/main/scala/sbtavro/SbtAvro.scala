@@ -38,9 +38,7 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroSource = settingKey[File]("Default Avro source directory.")
-
     val avroSchemaParserBuilder = settingKey[SchemaParserBuilder](".avsc schema parser builder")
-
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
 
