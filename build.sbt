@@ -8,6 +8,13 @@ lazy val specs2Version = "4.9.3"
 // MANIFEST will however not make mention of the compileonly libs
 val CompileOnly = config("compileonly").hide
 
+ThisBuild / dynverSonatypeSnapshots := true
+ThisBuild / version := {
+  val orig = (ThisBuild / version).value
+  if (orig.endsWith("-SNAPSHOT")) "2.2.0-SNAPSHOT"
+  else orig
+}
+
 lazy val `sbt-avro`: Project = project
     .in(file("."))
     .enablePlugins(SbtPlugin)
@@ -30,11 +37,11 @@ lazy val `sbt-avro`: Project = project
       unmanagedClasspath in Compile ++= update.value.select(configurationFilter(CompileOnly.name)),
 
       licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE")),
+      publishTo := (bintray / publishTo).value,
       publishMavenStyle := false,
       bintrayOrganization := Some("sbt"),
       bintrayRepository := "sbt-plugin-releases",
       bintrayPackage := "sbt-avro2",
-      bintrayReleaseOnPublish := false,
 
       scriptedLaunchOpts := scriptedLaunchOpts.value ++ Seq(
         "-Xmx1024M",
