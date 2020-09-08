@@ -1,7 +1,6 @@
 package sbtavro
 
 import java.io.File
-import java.util.Collections
 
 import com.spotify.avro.mojo.AvroFileRef
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
