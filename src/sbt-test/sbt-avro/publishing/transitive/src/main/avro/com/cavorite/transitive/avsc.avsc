@@ -6,6 +6,10 @@
     {
       "name": "stringField",
       "type": "string"
+    },
+    {
+      "name": "referencedTypeField",
+      "type": "com.cavorite.external.Avsc"
     }
   ]
 }

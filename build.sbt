@@ -11,7 +11,7 @@ val CompileOnly = config("compileonly").hide
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
-  if (orig.endsWith("-SNAPSHOT")) "3.0.1-SNAPSHOT"
+  if (orig.endsWith("-SNAPSHOT")) "3.1.0-SNAPSHOT"
   else orig
 }
 

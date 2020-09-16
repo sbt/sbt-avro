@@ -40,6 +40,7 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.10.0"
 | `avroUnpackDependencies` / `target`  | `sourceManaged` / `avro`                   | Source directory for schemas packaged in the dependencies |
 | `avroGenerate` / `taget`             | `sourceManaged` / `compiled_avro`          | Source directory for generated `.java` files. |
 | `avroDependencyIncludeFilter`        | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation |
+| `avroIncludes`                       | `Seq()`                                    | Paths with extra `*.avsc` files to be included in compilation. |
 | `packageAvro` / `artifactClassifier` | `Some("avro")`                             | Classifier for avro artifact |
 | `packageAvro` / `publishArtifact`    | `false`                                    | Enable / Disable avro artifact publishing |
 | `avroStringType`                     | `CharSequence`                             | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
