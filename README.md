@@ -16,7 +16,7 @@ Add the plugin according to the [sbt documentation](https://www.scala-sbt.org/1.
 For instance, add the following lines to `project/plugins.sbt`:
 
 ```
-addSbtPlugin("com.cavorite" % "sbt-avro" % "3.0.0-SNAPSHOT")
+addSbtPlugin("com.cavorite" % "sbt-avro" % "3.1.0")
 
 // Java sources compiled with one version of Avro might be incompatible with a
 // different version of the Avro library. Therefore we specify the compiler
@@ -113,3 +113,4 @@ This program is distributed under the BSD license. See the file `LICENSE` for mo
 - [Neville Li](https://github.com/nevillelyh)
 - [Michel Davit](https://github.com/RustedBones)
 - [Mārtiņš Kalvāns](https://github.com/sisidra)
+- [Oskar Jung](https://github.com/ojung)
