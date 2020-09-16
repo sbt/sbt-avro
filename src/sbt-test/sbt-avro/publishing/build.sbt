@@ -29,8 +29,7 @@ lazy val `transitive`: Project = project
     Compile / packageAvro / publishArtifact := true,
     libraryDependencies ++= Seq(
       "com.cavorite" % "external" % "0.0.1-SNAPSHOT" classifier "avro",
-    ),
-    avroIncludes := Seq((avroUnpackDependencies / target).value)
+    )
   )
 
 lazy val root: Project = project

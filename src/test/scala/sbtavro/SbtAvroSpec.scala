@@ -6,6 +6,7 @@ import com.spotify.avro.mojo.AvroFileRef
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
+import sbt.util.Logger
 
 /**
   * Created by jeromewacongne on 06/08/2015.
@@ -14,6 +15,7 @@ class SbtAvroSpec extends Specification {
   val builder = DefaultSchemaParserBuilder.default()
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
   val targetDir = new File(sourceDir.getParentFile, "generated")
+  val logger = Logger.Null
 
   val fullyQualifiedNames = Seq(
     new File(sourceDir, "a.avsc"),
@@ -73,7 +75,7 @@ class SbtAvroSpec extends Specification {
     _eJavaFile.delete()
 
     val refs = sourceFiles.map(s => new AvroFileRef(sourceDir, s.getName))
-    SbtAvro.compileAvscs(refs, targetDir, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, builder)
+    SbtAvro.compileAvscs(refs, targetDir, logger, StringType.CharSequence, FieldVisibility.PUBLIC_DEPRECATED, true, false, builder)
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue

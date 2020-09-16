@@ -135,18 +135,22 @@ object SbtAvro extends AutoPlugin {
     )
   }
 
-  def compileIdl(idl: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
-    val parser = new Idl(idl)
-    val protocol = Protocol.parse(parser.CompilationUnit.toString)
-    val compiler = new SpecificCompiler(protocol)
-    compiler.setStringType(stringType)
-    compiler.setFieldVisibility(fieldVisibility)
-    compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
-    compiler.compileToDestination(null, target)
+  def compileIdls(idls: Seq[File], target: File, log: Logger, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) = {
+    idls.foreach { idl =>
+      log.info(s"Compiling Avro IDL $idl")
+      val parser = new Idl(idl)
+      val protocol = Protocol.parse(parser.CompilationUnit.toString)
+      val compiler = new SpecificCompiler(protocol)
+      compiler.setStringType(stringType)
+      compiler.setFieldVisibility(fieldVisibility)
+      compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
+      compiler.compileToDestination(null, target)
+    }
   }
 
-  def compileAvscs(refs: Seq[AvroFileRef], target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, builder: SchemaParserBuilder) {
+  def compileAvscs(refs: Seq[AvroFileRef], target: File, log: Logger, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean, useNamespace: Boolean, builder: SchemaParserBuilder) = {
     import com.spotify.avro.mojo._
+    import scala.collection.JavaConverters._
     val compiler = new AvscFilesCompiler(builder)
     compiler.setStringType(stringType)
     compiler.setFieldVisibility(fieldVisibility)
@@ -156,59 +160,49 @@ object SbtAvro extends AutoPlugin {
     compiler.setLogCompileExceptions(true)
     compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/")
 
-    import scala.collection.JavaConverters._
+    refs.foreach { avsc =>
+      log.info(s"Compiling Avro schemas $avsc")
+    }
     compiler.compileFiles(refs.toSet.asJava, target)
   }
 
-  def compileAvpr(avpr: File, target: File, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) {
-    val protocol = Protocol.parse(avpr)
-    val compiler = new SpecificCompiler(protocol)
-    compiler.setStringType(stringType)
-    compiler.setFieldVisibility(fieldVisibility)
-    compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
-    compiler.compileToDestination(null, target)
+  def compileAvprs(avprs: Seq[File], target: File, log: Logger, stringType: StringType, fieldVisibility: FieldVisibility, enableDecimalLogicalType: Boolean) = {
+    avprs.foreach { avpr =>
+      log.info(s"Compiling Avro protocol $avpr")
+      val protocol = Protocol.parse(avpr)
+      val compiler = new SpecificCompiler(protocol)
+      compiler.setStringType(stringType)
+      compiler.setFieldVisibility(fieldVisibility)
+      compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
+      compiler.compileToDestination(null, target)
+    }
   }
 
-  private[this] def compileAvroSchema(srcDir: File,
+  private[this] def compileAvroSchema(srcDirs: Seq[File],
                                       target: File,
-                                      includes: Seq[File],
                                       log: Logger,
                                       stringType: StringType,
                                       fieldVisibility: FieldVisibility,
                                       enableDecimalLogicalType: Boolean,
                                       useNamespace: Boolean,
                                       builder: SchemaParserBuilder): Set[File] = {
-    (srcDir ** AvroAvdlFilter).get.foreach { idl =>
-      log.info(s"Compiling Avro IDL $idl")
-      compileIdl(idl, target, stringType, fieldVisibility, enableDecimalLogicalType)
-    }
+    val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
+    val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
+    val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
-    val includeAvscs = includes.flatMap { include =>
-      val includes = (include ** AvroAvscFilter).get
-      includes.foreach(s => log.info(s"Including: $s"))
-      includes.map(avsc => new AvroFileRef(include, avsc.relativeTo(include).get.toString))
-    }
-
-    val avscs = (srcDir ** AvroAvscFilter).get.map { avsc =>
-      log.info(s"Compiling Avro schemas $avsc")
-      new AvroFileRef(srcDir, avsc.relativeTo(srcDir).get.toString)
-    }
-
-    compileAvscs(includeAvscs ++ avscs, target, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, builder)
-
-    (srcDir ** AvroAvrpFilter).get.foreach { avpr =>
-      log.info(s"Compiling Avro protocol $avpr")
-      compileAvpr(avpr, target, stringType, fieldVisibility, enableDecimalLogicalType)
-    }
+    compileIdls(avdls, target, log, stringType, fieldVisibility, enableDecimalLogicalType)
+    compileAvscs(avscs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, builder)
+    compileAvprs(avprs, target, log, stringType, fieldVisibility, enableDecimalLogicalType)
 
     (target ** JavaFileFilter).get.toSet
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
-    val externalSrcDir = (avroUnpackDependencies / target).value
     val srcDir = avroSource.value
+    val externalSrcDir = (avroUnpackDependencies / target).value
     val includes = avroIncludes.value
+    val srcDirs = Seq(externalSrcDir, srcDir) ++ includes
     val outDir = (key / target).value
     val strType = StringType.valueOf(avroStringType.value)
     val fieldVis = SpecificCompiler.FieldVisibility.valueOf(avroFieldVisibility.value.toUpperCase)
@@ -218,13 +212,11 @@ object SbtAvro extends AutoPlugin {
     val cachedCompile = {
       FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
         out.log.info(s"Avro compiler using stringType=$strType")
-        compileAvroSchema(externalSrcDir, outDir, Seq.empty, out.log, strType, fieldVis, enbDecimal, useNs, builder)
-        compileAvroSchema(srcDir, outDir, includes, out.log, strType, fieldVis, enbDecimal, useNs, builder)
-
+        compileAvroSchema(srcDirs, outDir, out.log, strType, fieldVis, enbDecimal, useNs, builder)
       }
     }
 
-    cachedCompile(((externalSrcDir +++ srcDir) ** AvroFilter).get.toSet).toSeq
+    cachedCompile((srcDirs ** AvroFilter).get.toSet).toSeq
   }
 
 }

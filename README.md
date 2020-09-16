@@ -90,12 +90,6 @@ libraryDependencies += "org" % "name" % "rev" // module containing avro schemas
 avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || moduleFilter(organization = "org", name = "name")
 ```
 
-Avro dependencies can be included in the compilation of your own `avsc` files:
-```
-avroIncludes := Seq((avroUnpackDependencies / target).value)
-```
-This means you can reference types defined in dependencies in your own avro schemas.
-
 # License
 This program is distributed under the BSD license. See the file `LICENSE` for more details.
 
