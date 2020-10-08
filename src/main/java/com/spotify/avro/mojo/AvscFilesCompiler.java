@@ -27,6 +27,7 @@ public class AvscFilesCompiler {
   private boolean useNamespace;
   private boolean enableDecimalLogicalType;
   private boolean createSetters;
+  private boolean optionalGetters;
   private Map<AvroFileRef, Exception> compileExceptions;
   private boolean logCompileExceptions;
 
@@ -95,6 +96,9 @@ public class AvscFilesCompiler {
     compiler.setFieldVisibility(fieldVisibility);
     compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
     compiler.setCreateSetters(createSetters);
+    compiler.setGettersReturnOptional(optionalGetters);
+    compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
+
     try {
       compiler.compileToDestination(src.getFile(), outputDirectory);
     } catch (IOException e) {
@@ -162,5 +166,9 @@ public class AvscFilesCompiler {
 
   public void setLogCompileExceptions(final boolean logCompileExceptions) {
     this.logCompileExceptions = logCompileExceptions;
+  }
+
+  public void setOptionalGetters(final boolean optionalGetters) {
+    this.optionalGetters = optionalGetters;
   }
 }
