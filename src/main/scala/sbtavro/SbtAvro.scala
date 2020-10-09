@@ -93,6 +93,7 @@ object SbtAvro extends AutoPlugin {
     avroFieldVisibility := "public_deprecated",
     avroEnableDecimalLogicalType := true,
     avroUseNamespace := false,
+    avroOptionalGetters := false,
     avroSchemaParserBuilder := DefaultSchemaParserBuilder.default()
   )
 
