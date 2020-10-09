@@ -146,9 +146,9 @@ object SbtAvro extends AutoPlugin {
       compiler.setStringType(stringType)
       compiler.setFieldVisibility(fieldVisibility)
       compiler.setEnableDecimalLogicalType(enableDecimalLogicalType)
-      compiler.compileToDestination(null, target)
       compiler.setGettersReturnOptional(optionalGetters)
       compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters)
+      compiler.compileToDestination(null, target)
     }
   }
 
