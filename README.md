@@ -47,6 +47,7 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.10.0"
 | `avroUseNamespace`                   | `false`                                    | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`. |
 | `avroFieldVisibility`                | `public_deprecated`                        | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |
 | `avroEnableDecimalLogicalType`       | `true`                                     | Set to true to use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
+| `avroOptionalGetters`                | `false` (requires avro `1.10+`)            | Set to true to generate getters that return `Optional` for nullable fields. |
 
 ## Examples
 

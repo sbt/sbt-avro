@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AvscFilesCompiler {
@@ -27,7 +24,7 @@ public class AvscFilesCompiler {
   private boolean useNamespace;
   private boolean enableDecimalLogicalType;
   private boolean createSetters;
-  private boolean optionalGetters;
+  private Optional<Boolean> optionalGetters = Optional.empty();
   private Map<AvroFileRef, Exception> compileExceptions;
   private boolean logCompileExceptions;
 
@@ -96,8 +93,10 @@ public class AvscFilesCompiler {
     compiler.setFieldVisibility(fieldVisibility);
     compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
     compiler.setCreateSetters(createSetters);
-    compiler.setGettersReturnOptional(optionalGetters);
-    compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
+    if (optionalGetters.isPresent()) {
+      compiler.setGettersReturnOptional(optionalGetters.get());
+      compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters.get());
+    }
 
     try {
       compiler.compileToDestination(src.getFile(), outputDirectory);
@@ -169,6 +168,6 @@ public class AvscFilesCompiler {
   }
 
   public void setOptionalGetters(final boolean optionalGetters) {
-    this.optionalGetters = optionalGetters;
+    this.optionalGetters = Optional.of(optionalGetters);
   }
 }
