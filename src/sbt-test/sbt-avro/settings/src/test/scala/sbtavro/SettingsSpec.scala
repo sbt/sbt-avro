@@ -1,12 +1,12 @@
 package sbtavro
 
 import java.io.File
+import java.util.Optional
 
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
-
-import com.cavorite.test.settings.{Avsc, Avdl, Avpr}
+import com.cavorite.test.settings.{Avdl, Avpr, Avsc}
 
 class SettingsSpec extends Specification {
 
@@ -34,4 +34,15 @@ class SettingsSpec extends Specification {
     !classOf[Avpr].getDeclaredField("stringField").isAnnotationPresent(classOf[Deprecated])
   }
 
+  "avroOptionalGetters setting should be respected for *.avsc compilation" >> {
+    classOf[Avsc].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+  }
+
+  "avroOptionalGetters setting should be respected for *.avdl compilation" >> {
+    classOf[Avdl].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+  }
+
+  "avroOptionalGetters setting should be respected for *.avpr compilation" >> {
+    classOf[Avpr].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+  }
 }
