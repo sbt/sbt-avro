@@ -5,7 +5,7 @@
     "fields": [
         {
             "name": "stringField",
-            "type": "string"
+            "type": ["null", "string"]
         }
     ]
 }
