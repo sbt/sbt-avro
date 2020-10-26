@@ -115,3 +115,4 @@ This program is distributed under the BSD license. See the file `LICENSE` for mo
 - [Michel Davit](https://github.com/RustedBones)
 - [Mārtiņš Kalvāns](https://github.com/sisidra)
 - [Oskar Jung](https://github.com/ojung)
+- [Eric Palacios](https://github.com/epalace)
