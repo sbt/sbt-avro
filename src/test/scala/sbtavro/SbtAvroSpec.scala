@@ -84,6 +84,7 @@ class SbtAvroSpec extends Specification {
       enableDecimalLogicalType = true,
       useNamespace = false,
       optionalGetters = None,
+      createSetters = true,
       builder = builder
     )
 
