@@ -4,7 +4,7 @@ lazy val commonSettings = Seq(
   organization := "com.cavorite",
   publishTo := Some(Opts.resolver.sonatypeReleases),
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.10.0"
+    "org.apache.avro" % "avro" % "1.10.1"
   )
 )
 
