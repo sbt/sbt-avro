@@ -4,4 +4,4 @@ sys.props.get("plugin.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.10.1"
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.10.2"
