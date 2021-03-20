@@ -1,6 +1,6 @@
 
-lazy val avroVersion = "1.10.1"
-lazy val specs2Version = "4.9.3"
+lazy val avroVersion = "1.10.2"
+lazy val specs2Version = "4.10.6"
 
 // Provided configuration includes the lib at Runtime
 // for testing purpose, we don't want sbt to have the
