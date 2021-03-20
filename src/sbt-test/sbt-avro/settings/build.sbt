@@ -1,8 +1,8 @@
 name := "settings-test"
 
 libraryDependencies ++= Seq(
-  "org.apache.avro" % "avro" % "1.10.1",
-  "org.specs2" %% "specs2-core" % "4.9.4" % Test
+  "org.apache.avro" % "avro" % "1.10.2",
+  "org.specs2" %% "specs2-core" % "4.10.6" % Test
 )
 
 avroStringType := "String"
