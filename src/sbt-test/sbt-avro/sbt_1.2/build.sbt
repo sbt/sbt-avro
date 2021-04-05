@@ -1,3 +1,3 @@
 name := "basic-test"
-scalaVersion := "2.12.13"
+scalaVersion := "2.13.5"
 libraryDependencies += "org.apache.avro" % "avro" % "1.10.2"
