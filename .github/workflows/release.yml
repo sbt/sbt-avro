@@ -1,0 +1,20 @@
+name: Release
+on:
+  push:
+    branches: [master]
+    tags: ["*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java 1.8.0 setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: 1.8.0
+      - uses: olafurpg/setup-scala@v10
+      - name: Publish ${{ github.ref }}
+        run: sbt ci-release

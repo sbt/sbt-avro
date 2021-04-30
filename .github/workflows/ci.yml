@@ -1,0 +1,20 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache sbt
+        uses: coursier/cache-action@v5
+      - name: Java ${{matrix.java}} setup
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: ${{matrix.java}}
+      - run: sbt test scripted
+    strategy:
+      matrix:
+        java:
+          - 1.8.0
+          - 1.11.0
