@@ -27,14 +27,14 @@ lazy val `sbt-avro`: Project = project
       pluginCrossBuild / sbtVersion := "1.2.8",
 
       scalaVersion := appConfiguration.value.provider.scalaProvider.version,
-      scalacOptions in Compile ++= Seq("-deprecation"),
+      Compile / scalacOptions ++= Seq("-deprecation"),
 
       ivyConfigurations += CompileOnly,
       libraryDependencies ++= Seq(
         "org.apache.avro" % "avro-compiler" % avroVersion % Provided,
         "org.specs2" %% "specs2-core" % specs2Version % Test
       ),
-      unmanagedClasspath in Compile ++= update.value.select(configurationFilter(CompileOnly.name)),
+      Compile / unmanagedClasspath ++= update.value.select(configurationFilter(CompileOnly.name)),
 
       licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE")),
       publishTo := (bintray / publishTo).value,
