@@ -3,6 +3,7 @@ import sbt.Keys.scalaVersion
 lazy val commonSettings = Seq(
   organization := "com.cavorite",
   publishTo := Some(Opts.resolver.sonatypeReleases),
+  scalaVersion := "2.13.6",
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % "1.10.1"
   )
@@ -25,7 +26,6 @@ lazy val `transitive`: Project = project
   .settings(
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "2.12.11",
     Compile / packageAvro / publishArtifact := true,
     libraryDependencies ++= Seq(
       "com.cavorite" % "external" % "0.0.1-SNAPSHOT" classifier "avro",
@@ -37,12 +37,11 @@ lazy val root: Project = project
   .settings(commonSettings)
   .settings(
     name := "publishing-test",
-    scalaVersion := "2.12.11",
     avroDependencyIncludeFilter := avroDependencyIncludeFilter.value ||
       // add avro jar to unpack its json avsc schema
       moduleFilter(organization = "org.apache.avro", name = "avro"),
     libraryDependencies ++= Seq(
       "com.cavorite" %% "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
-      "org.specs2" %% "specs2-core" % "3.10.0" % "test"
+      "org.specs2" %% "specs2-core" % "4.12.0" % "test"
     )
   )
