@@ -42,6 +42,6 @@ lazy val root: Project = project
       moduleFilter(organization = "org.apache.avro", name = "avro"),
     libraryDependencies ++= Seq(
       "com.cavorite" %% "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
-      "org.specs2" %% "specs2-core" % "4.12.3" % Test
+      "org.specs2" %% "specs2-core" % "4.12.4-js-ec" % Test
     )
   )
