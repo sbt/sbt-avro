@@ -1,6 +1,6 @@
 {
     "name": "Avsc",
-    "namespace": "com.cavorite.test.settings",
+    "namespace": "com.github.sbt.avro.test.settings",
     "type": "record",
     "fields": [
         {

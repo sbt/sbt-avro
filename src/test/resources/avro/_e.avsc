@@ -1,6 +1,6 @@
 {
     "type": "enum",
-    "namespace": "com.cavorite",
+    "namespace": "com.github.sbt.sbtavro",
     "name": "_E",
     "doc": "Simple dependency",
     "symbols" : ["X", "XX", "XXX"]

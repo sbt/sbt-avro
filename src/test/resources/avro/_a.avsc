@@ -1,6 +1,6 @@
 {
     "type": "record",
-    "namespace": "com.cavorite",
+    "namespace": "com.github.sbt.sbtavro",
     "name": "_A",
     "doc": "Top-level schema testing simple dependent schema names",
     "fields": [{

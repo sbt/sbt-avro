@@ -1,6 +1,6 @@
 {
     "type": "record",
-    "name": "com.cavorite.C",
+    "name": "com.github.sbt.sbtavro.C",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "str",

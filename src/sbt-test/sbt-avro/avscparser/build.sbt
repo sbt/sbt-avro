@@ -10,5 +10,5 @@ libraryDependencies ++= Seq(
 avroSchemaParserBuilder := AnnotateWithArtifactSchemaParser
   .newBuilder(projectID.value)
   .copy(
-    types = singletonMap("B", Schema.createEnum("B", null, "com.cavorite.test.avscparser", singletonList("B1"))
+    types = singletonMap("B", Schema.createEnum("B", null, "com.github.sbt.avro.test", singletonList("B1"))
   ))

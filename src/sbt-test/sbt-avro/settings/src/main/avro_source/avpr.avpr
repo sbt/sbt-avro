@@ -1,5 +1,5 @@
 {
-    "namespace": "com.cavorite.test.settings",
+    "namespace": "com.github.sbt.avro.test.settings",
     "protocol": "ProtocolAvpr",
     "types": [
         {
