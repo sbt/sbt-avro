@@ -1,29 +1,29 @@
 {
     "type": "record",
-    "namespace": "com.github.sbt.sbtavro",
+    "namespace": "com.github.sbt.avro.test",
     "name": "A",
     "doc": "Top-level schema testing fully-qualified dependent schema names",
     "fields": [{
             "doc": "fully-qualified dependent union field",
             "name": "b",
-            "type": ["null", "com.github.sbt.sbtavro.B"]
+            "type": ["null", "com.github.sbt.avro.test.B"]
         },{
             "doc": "fully-qualified dependent record field",
             "name": "c",
-            "type": "com.github.sbt.sbtavro.C"
+            "type": "com.github.sbt.avro.test.C"
         },{
             "doc": "fully-qualified dependent array field",
             "name": "d",
             "type": {
                 "type": "array",
-                "items": "com.github.sbt.sbtavro.D"
+                "items": "com.github.sbt.avro.test.D"
             }
         },{
             "doc": "fully-qualified dependent enum field",
             "name": "e",
             "type": {
                 "type": "array",
-                "items": "com.github.sbt.sbtavro.E"
+                "items": "com.github.sbt.avro.test.E"
             }
         }
     ]

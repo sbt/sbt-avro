@@ -48,7 +48,7 @@ class SbtAvroSpec extends Specification {
   val sourceFiles = fullyQualifiedNames ++ simpleNames
 
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
-    val packageDir = new File(targetDir, "com/github/sbt/sbtavro")
+    val packageDir = new File(targetDir, "com/github/sbt/avro/test")
 
     val aJavaFile = new File(packageDir, "A.java")
     val bJavaFile = new File(packageDir, "B.java")

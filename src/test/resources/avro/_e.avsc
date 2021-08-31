@@ -1,6 +1,6 @@
 {
     "type": "enum",
-    "namespace": "com.github.sbt.sbtavro",
+    "namespace": "com.github.sbt.avro.test",
     "name": "_E",
     "doc": "Simple dependency",
     "symbols" : ["X", "XX", "XXX"]

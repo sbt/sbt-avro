@@ -1,11 +1,11 @@
 {
     "type": "record",
-    "namespace": "com.github.sbt.sbtavro",
+    "namespace": "com.github.sbt.avro.test",
     "name": "B",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "c",
-            "type": "com.github.sbt.sbtavro.C"
+            "type": "com.github.sbt.avro.test.C"
         }
     ]
 }

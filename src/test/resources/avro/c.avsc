@@ -1,6 +1,6 @@
 {
     "type": "record",
-    "name": "com.github.sbt.sbtavro.C",
+    "name": "com.github.sbt.avro.test.C",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "str",
