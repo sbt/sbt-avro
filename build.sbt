@@ -12,6 +12,7 @@ ThisBuild / githubWorkflowBuild := Seq(
 )
 ThisBuild / githubWorkflowTargetBranches := Seq("master")
 ThisBuild / githubWorkflowJavaVersions := Seq("1.8", "1.11")
+ThisBuild / githubWorkflowTargetTags := Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
 ThisBuild / githubWorkflowPublish := Seq(WorkflowStep.Sbt(
   commands = List("ci-release"),
