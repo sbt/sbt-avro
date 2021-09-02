@@ -1,4 +1,4 @@
-@namespace("com.cavorite.test.settings")
+@namespace("com.github.sbt.avro.test.settings")
 protocol ProtocolAvdl {
     record Avdl {
         union { null, string } stringField;

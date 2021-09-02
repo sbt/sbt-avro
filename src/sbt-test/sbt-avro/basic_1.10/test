@@ -1,42 +1,42 @@
-> set avroSchemaParserBuilder := sbtavro.DefaultSchemaParserBuilder.default().copy(validateDefaults = false)
+> set avroSchemaParserBuilder := com.github.sbt.avro.DefaultSchemaParserBuilder.default().copy(validateDefaults = false)
 > avroGenerate
 
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/A.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/B.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/C.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/D.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/E.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/_A.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/_B.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/_C.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/_D.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/_E.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/A.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/B.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/C.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/D.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/E.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/_A.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/_B.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/_C.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/_D.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/_E.java
 
 > compile
 
-$ exists target/scala-2.13/classes/com/cavorite/A.class
-$ exists target/scala-2.13/classes/com/cavorite/B.class
-$ exists target/scala-2.13/classes/com/cavorite/C.class
-$ exists target/scala-2.13/classes/com/cavorite/D.class
-$ exists target/scala-2.13/classes/com/cavorite/E.class
-$ exists target/scala-2.13/classes/com/cavorite/_A.class
-$ exists target/scala-2.13/classes/com/cavorite/_B.class
-$ exists target/scala-2.13/classes/com/cavorite/_C.class
-$ exists target/scala-2.13/classes/com/cavorite/_D.class
-$ exists target/scala-2.13/classes/com/cavorite/_E.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/A.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/B.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/C.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/D.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/E.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_A.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_B.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_C.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_D.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_E.class
 
 > test:compile
 
-$ exists target/scala-2.13/src_managed/test/compiled_avro/com/cavorite/X.java
-$ exists target/scala-2.13/src_managed/test/compiled_avro/com/cavorite/Y.java
-$ exists target/scala-2.13/src_managed/test/compiled_avro/com/cavorite/Z.java
-$ exists target/scala-2.13/test-classes/com/cavorite/X.class
-$ exists target/scala-2.13/test-classes/com/cavorite/Y.class
-$ exists target/scala-2.13/test-classes/com/cavorite/Z.class
+$ exists target/scala-2.13/src_managed/test/compiled_avro/com/github/sbt/avro/test/X.java
+$ exists target/scala-2.13/src_managed/test/compiled_avro/com/github/sbt/avro/test/Y.java
+$ exists target/scala-2.13/src_managed/test/compiled_avro/com/github/sbt/avro/test/Z.java
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
 
 > clean
 
-> set avroSchemaParserBuilder := sbtavro.DefaultSchemaParserBuilder.default().copy(validateDefaults = true)
+> set avroSchemaParserBuilder := com.github.sbt.avro.DefaultSchemaParserBuilder.default().copy(validateDefaults = true)
 
 # should fail because f.avsc has invalid default value
 -> avroGenerate

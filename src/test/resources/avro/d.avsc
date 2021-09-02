@@ -1,10 +1,10 @@
 {
     "type": "record",
-    "name": "com.cavorite.D",
+    "name": "com.github.sbt.avro.test.D",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "c",
-            "type": "com.cavorite.C"
+            "type": "com.github.sbt.avro.test.C"
         }
     ]
 }

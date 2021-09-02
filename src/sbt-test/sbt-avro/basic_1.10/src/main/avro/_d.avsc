@@ -1,6 +1,6 @@
 {
     "type": "record",
-    "namespace": "com.cavorite",
+    "namespace": "com.github.sbt.avro.test",
     "name": "_D",
     "doc": "Simple dependency",
     "fields": [{

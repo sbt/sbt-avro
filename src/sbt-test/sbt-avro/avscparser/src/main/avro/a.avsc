@@ -1,6 +1,6 @@
 {
     "name": "A",
-    "namespace": "com.cavorite.test.avscparser",
+    "namespace": "com.github.sbt.avro.test",
     "type": "record",
     "fields": [
         {

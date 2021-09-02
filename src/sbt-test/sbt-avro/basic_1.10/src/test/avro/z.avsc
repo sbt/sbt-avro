@@ -1,6 +1,6 @@
 {
   "type": "record",
-  "name": "com.cavorite.Z",
+  "name": "com.github.sbt.avro.test.Z",
   "doc": "Fully-qualified dependency",
   "fields": [{
     "name": "str",
