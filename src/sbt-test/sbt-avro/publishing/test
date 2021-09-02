@@ -8,25 +8,25 @@ $ exists external/target/external-0.0.1-SNAPSHOT-avro.jar
 
 > avroUnpackDependencies
 
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/external/avdl.avdl
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/external/avpr.avpr
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/external/avsc.avsc
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/transitive/avsc.avsc
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/external/avdl.avdl
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/external/avpr.avpr
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/external/avsc.avsc
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/transitive/avsc.avsc
 $ exists target/scala-2.13/src_managed/main/avro/org/apache/avro/data/Json.avsc
 
 > avroGenerate
 
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/external/Avdl.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/external/Avpr.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/external/Avsc.java
-$ exists target/scala-2.13/src_managed/main/compiled_avro/com/cavorite/transitive/Avsc.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/external/Avdl.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/external/Avpr.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/external/Avsc.java
+$ exists target/scala-2.13/src_managed/main/compiled_avro/com/github/sbt/avro/test/transitive/Avsc.java
 
 > compile
 
-$ exists target/scala-2.13/classes/com/cavorite/external/Avdl.class
-$ exists target/scala-2.13/classes/com/cavorite/external/Avpr.class
-$ exists target/scala-2.13/classes/com/cavorite/external/Avsc.class
-$ exists target/scala-2.13/classes/com/cavorite/transitive/Avsc.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avdl.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avpr.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avsc.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/transitive/Avsc.class
 
 > clean
 

@@ -1,4 +1,4 @@
-import com.spotify.avro.mojo.SchemaParserBuilder
+import com.github.sbt.avro.mojo.SchemaParserBuilder
 import org.apache.avro.Schema
 import sbt.ModuleID
 
@@ -12,7 +12,7 @@ class AnnotateWithArtifactSchemaParser(
   override def parse(file: java.io.File): org.apache.avro.Schema = {
     val schema = super.parse(file)
     if (schema.getType == org.apache.avro.Schema.Type.RECORD) {
-      schema.addProp("com.cavorite.sbt-avro.artifact", moduleID.toString())
+      schema.addProp("com.github.sbt.sbt-avro.artifact", moduleID.toString())
     }
     schema
   }

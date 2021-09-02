@@ -1,6 +1,6 @@
 {
   "type": "enum",
   "doc": "Fully-qualified dependency",
-  "name": "com.cavorite.E",
+  "name": "com.github.sbt.avro.test.E",
   "symbols" : ["A", "AA", "AAA"]
 }

@@ -1,10 +1,10 @@
 > compile
 
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/test/settings/Avdl.java
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/test/settings/Avpr.java
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/test/settings/ProtocolAvpr.java
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/test/settings/Avsc.java
-$ exists target/scala-2.13/src_managed/main/avro/com/cavorite/test/settings/ProtocolAvdl.java
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/settings/Avdl.java
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/settings/Avpr.java
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/settings/ProtocolAvpr.java
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/settings/Avsc.java
+$ exists target/scala-2.13/src_managed/main/avro/com/github/sbt/avro/test/settings/ProtocolAvdl.java
 
 > test
 

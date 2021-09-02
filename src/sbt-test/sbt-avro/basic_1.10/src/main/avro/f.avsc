@@ -1,6 +1,6 @@
 {
   "type": "record",
-  "name": "com.cavorite.F",
+  "name": "com.github.sbt.avro.test.F",
   "doc": "Wrong default for field",
   "fields": [
     {

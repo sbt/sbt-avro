@@ -1,11 +1,11 @@
 {
     "type": "record",
-    "namespace": "com.cavorite",
+    "namespace": "com.github.sbt.avro.test",
     "name": "B",
     "doc": "Fully-qualified dependency",
     "fields": [{
             "name": "c",
-            "type": "com.cavorite.C"
+            "type": "com.github.sbt.avro.test.C"
         }
     ]
 }
