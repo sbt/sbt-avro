@@ -2,7 +2,7 @@
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
-  if (orig.endsWith("-SNAPSHOT")) "3.2.0-SNAPSHOT"
+  if (orig.endsWith("-SNAPSHOT")) "3.2.1-SNAPSHOT"
   else orig
 }
 
