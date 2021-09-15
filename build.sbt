@@ -5,6 +5,7 @@ ThisBuild / version := {
   if (orig.endsWith("-SNAPSHOT")) "3.2.1-SNAPSHOT"
   else orig
 }
+ThisBuild / scalaVersion := "2.12.15"
 
 // sbt-github-actions
 ThisBuild / githubWorkflowBuild := Seq(
