@@ -5,7 +5,7 @@ name := "avscparser-test"
 scalaVersion := "2.13.6"
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.10.2",
-  "org.specs2" %% "specs2-core" % "4.12.12" % Test
+  "org.specs2" %% "specs2-core" % "4.13.0" % Test
 )
 avroSchemaParserBuilder := AnnotateWithArtifactSchemaParser
   .newBuilder(projectID.value)
