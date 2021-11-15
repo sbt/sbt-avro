@@ -65,7 +65,7 @@ object SbtAvro extends AutoPlugin {
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
       // dependencies
-      avroUnpackDependencies / includeFilter := AvroFilter,
+      avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
@@ -119,16 +119,17 @@ object SbtAvro extends AutoPlugin {
       ) { deps =>
         IO.createDirectory(extractTarget)
         deps.flatMap { dep =>
-          val fileFilter = includeFilter -- excludeFilter
-          // convert FileFilter to NameFilter
-          val nameFilter = NameFilter.fnToNameFilter(s => fileFilter.accept(new File(s)))
-          val set = IO.unzip(dep, extractTarget, nameFilter)
-          if (set.nonEmpty) {
-            streams.log.info("Extracted from " + dep + set.mkString(":\n * ", "\n * ", ""))
+          val filter = includeFilter -- excludeFilter
+          val (avroSpecs, filtered) = IO
+            .unzip(dep, extractTarget, AvroFilter)
+            .partition(filter.accept)
+          IO.delete(filtered)
+          if (avroSpecs.nonEmpty) {
+            streams.log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
           } else {
-            streams.log.info(s"Extracted no schemas from $dep")
+            streams.log.info(s"No Avro specification extracted from $dep")
           }
-          set
+          avroSpecs
         }
       }
       cached(Set(jar)).toSeq

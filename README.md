@@ -37,8 +37,8 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.10.2"
 |:-------------------------------------------|:-------------------------------------------|:------------|
 | `avroSource`                               | `sourceDirectory` / `avro`                 | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files. |
 | `avroSchemaParserBuilder`                  | `DefaultSchemaParserBuilder.default()`     | `.avsc` schema parser builder |
-| `avroUnpackDependencies` / `includeFilter` | All avro schemas                           | Schema files from dependencies to unpack |
-| `avroUnpackDependencies` / `excludeFilter` | Hidden files                               | Schema files from dependencies to exclude from unpacking |
+| `avroUnpackDependencies` / `includeFilter` | All avro specifications                    | Avro specification files from dependencies to unpack |
+| `avroUnpackDependencies` / `excludeFilter` | Hidden files                               | Avro specification files from dependencies to exclude from unpacking |
 | `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro`                   | Target directory for schemas packaged in the dependencies |
 | `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro`          | Source directory for generated `.java` files. |
 | `avroDependencyIncludeFilter`              | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation |
