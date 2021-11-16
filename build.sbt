@@ -2,7 +2,7 @@
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
-  if (orig.endsWith("-SNAPSHOT")) "3.4.0-SNAPSHOT"
+  if (orig.endsWith("-SNAPSHOT")) "3.4.1-SNAPSHOT"
   else orig
 }
 ThisBuild / scalaVersion := "2.12.15" // scala-steward:off
