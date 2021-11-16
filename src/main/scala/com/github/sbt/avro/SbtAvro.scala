@@ -37,7 +37,7 @@ object SbtAvro extends AutoPlugin {
     // format: off
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Set to true to use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\".")
-    val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public, public_deprecated. Default: public_deprecated.")
+    val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public. Default: public.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc.")
     val avroOptionalGetters = settingKey[Boolean]("Set to true to generate getters that return Optional for nullable fields")
     val avroCreateSetters = settingKey[Boolean]("Set to false to not generate setters. Default: true")
@@ -95,7 +95,7 @@ object SbtAvro extends AutoPlugin {
 
   override lazy val globalSettings: Seq[Setting[_]] = Seq(
     avroStringType := "CharSequence",
-    avroFieldVisibility := "public_deprecated",
+    avroFieldVisibility := "public",
     avroEnableDecimalLogicalType := true,
     avroUseNamespace := false,
     avroOptionalGetters := false,

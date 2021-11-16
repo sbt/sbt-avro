@@ -21,14 +21,14 @@ addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.2.0")
 // Java sources compiled with one version of Avro might be incompatible with a
 // different version of the Avro library. Therefore we specify the compiler
 // version here explicitly.
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.10.2"
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.11.0"
 ```
 
 Add the library dependency to `build.sbt`:
 
 ```
 // Version must match that of `avro-compiler` in `project/plugins.sbt`
-libraryDependencies += "org.apache.avro" % "avro" % "1.10.2"
+libraryDependencies += "org.apache.avro" % "avro" % "1.11.0"
 ```
 
 ## Settings
@@ -47,7 +47,7 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.10.2"
 | `packageAvro` / `publishArtifact`          | `false`                                    | Enable / Disable avro artifact publishing |
 | `avroStringType`                           | `CharSequence`                             | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`. |
 | `avroUseNamespace`                         | `false`                                    | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`. |
-| `avroFieldVisibility`                      | `public_deprecated`                        | Field Visibility for the properties. Possible values: `private`, `public`, `public_deprecated`. |
+| `avroFieldVisibility`                      | `public`                                   | Field Visibility for the properties. Possible values: `private`, `public`. |
 | `avroEnableDecimalLogicalType`             | `true`                                     | Set to true to use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
 | `avroOptionalGetters`                      | `false` (requires avro `1.10+`)            | Set to true to generate getters that return `Optional` for nullable fields. |
 
