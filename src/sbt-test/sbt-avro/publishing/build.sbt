@@ -43,5 +43,6 @@ lazy val root: Project = project
     libraryDependencies ++= Seq(
       "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
       "org.specs2" %% "specs2-core" % "4.13.0" % Test
-    )
+    ),
+    Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc"
   )

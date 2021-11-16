@@ -1,0 +1,11 @@
+{
+    "name": "Excluded",
+    "namespace": "com.github.sbt.avro.test.external",
+    "type": "record",
+    "fields": [
+        {
+            "name": "stringField",
+            "type": "string"
+        }
+    ]
+}

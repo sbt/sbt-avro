@@ -1,6 +1,5 @@
 package com.github.sbt.avro
 
-import java.io.File
 import org.apache.avro.Protocol
 import org.apache.avro.compiler.idl.Idl
 import org.apache.avro.compiler.specific.SpecificCompiler
@@ -8,10 +7,12 @@ import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import sbt.Keys._
 import sbt._
-import Path.relativeTo
 import CrossVersion.partialVersion
+import Path.relativeTo
 import com.github.sbt.avro.mojo.{AvroFileRef, SchemaParserBuilder}
 import sbt.librarymanagement.DependencyFilter
+
+import java.io.File
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -64,6 +65,8 @@ object SbtAvro extends AutoPlugin {
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
       avroSource := sourceDirectory.value / "avro",
       // dependencies
+      avroUnpackDependencies / includeFilter := AllPassFilter,
+      avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
       // source generation
@@ -105,6 +108,8 @@ object SbtAvro extends AutoPlugin {
 
   private def unpack(deps: Seq[File],
                      extractTarget: File,
+                     includeFilter: FileFilter,
+                     excludeFilter: FileFilter,
                      streams: TaskStreams): Seq[File] = {
     def cachedExtractDep(jar: File): Seq[File] = {
       val cached = FileFunction.cached(
@@ -114,11 +119,17 @@ object SbtAvro extends AutoPlugin {
       ) { deps =>
         IO.createDirectory(extractTarget)
         deps.flatMap { dep =>
-          val set = IO.unzip(dep, extractTarget, AvroFilter)
-          if (set.nonEmpty) {
-            streams.log.info("Extracted from " + dep + set.mkString(":\n * ", "\n * ", ""))
+          val filter = includeFilter -- excludeFilter
+          val (avroSpecs, filtered) = IO
+            .unzip(dep, extractTarget, AvroFilter)
+            .partition(filter.accept)
+          IO.delete(filtered)
+          if (avroSpecs.nonEmpty) {
+            streams.log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
+          } else {
+            streams.log.info(s"No Avro specification extracted from $dep")
           }
-          set
+          avroSpecs
         }
       }
       cached(Set(jar)).toSeq
@@ -134,9 +145,11 @@ object SbtAvro extends AutoPlugin {
       .toSeq.map { case (_, _, _, file) => file }.distinct
 
     unpack(
-      avroArtifacts,
-      (key / target).value,
-      (key / streams).value
+      deps = avroArtifacts,
+      extractTarget = (key / target).value,
+      includeFilter = (key / includeFilter).value,
+      excludeFilter = (key / excludeFilter).value,
+      streams = (key / streams).value,
     )
   }
 
