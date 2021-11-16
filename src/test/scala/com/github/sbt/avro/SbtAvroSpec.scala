@@ -80,7 +80,7 @@ class SbtAvroSpec extends Specification {
       target = targetDir,
       log = logger,
       stringType = StringType.CharSequence,
-      fieldVisibility = FieldVisibility.PUBLIC_DEPRECATED,
+      fieldVisibility = FieldVisibility.PRIVATE,
       enableDecimalLogicalType = true,
       useNamespace = false,
       optionalGetters = None,
