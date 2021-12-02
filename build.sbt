@@ -54,7 +54,7 @@ lazy val `sbt-avro`: Project = project
       Compile / scalacOptions ++= Seq("-deprecation"),
       libraryDependencies ++= Seq(
         Dependencies.Provided.AvroCompiler,
-        Dependencies.Test.Spec2
+        Dependencies.Test.Specs2
       ),
       scriptedLaunchOpts ++= Seq(
         "-Xmx1024M",
