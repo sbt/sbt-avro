@@ -4,7 +4,7 @@ object Dependencies {
 
   object Versions {
     val Avro = "1.11.0"
-    val Specs2 = "4.13.0"
+    val Specs2 = "4.13.1"
   }
 
   object Provided {
@@ -12,6 +12,6 @@ object Dependencies {
   }
 
   object Test {
-    val Spec2 = "org.specs2" %% "specs2-core" % Versions.Specs2 % "test"
+    val Specs2 = "org.specs2" %% "specs2-core" % Versions.Specs2 % "test"
   }
 }
