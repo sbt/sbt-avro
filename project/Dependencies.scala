@@ -4,7 +4,7 @@ object Dependencies {
 
   object Versions {
     val Avro = "1.11.0"
-    val Specs2 = "4.15.0"
+    val Specs2 = "4.16.1"
   }
 
   object Provided {
