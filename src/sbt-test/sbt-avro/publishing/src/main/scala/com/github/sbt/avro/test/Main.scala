@@ -1,6 +1,4 @@
-import com.github.sbt.avro.test.external
-import com.github.sbt.avro.test.transitive
-
+package com.github.sbt.avro.test
 
 object Main extends App {
 

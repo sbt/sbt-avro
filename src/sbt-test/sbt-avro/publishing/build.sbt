@@ -27,6 +27,7 @@ lazy val `transitive`: Project = project
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
     Compile / packageAvro / publishArtifact := true,
+    Test / publishArtifact := true,
     libraryDependencies ++= Seq(
       "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" classifier "avro",
     )
@@ -37,12 +38,12 @@ lazy val root: Project = project
   .settings(commonSettings)
   .settings(
     name := "publishing-test",
-    avroDependencyIncludeFilter := avroDependencyIncludeFilter.value ||
-      // add avro jar to unpack its json avsc schema
-      moduleFilter(organization = "org.apache.avro", name = "avro"),
     libraryDependencies ++= Seq(
       "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
+      "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" % Test classifier "tests",
       "org.specs2" %% "specs2-core" % "4.16.1" % Test
     ),
+    // make test only depend on
+    avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || artifactFilter(name = "transitive_2.13", classifier = "tests"),
     Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc"
   )
