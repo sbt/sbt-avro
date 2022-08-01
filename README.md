@@ -27,8 +27,7 @@ libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.11.0"
 Add the library dependency to `build.sbt`:
 
 ```
-// Version must match that of `avro-compiler` in `project/plugins.sbt`
-libraryDependencies += "org.apache.avro" % "avro" % "1.11.0"
+libraryDependencies += "org.apache.avro" % "avro" % avroCompilerVersion
 ```
 
 ## Settings

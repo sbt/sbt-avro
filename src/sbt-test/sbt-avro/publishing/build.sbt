@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
   publishTo := Some(Opts.resolver.sonatypeReleases),
   scalaVersion := "2.13.6",
   libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % "1.11.0"
+    "org.apache.avro" % "avro" % avroCompilerVersion
   )
 )
 

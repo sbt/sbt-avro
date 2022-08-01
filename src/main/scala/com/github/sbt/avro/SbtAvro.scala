@@ -13,6 +13,7 @@ import com.github.sbt.avro.mojo.{AvroFileRef, SchemaParserBuilder}
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
+import java.util.jar.JarFile
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -21,7 +22,15 @@ object SbtAvro extends AutoPlugin {
 
   val AvroClassifier = "avro"
 
-  private val avroCompilerVersion = classOf[SpecificCompiler].getPackage.getImplementationVersion
+  // since 1.10, avro defines Implementation-Version in artifact manifest
+  private def implVersion = Option(classOf[SpecificCompiler].getPackage.getImplementationVersion)
+
+  // avro defines OSGI Bundle-Version in artifact manifest
+  private def bundleVersion = {
+    val location = classOf[SpecificCompiler].getProtectionDomain.getCodeSource.getLocation
+    val jar = new JarFile(new File(location.toURI))
+    jar.getManifest.getMainAttributes.getValue("Bundle-Version")
+  }
 
   private val AvroAvrpFilter: NameFilter = "*.avpr"
   private val AvroAvdlFilter: NameFilter = "*.avdl"
@@ -33,6 +42,8 @@ object SbtAvro extends AutoPlugin {
   object autoImport {
 
     import Defaults._
+
+    lazy val avroCompilerVersion: String = implVersion.getOrElse(bundleVersion)
 
     // format: off
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
