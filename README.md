@@ -16,7 +16,7 @@ Add the plugin according to the [sbt documentation](https://www.scala-sbt.org/1.
 For instance, add the following lines to `project/plugins.sbt`:
 
 ```
-addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.4.0")
+addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.4.1")
 
 // Java sources compiled with one version of Avro might be incompatible with a
 // different version of the Avro library. Therefore we specify the compiler
@@ -39,8 +39,8 @@ libraryDependencies += "org.apache.avro" % "avro" % "1.11.0"
 | `avroSchemaParserBuilder`                  | `DefaultSchemaParserBuilder.default()`     | `.avsc` schema parser builder |
 | `avroUnpackDependencies` / `includeFilter` | All avro specifications                    | Avro specification files from dependencies to unpack |
 | `avroUnpackDependencies` / `excludeFilter` | Hidden files                               | Avro specification files from dependencies to exclude from unpacking |
-| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro`                   | Target directory for schemas packaged in the dependencies |
-| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro`          | Source directory for generated `.java` files. |
+| `avroUnpackDependencies` / `target`        | `target` / `avro` / `$config`              | Target directory for schemas packaged in the dependencies |
+| `avroGenerate` / `target`                  | `target` / `compiled_avro` / `$config`     | Source directory for generated `.java` files. |
 | `avroDependencyIncludeFilter`              | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation |
 | `avroIncludes`                             | `Seq()`                                    | Paths with extra `*.avsc` files to be included in compilation. |
 | `packageAvro` / `artifactClassifier`       | `Some("avro")`                             | Classifier for avro artifact |
