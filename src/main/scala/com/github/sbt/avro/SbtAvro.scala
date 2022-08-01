@@ -59,6 +59,9 @@ object SbtAvro extends AutoPlugin {
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
+      // use a custom folders to avoid potential conflict with other generators
+      avroUnpackDependencies / target := sourceManaged.value / "avro",
+      avroGenerate / target := sourceManaged.value / "compiled_avro"
     )
 
     // settings to be applied for both Compile and Test
@@ -67,10 +70,10 @@ object SbtAvro extends AutoPlugin {
       // dependencies
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
-      avroUnpackDependencies / target := sourceManaged.value / "avro",
+      avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
       avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
       // source generation
-      avroGenerate / target := sourceManaged.value / "compiled_avro",
+      avroGenerate / target := configSrcSub(avroGenerate / target).value,
       managedSourceDirectories += (avroGenerate / target).value,
       avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
       sourceGenerators += avroGenerate.taskValue,
@@ -139,10 +142,12 @@ object SbtAvro extends AutoPlugin {
   }
 
   private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
+    val conf = configuration.value.toConfigRef
     val avroArtifacts = update
       .value
-      .filter((key / avroDependencyIncludeFilter).value)
-      .toSeq.map { case (_, _, _, file) => file }.distinct
+      .filter(avroDependencyIncludeFilter.value)
+      .toSeq
+      .collect { case (`conf`, _, _, file) => file }
 
     unpack(
       deps = avroArtifacts,
