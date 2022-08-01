@@ -43,7 +43,8 @@ lazy val root: Project = project
       "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" % Test classifier "tests",
       "org.specs2" %% "specs2-core" % "4.16.1" % Test
     ),
-    // make test only depend on
+    // add additional transitive test jar
     avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || artifactFilter(name = "transitive_2.13", classifier = "tests"),
+    // exclude specific avsc file
     Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc"
   )
