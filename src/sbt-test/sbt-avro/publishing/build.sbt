@@ -1,9 +1,7 @@
-import sbt.Keys.scalaVersion
-
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
   publishTo := Some(Opts.resolver.sonatypeReleases),
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.13.11",
   libraryDependencies ++= Seq(
     "org.apache.avro" % "avro" % avroCompilerVersion
   )

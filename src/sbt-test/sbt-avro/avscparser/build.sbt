@@ -2,7 +2,7 @@ import java.util.Collections.{singletonMap, singletonList}
 import org.apache.avro.Schema
 
 name := "avscparser-test"
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.11"
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.11.1",
   "org.specs2" %% "specs2-core" % "4.19.2" % Test
