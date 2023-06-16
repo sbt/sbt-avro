@@ -1,7 +1,7 @@
 sbt-avro
 ========
 
-[![Build Status](https://travis-ci.org/sbt/sbt-avro.svg?branch=master)](https://travis-ci.org/sbt/sbt-avro)
+[![Build Status](https://github.com/sbt/sbt-avro/actions/workflows/ci.yml/badge.svg)](https://github.com/sbt/sbt-avro/actions/workflows/ci.yml)
 
 # Overview
 

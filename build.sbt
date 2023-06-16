@@ -11,7 +11,7 @@ ThisBuild / scalaVersion := "2.12.18"
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(name = Some("Build project"), commands = List("compile", "test", "scripted"))
 )
-ThisBuild / githubWorkflowTargetBranches := Seq("master")
+ThisBuild / githubWorkflowTargetBranches := Seq("main")
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("8"), JavaSpec.temurin("11"))
 ThisBuild / githubWorkflowTargetTags := Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
@@ -33,7 +33,7 @@ lazy val `sbt-avro`: Project = project
       organizationName := "sbt",
       organizationHomepage := Some(url("https://www.scala-sbt.org/")),
       homepage := Some(url("https://github.com/sbt/sbt-avro")),
-      licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/master/LICENSE")),
+      licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/main/LICENSE")),
       description := "Sbt plugin for compiling Avro sources",
       scmInfo := Some(ScmInfo(url("https://github.com/sbt/sbt-avro"), "scm:git:git@github.com:sbt/sbt-avro.git")),
       developers := List(
