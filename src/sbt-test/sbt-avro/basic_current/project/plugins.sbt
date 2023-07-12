@@ -4,4 +4,4 @@ sys.props.get("plugin.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.11.1" // scala-steward:off
+libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.11.2" // scala-steward:off
