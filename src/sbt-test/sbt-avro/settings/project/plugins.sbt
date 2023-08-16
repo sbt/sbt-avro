@@ -4,4 +4,8 @@ sys.props.get("plugin.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.11.2"
+libraryDependencies ++= Seq(
+  "org.apache.avro" % "avro-compiler" % "1.11.2",
+  // depend on test jar to get some generated records in the build
+  "org.apache.avro" % "avro" % "1.11.2" classifier "tests"
+)
