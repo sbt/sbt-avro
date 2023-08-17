@@ -39,7 +39,7 @@ lazy val root: Project = project
     libraryDependencies ++= Seq(
       "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
       "com.github.sbt" %% "transitive" % "0.0.1-SNAPSHOT" % Test classifier "tests",
-      "org.specs2" %% "specs2-core" % "4.20.0" % Test
+      "org.specs2" %% "specs2-core" % "4.20.2" % Test
     ),
     // add additional transitive test jar
     avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || artifactFilter(name = "transitive_2.13", classifier = "tests"),
