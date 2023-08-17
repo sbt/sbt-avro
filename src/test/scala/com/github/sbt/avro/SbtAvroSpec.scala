@@ -1,54 +1,54 @@
 package com.github.sbt.avro
 
-import java.io.File
-
 import com.github.sbt.avro.mojo.AvroFileRef
+import com.github.sbt.avro.test.{TestSpecificRecord, TestSpecificRecordParent}
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
 import sbt.util.Logger
 
-/**
-  * Created by jeromewacongne on 06/08/2015.
-  */
+import java.io.File
+import java.nio.file.Files
+
 class SbtAvroSpec extends Specification {
   val builder = DefaultSchemaParserBuilder.default()
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
-  val targetDir = new File(sourceDir.getParentFile, "generated")
+
+
+  val targetDir = Files.createTempDirectory("sbt-avro").toFile
+  val packageDir = new File(targetDir, "com/github/sbt/avro/test")
   val logger = Logger.Null
 
-  val fullyQualifiedNames = Seq(
-    new File(sourceDir, "a.avsc"),
-    new File(sourceDir, "b.avsc"),
-    new File(sourceDir, "c.avsc"),
-    new File(sourceDir, "d.avsc"),
-    new File(sourceDir, "e.avsc"))
-
-  val simpleNames = Seq(
-    new File(sourceDir, "_a.avsc"),
-    new File(sourceDir, "_b.avsc"),
-    new File(sourceDir, "_c.avsc"),
-    new File(sourceDir, "_d.avsc"),
-    new File(sourceDir, "_e.avsc"))
-
-  val expectedOrderFullyQualifiedNames = Seq(
-    new File(sourceDir, "c.avsc"),
-    new File(sourceDir, "e.avsc"),
-    new File(sourceDir, "d.avsc"),
-    new File(sourceDir, "b.avsc"),
-    new File(sourceDir, "a.avsc"))
-
-  val expectedOrderSimpleNames = Seq(
-    new File(sourceDir, "_c.avsc"),
-    new File(sourceDir, "_e.avsc"),
-    new File(sourceDir, "_d.avsc"),
-    new File(sourceDir, "_b.avsc"),
-    new File(sourceDir, "_a.avsc"))
-
-  val sourceFiles = fullyQualifiedNames ++ simpleNames
-
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
-    val packageDir = new File(targetDir, "com/github/sbt/avro/test")
+    val fullyQualifiedNames = Seq(
+      new File(sourceDir, "a.avsc"),
+      new File(sourceDir, "b.avsc"),
+      new File(sourceDir, "c.avsc"),
+      new File(sourceDir, "d.avsc"),
+      new File(sourceDir, "e.avsc"))
+
+    val simpleNames = Seq(
+      new File(sourceDir, "_a.avsc"),
+      new File(sourceDir, "_b.avsc"),
+      new File(sourceDir, "_c.avsc"),
+      new File(sourceDir, "_d.avsc"),
+      new File(sourceDir, "_e.avsc"))
+
+    val expectedOrderFullyQualifiedNames = Seq(
+      new File(sourceDir, "c.avsc"),
+      new File(sourceDir, "e.avsc"),
+      new File(sourceDir, "d.avsc"),
+      new File(sourceDir, "b.avsc"),
+      new File(sourceDir, "a.avsc"))
+
+    val expectedOrderSimpleNames = Seq(
+      new File(sourceDir, "_c.avsc"),
+      new File(sourceDir, "_e.avsc"),
+      new File(sourceDir, "_d.avsc"),
+      new File(sourceDir, "_b.avsc"),
+      new File(sourceDir, "_a.avsc"))
+
+    val sourceFiles = fullyQualifiedNames ++ simpleNames
 
     val aJavaFile = new File(packageDir, "A.java")
     val bJavaFile = new File(packageDir, "B.java")
@@ -99,7 +99,32 @@ class SbtAvroSpec extends Specification {
     _cJavaFile.isFile must beTrue
     _dJavaFile.isFile must beTrue
     _eJavaFile.isFile must beTrue
+  }
 
+  "It should be possible to compile types depending on others if classes are provided in right order" >> {
+    // TestSpecificRecordParent and TestSpecificRecord were previously generated from test_records.avsc
+    SbtAvro.recompile(
+      records = Seq(
+        // put parent 1st
+        classOf[TestSpecificRecordParent],
+        classOf[TestSpecificRecord]
+      ),
+      target = targetDir,
+      log = logger,
+      stringType = StringType.CharSequence,
+      fieldVisibility = FieldVisibility.PRIVATE,
+      enableDecimalLogicalType = true,
+      useNamespace = false,
+      optionalGetters = None,
+      createSetters = true,
+      builder = builder
+    )
+
+    val record = new File(packageDir, "TestSpecificRecord.java")
+    val recordParent = new File(packageDir, "TestSpecificRecordParent.java")
+
+    record.isFile must beTrue
+    recordParent.isFile must beTrue
   }
 
 }

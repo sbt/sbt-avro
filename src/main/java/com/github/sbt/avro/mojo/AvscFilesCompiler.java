@@ -4,6 +4,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaParseException;
 import org.apache.avro.compiler.specific.SpecificCompiler;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.specific.SpecificData;
+import org.apache.avro.specific.SpecificRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +75,47 @@ public class AvscFilesCompiler {
     }
   }
 
+  public void compileClasses(Set<Class<? extends SpecificRecord>> classes, File outputDirectory) {
+    Set<Class<?>> compiledClasses = new HashSet<>();
+    Set<Class<?>> uncompiledClasses = new HashSet<>(classes);
+
+    boolean progressed = true;
+    while (progressed && !uncompiledClasses.isEmpty()) {
+      progressed = false;
+      compileExceptions = new HashMap<>();
+
+      for (Class<?> clazz : uncompiledClasses) {
+        Schema schema = SpecificData.get().getSchema(clazz);
+        boolean success = tryCompile(null, schema, outputDirectory);
+        if (success) {
+          compiledClasses.add(clazz);
+          progressed = true;
+        }
+      }
+
+      uncompiledClasses.removeAll(compiledClasses);
+    }
+
+    if (!uncompiledClasses.isEmpty()) {
+      String failedFiles = uncompiledClasses.stream()
+              .map(Class::toString)
+              .collect(Collectors.joining(", "));
+      SchemaGenerationException ex = new SchemaGenerationException(
+              String.format("Can not re-compile class: %s", failedFiles));
+
+      for (Class<?> clazz : uncompiledClasses) {
+        Exception e = compileExceptions.get(clazz);
+        if (e != null) {
+          if (logCompileExceptions) {
+            LOG.error(clazz.toString(), e);
+          }
+          ex.addSuppressed(e);
+        }
+      }
+      throw ex;
+    }
+  }
+
   private boolean tryCompile(AvroFileRef src, File outputDirectory) {
     Schema.Parser successfulSchemaParser = stashParser();
     final Schema schema;
@@ -87,6 +130,10 @@ public class AvscFilesCompiler {
       throw new SchemaGenerationException(String.format("Error parsing schema file %s", src), e);
     }
 
+    return tryCompile(src.getFile(), schema, outputDirectory);
+  }
+
+  private boolean tryCompile(File src, Schema schema, File outputDirectory) {
     SpecificCompiler compiler = new SpecificCompiler(schema);
     compiler.setTemplateDir(templateDirectory);
     compiler.setStringType(stringType);
@@ -99,10 +146,10 @@ public class AvscFilesCompiler {
     }
 
     try {
-      compiler.compileToDestination(src.getFile(), outputDirectory);
+      compiler.compileToDestination(src, outputDirectory);
     } catch (IOException e) {
       throw new SchemaGenerationException(
-          String.format("Error compiling schema file %s to %s", src, outputDirectory), e);
+              String.format("Error compiling schema file %s to %s", src, outputDirectory), e);
     }
 
     return true;
