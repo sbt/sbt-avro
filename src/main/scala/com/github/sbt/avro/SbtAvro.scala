@@ -279,7 +279,6 @@ object SbtAvro extends AutoPlugin {
   }
 
   private[this] def compileAvroSchema(
-    records: Seq[Class[_ <: SpecificRecord]],
     srcDirs: Seq[File],
     target: File,
     log: Logger,
@@ -295,7 +294,6 @@ object SbtAvro extends AutoPlugin {
     val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
     val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
-    recompile(records, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
     compileIdls(avdls, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
     compileAvscs(avscs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
     compileAvprs(avprs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
@@ -325,7 +323,6 @@ object SbtAvro extends AutoPlugin {
       FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
         out.log.info(s"Avro compiler $avroCompilerVersion using stringType=$strType")
         compileAvroSchema(
-          records,
           srcDirs,
           outDir,
           out.log,
@@ -340,7 +337,17 @@ object SbtAvro extends AutoPlugin {
       }
     }
 
-    cachedCompile((srcDirs ** AvroFilter).get.toSet).toSeq
+    val recordOutputFiles = if(records.isEmpty) {
+      Set.empty[File]
+    } else {
+      recompile(
+        records, outDir, out.log, strType, fieldVis, enbDecimal, useNs,
+        optionalGetters, createSetters, builder
+      )
+      (outDir ** JavaFileFilter).get.toSet
+    }
+
+    (cachedCompile((srcDirs ** AvroFilter).get.toSet) ++ recordOutputFiles).toSeq
   }
 
 }
