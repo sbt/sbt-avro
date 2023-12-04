@@ -12,6 +12,10 @@ $ exists target/scala-2.13/src_managed/main/com/github/sbt/avro/test/settings/Pr
 
 > test
 
-> clean
+# test cache after file update
+$ touch src/main/avro_source/avsc.avsc
+> compile
 
+# test cache after clean
+> clean
 > compile
