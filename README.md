@@ -5,7 +5,8 @@ sbt-avro
 
 # Overview
 
-[sbt-avro](http://avro.apache.org) is a [sbt](http://www.scala-sbt.org) plugin for generating Java sources for Avro schemas. It also supports referencing schemas from different files.
+[sbt-avro](http://avro.apache.org) is a [sbt](http://www.scala-sbt.org) plugin for generating Java sources for Avro
+schemas. It also supports referencing schemas from different files.
 
 # Usage
 
@@ -32,24 +33,24 @@ libraryDependencies += "org.apache.avro" % "avro" % avroCompilerVersion
 
 ## Settings
 
-| Name                                       | Default                                    | Description                                                                             |
-|:-------------------------------------------|:-------------------------------------------|:----------------------------------------------------------------------------------------|
-| `avroSource`                               | `sourceDirectory` / `avro`                 | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files.                            |
-| `avroSpecificRecords`                      | `Seq.empty`                                | List of avro generated classes to recompile with current avro version and settings.     |
-| `avroSchemaParserBuilder`                  | `DefaultSchemaParserBuilder.default()`     | `.avsc` schema parser builder                                                           |
-| `avroUnpackDependencies` / `includeFilter` | All avro specifications                    | Avro specification files from dependencies to unpack                                    |
-| `avroUnpackDependencies` / `excludeFilter` | Hidden files                               | Avro specification files from dependencies to exclude from unpacking                    |
-| `avroUnpackDependencies` / `target`        | `target` / `avro` / `$config`              | Target directory for schemas packaged in the dependencies                               |
-| `avroGenerate` / `target`                  | `target` / `compiled_avro` / `$config`     | Source directory for generated `.java` files.                                           |
-| `avroDependencyIncludeFilter`              | `source` typed `avro` classifier artifacts | Dependencies containing avro schema to be unpacked for generation                       |
-| `avroIncludes`                             | `Seq()`                                    | Paths with extra `*.avsc` files to be included in compilation.                          |
-| `packageAvro` / `artifactClassifier`       | `Some("avro")`                             | Classifier for avro artifact                                                            |
-| `packageAvro` / `publishArtifact`          | `false`                                    | Enable / Disable avro artifact publishing                                               |
-| `avroStringType`                           | `CharSequence`                             | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
-| `avroUseNamespace`                         | `false`                                    | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`.     |
-| `avroFieldVisibility`                      | `public`                                   | Field Visibility for the properties. Possible values: `private`, `public`.              |
-| `avroEnableDecimalLogicalType`             | `true`                                     | Use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
-| `avroOptionalGetters`                      | `false` (requires avro `1.10+`)            | Generate getters that return `Optional` for nullable fields.                            |
+| Name                                       | Default                                       | Description                                                                             |
+|:-------------------------------------------|:----------------------------------------------|:----------------------------------------------------------------------------------------|
+| `avroSource`                               | `sourceDirectory` / `avro`                    | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files.                            |
+| `avroSpecificRecords`                      | `Seq.empty`                                   | List of avro generated classes to recompile with current avro version and settings.     |
+| `avroSchemaParserBuilder`                  | `DefaultSchemaParserBuilder.default()`        | `.avsc` schema parser builder                                                           |
+| `avroUnpackDependencies` / `includeFilter` | All avro specifications                       | Avro specification files from dependencies to unpack                                    |
+| `avroUnpackDependencies` / `excludeFilter` | Hidden files                                  | Avro specification files from dependencies to exclude from unpacking                    |
+| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`          | Target directory for schemas packaged in the dependencies                               |
+| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config` | Source directory for generated `.java` files.                                           |
+| `avroDependencyIncludeFilter`              | `source` typed `avro` classifier artifacts    | Dependencies containing avro schema to be unpacked for generation                       |
+| `avroIncludes`                             | `Seq()`                                       | Paths with extra `*.avsc` files to be included in compilation.                          |
+| `packageAvro` / `artifactClassifier`       | `Some("avro")`                                | Classifier for avro artifact                                                            |
+| `packageAvro` / `publishArtifact`          | `false`                                       | Enable / Disable avro artifact publishing                                               |
+| `avroStringType`                           | `CharSequence`                                | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
+| `avroUseNamespace`                         | `false`                                       | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`.     |
+| `avroFieldVisibility`                      | `public`                                      | Field Visibility for the properties. Possible values: `private`, `public`.              |
+| `avroEnableDecimalLogicalType`             | `true`                                        | Use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
+| `avroOptionalGetters`                      | `false` (requires avro `1.10+`)               | Generate getters that return `Optional` for nullable fields.                            |
 
 ## Tasks
 
@@ -80,6 +81,7 @@ Avro sources (`*.avsc`, `*.avdl` and `*.avpr` files) can be packaged in a separa
 `avro` classifier by running `packageAvro`.
 
 By default, `sbt-avro` does not publish this. You can enable it with
+
 ```sbt
 Compile / packageAvro / publishArtifact := true
 ```
@@ -101,11 +103,14 @@ avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || moduleFilter
 ```
 
 # License
+
 This program is distributed under the BSD license. See the file `LICENSE` for more details.
 
 # Credits
 
-`sbt-avro` is maintained by the [sbt Community](http://www.scala-sbt.org/release/docs/Community-Plugins.html). The initial code was based on a similar plugin: [`sbt-protobuf`](https://github.com/gseitz/sbt-protobuf). Feel free to file issues or pull requests.
+`sbt-avro` is maintained by the [sbt Community](http://www.scala-sbt.org/release/docs/Community-Plugins.html). The
+initial code was based on a similar plugin: [`sbt-protobuf`](https://github.com/gseitz/sbt-protobuf). Feel free to file
+issues or pull requests.
 
 # Contributors
 
