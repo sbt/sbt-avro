@@ -1,0 +1,11 @@
+> compile
+
+$ exists target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+-$ exec grep BigDecimal target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+-$ exec grep CharSequence target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+
+> test
+
+> clean
+
+> compile
