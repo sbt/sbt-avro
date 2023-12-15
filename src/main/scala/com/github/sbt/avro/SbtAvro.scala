@@ -295,6 +295,7 @@ object SbtAvro extends AutoPlugin {
     val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
     val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
+    log.info(s"Avro compiler $avroCompilerVersion using stringType=$stringType")
     recompile(records, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
     compileIdls(avdls, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
     compileAvscs(avscs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
@@ -324,8 +325,6 @@ object SbtAvro extends AutoPlugin {
     val cachedCompile = {
       import sbt.util.CacheStoreFactory
       import sbt.util.CacheImplicits._
-
-      out.log.info(s"Avro compiler $avroCompilerVersion using stringType=$strType")
 
       val cacheStoreFactory = CacheStoreFactory(out.cacheDirectory / "avro")
       val lastCache = { (action: Option[Set[File]] => Set[File]) =>
