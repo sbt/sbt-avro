@@ -1,0 +1,28 @@
+> avroGenerate
+$ exists target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+
+# reference file created after 1st generation
+$ touch target/reference.txt
+
+# cache should not recompile
+> avroGenerate
+$ newer target/reference.txt target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+
+# regenerate after clean
+> clean
+> avroGenerate
+$exists target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+
+# add new source file should re-compile
+$ copy-file record.avsc src/main/avro/record.avsc
+> avroGenerate
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/Record.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
+
+# update reference file
+$ touch target/reference.txt
+
+# cache should not recompile
+> avroGenerate
+$ newer target/reference.txt target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/Record.java
+$ newer target/reference.txt target/scala-2.13/src_managed/compiled_avro/main/org/apache/avro/specific/TestRecordWithLogicalTypes.java
