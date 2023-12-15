@@ -279,6 +279,7 @@ object SbtAvro extends AutoPlugin {
   }
 
   private[this] def compileAvroSchema(
+    records: Seq[Class[_ <: SpecificRecord]],
     srcDirs: Seq[File],
     target: File,
     log: Logger,
@@ -294,6 +295,7 @@ object SbtAvro extends AutoPlugin {
     val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
     val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
+    recompile(records, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
     compileIdls(avdls, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
     compileAvscs(avscs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
     compileAvprs(avprs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
@@ -303,7 +305,7 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
-    val records = avroSpecificRecords.value
+
     val srcDir = avroSource.value
     val externalSrcDir = (avroUnpackDependencies / target).value
     val includes = avroIncludes.value
@@ -320,34 +322,51 @@ object SbtAvro extends AutoPlugin {
     }
     val builder = avroSchemaParserBuilder.value
     val cachedCompile = {
-      FileFunction.cached(out.cacheDirectory / "avro", FilesInfo.lastModified, FilesInfo.exists) { _ =>
-        out.log.info(s"Avro compiler $avroCompilerVersion using stringType=$strType")
-        compileAvroSchema(
-          srcDirs,
-          outDir,
-          out.log,
-          strType,
-          fieldVis,
-          enbDecimal,
-          useNs,
-          optionalGetters,
-          createSetters,
-          builder
-        )
+      import sbt.util.CacheStoreFactory
+      import sbt.util.CacheImplicits._
+
+      out.log.info(s"Avro compiler $avroCompilerVersion using stringType=$strType")
+
+      val cacheStoreFactory = CacheStoreFactory(out.cacheDirectory / "avro")
+      val lastCache = { (action: Option[Set[File]] => Set[File]) =>
+        Tracked.lastOutput[Unit, Set[File]](cacheStoreFactory.make("last-cache")) {
+          case (_, l) => action(l)
+        }.apply(())
       }
+      val inCache = Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
+      val outCache = Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
+
+      (inputs: Set[File], records: Seq[Class[_ <: SpecificRecord]]) =>
+        lastCache { lastCache =>
+          inCache(inputs) { inReport =>
+            outCache { outReport =>
+              if ((lastCache.isEmpty && records.nonEmpty) || inReport.modified.nonEmpty || outReport.modified.nonEmpty) {
+                // compile if
+                // - no previous cache and we have records to recompile
+                // - input files have changed
+                // - output files are missing
+                compileAvroSchema(
+                  records,
+                  srcDirs,
+                  outDir,
+                  out.log,
+                  strType,
+                  fieldVis,
+                  enbDecimal,
+                  useNs,
+                  optionalGetters,
+                  createSetters,
+                  builder
+                )
+              } else {
+                outReport.checked
+              }
+            }
+          }
+        }
     }
 
-    val recordOutputFiles = if(records.isEmpty) {
-      Set.empty[File]
-    } else {
-      recompile(
-        records, outDir, out.log, strType, fieldVis, enbDecimal, useNs,
-        optionalGetters, createSetters, builder
-      )
-      (outDir ** JavaFileFilter).get.toSet
-    }
-
-    (cachedCompile((srcDirs ** AvroFilter).get.toSet) ++ recordOutputFiles).toSeq
+    cachedCompile((srcDirs ** AvroFilter).get.toSet, avroSpecificRecords.value).toSeq
   }
 
 }
