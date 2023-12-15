@@ -130,3 +130,4 @@ issues or pull requests.
 - [Mārtiņš Kalvāns](https://github.com/sisidra)
 - [Oskar Jung](https://github.com/ojung)
 - [Martin Achenbach](https://github.com/drachenbach)
+- [Kellen Dye](https://github.com/kellen)
