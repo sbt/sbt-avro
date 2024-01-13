@@ -2,7 +2,7 @@ name := "recompile-test"
 scalaVersion := "2.13.11"
 libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % avroCompilerVersion,
-  "org.specs2" %% "specs2-core" % "4.20.3" % Test
+  "org.specs2" %% "specs2-core" % "4.20.4" % Test
 )
 
 avroStringType := "String"
