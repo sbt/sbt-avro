@@ -5,7 +5,7 @@ sys.props.get("plugin.version") match {
 }
 
 libraryDependencies ++= Seq(
-  "org.apache.avro" % "avro-compiler" % "1.11.3",
+  "org.apache.avro" % "avro-compiler" % "1.12.0",
   // depend on test jar to get some generated records in the build
   "org.apache.avro" % "avro" % "1.11.3" classifier "tests"
 )
