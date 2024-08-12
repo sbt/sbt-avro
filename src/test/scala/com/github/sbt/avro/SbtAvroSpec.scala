@@ -34,20 +34,6 @@ class SbtAvroSpec extends Specification {
       new File(sourceDir, "_d.avsc"),
       new File(sourceDir, "_e.avsc"))
 
-    val expectedOrderFullyQualifiedNames = Seq(
-      new File(sourceDir, "c.avsc"),
-      new File(sourceDir, "e.avsc"),
-      new File(sourceDir, "d.avsc"),
-      new File(sourceDir, "b.avsc"),
-      new File(sourceDir, "a.avsc"))
-
-    val expectedOrderSimpleNames = Seq(
-      new File(sourceDir, "_c.avsc"),
-      new File(sourceDir, "_e.avsc"),
-      new File(sourceDir, "_d.avsc"),
-      new File(sourceDir, "_b.avsc"),
-      new File(sourceDir, "_a.avsc"))
-
     val sourceFiles = fullyQualifiedNames ++ simpleNames
 
     val aJavaFile = new File(packageDir, "A.java")

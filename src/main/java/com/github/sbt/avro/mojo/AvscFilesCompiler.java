@@ -1,5 +1,6 @@
 package com.github.sbt.avro.mojo;
 
+import org.apache.avro.AvroTypeException;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaParseException;
 import org.apache.avro.compiler.specific.SpecificCompiler;
@@ -122,7 +123,7 @@ public class AvscFilesCompiler {
     try {
       schema = schemaParser.parse(src.getFile());
       validateParsedSchema(src, schema);
-    } catch (SchemaParseException e) {
+    } catch (SchemaParseException | AvroTypeException e) {
       schemaParser = successfulSchemaParser;
       compileExceptions.put(src, e);
       return false;

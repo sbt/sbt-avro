@@ -1,1 +1,42 @@
-../basic_current/test
+> set avroSchemaParserBuilder := com.github.sbt.avro.LegacySchemaParserBuilder(validateDefaults = false)
+> avroGenerate
+
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/B.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/C.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/D.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/E.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_A.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_B.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_C.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_D.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_E.java
+
+> compile
+
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/A.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/B.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/C.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/D.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/E.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_A.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_B.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_C.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_D.class
+$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_E.class
+
+> Test/compile
+
+$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/X.java
+$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Y.java
+$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Z.java
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
+$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
+
+> clean
+
+> set avroSchemaParserBuilder := com.github.sbt.avro.LegacySchemaParserBuilder(validateDefaults = true)
+
+# should fail because f.avsc has invalid default value
+-> avroGenerate
