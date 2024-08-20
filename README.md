@@ -17,7 +17,7 @@ Add the plugin according to the [sbt documentation](https://www.scala-sbt.org/1.
 For instance, add the following lines to `project/plugins.sbt`:
 
 ```
-addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.4.3")
+addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.5.0")
 
 // Java sources compiled with one version of Avro might be incompatible with a
 // different version of the Avro library. Therefore we specify the compiler
