@@ -1,4 +1,4 @@
-> set avroSchemaParserBuilder := com.github.sbt.avro.NameValidatorSchemaParserBuilder(validateDefaults = false)
+> set avroSchemaParserBuilder := com.github.sbt.avro.LegacySchemaParserBuilder(validateDefaults = false)
 > avroGenerate
 
 $ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
@@ -36,7 +36,7 @@ $ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
 
 > clean
 
-> set avroSchemaParserBuilder := com.github.sbt.avro.NameValidatorSchemaParserBuilder(validateDefaults = true)
+> set avroSchemaParserBuilder := com.github.sbt.avro.LegacySchemaParserBuilder(validateDefaults = true)
 
 # should fail because f.avsc has invalid default value
 -> avroGenerate

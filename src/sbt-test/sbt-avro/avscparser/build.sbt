@@ -4,7 +4,7 @@ import org.apache.avro.Schema
 name := "avscparser-test"
 scalaVersion := "2.13.11"
 libraryDependencies ++= Seq(
-  "org.apache.avro" % "avro" % "1.11.3",
+  "org.apache.avro" % "avro" % avroCompilerVersion,
   "org.specs2" %% "specs2-core" % "4.20.8" % Test
 )
 avroSchemaParserBuilder := AnnotateWithArtifactSchemaParser
