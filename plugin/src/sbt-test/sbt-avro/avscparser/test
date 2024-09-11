@@ -1,0 +1,10 @@
+> compile
+
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/B.java
+
+-> test
+
+> clean
+
+> compile

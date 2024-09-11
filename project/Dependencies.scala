@@ -7,11 +7,14 @@ object Dependencies {
     val Specs2 = "4.20.8"
   }
 
+  val
+
   object Provided {
     val AvroCompiler =  "org.apache.avro" % "avro-compiler" % Versions.Avro % "provided"
   }
 
   object Test {
     val Specs2Core = "org.specs2" %% "specs2-core" % Versions.Specs2 % "test"
+    val AvroCompiler =  "org.apache.avro" % "avro-compiler" % Versions.Avro % "test"
   }
 }
