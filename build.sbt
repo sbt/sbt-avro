@@ -61,10 +61,7 @@ lazy val `sbt-avro-compiler-api`: Project = project
   .in(file("api"))
   .settings(
     crossPaths := false,
-    autoScalaLibrary := false,
-    libraryDependencies ++= Seq(
-      Dependencies.Provided.AvroCompiler
-    )
+    autoScalaLibrary := false
   )
 
 lazy val `sbt-avro-compiler-bridge`: Project = project
@@ -75,6 +72,7 @@ lazy val `sbt-avro-compiler-bridge`: Project = project
     autoScalaLibrary := false,
     libraryDependencies ++= Seq(
       Dependencies.Provided.AvroCompiler,
+      Dependencies.Provided.SbtUtilInterface,
       Dependencies.Test.Specs2Core,
     )
   )
