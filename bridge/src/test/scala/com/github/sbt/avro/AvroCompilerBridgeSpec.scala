@@ -4,18 +4,15 @@ import com.github.sbt.avro.test.{TestSpecificRecord, TestSpecificRecordParent}
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.specs2.mutable.Specification
-import sbt.util.Logger
 
 import java.io.File
 import java.nio.file.Files
 
-class SbtAvroSpec extends Specification {
-  // val builder = DefaultSchemaParserBuilder.default()
+class AvroCompilerBridgeSpec extends Specification {
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
 
-  val targetDir = Files.createTempDirectory("sbt-avro").toFile
+  val targetDir = Files.createTempDirectory("sbt-avro-compiler-bridge").toFile
   val packageDir = new File(targetDir, "com/github/sbt/avro/test")
-  val logger = Logger.Null
 
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
     val fullyQualifiedNames = Seq(
@@ -65,14 +62,12 @@ class SbtAvroSpec extends Specification {
     compiler.compileAvscs(
       refs.toArray,
       targetDir,
-//      log = logger,
       StringType.CharSequence,
       FieldVisibility.PRIVATE,
       true,
       false,
       false,
       true
-      // builder = builder
     )
 
     aJavaFile.isFile must beTrue
@@ -98,14 +93,12 @@ class SbtAvroSpec extends Specification {
         classOf[TestSpecificRecord]
       ),
       targetDir,
-//      log = logger,
       StringType.CharSequence,
       FieldVisibility.PRIVATE,
       true,
       false,
       false,
       true
-      // builder = builder
     )
 
     val record = new File(packageDir, "TestSpecificRecord.java")

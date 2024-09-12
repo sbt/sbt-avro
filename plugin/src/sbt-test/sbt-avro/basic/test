@@ -1,38 +1,44 @@
 #> set avroSchemaParserBuilder := com.github.sbt.avro.NameValidatorSchemaParserBuilder(validateDefaults = false)
+
 > avroGenerate
 
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/B.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/C.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/D.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/E.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_A.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_B.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_C.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_D.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_E.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/B.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/C.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/D.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/E.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_A.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_B.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_C.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_D.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/_E.java
+
+$ exists .avro-11/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists .avro-10/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists .avro-9/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
+$ exists .avro-8/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
 
 > compile
 
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/A.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/B.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/C.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/D.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/E.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_A.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_B.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_C.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_D.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/_E.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/A.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/B.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/C.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/D.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/E.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/_A.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/_B.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/_C.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/_D.class
+$ exists .avro-12/target/scala-2.13/classes/com/github/sbt/avro/test/_E.class
 
 > Test/compile
 
-$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/X.java
-$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Y.java
-$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Z.java
-$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
-$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
-$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/X.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Y.java
+$ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/Z.java
+$ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
+$ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
+$ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
 
 > clean
 

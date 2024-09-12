@@ -1,10 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
   publishTo := Some(Opts.resolver.sonatypeReleases),
-  scalaVersion := "2.13.15",
-  libraryDependencies ++= Seq(
-    "org.apache.avro" % "avro" % avroVersion.value
-  )
+  scalaVersion := "2.13.15"
 )
 
 lazy val javaOnlySettings = Seq(
@@ -15,6 +12,7 @@ lazy val javaOnlySettings = Seq(
 
 lazy val `external`: Project = project
   .in(file("external"))
+  .enablePlugins(SbtAvro)
   .settings(commonSettings)
   .settings(javaOnlySettings)
   .settings(
@@ -28,6 +26,7 @@ lazy val `external`: Project = project
 
 lazy val `transitive`: Project = project
   .in(file("transitive"))
+  .enablePlugins(SbtAvro)
   .settings(commonSettings)
   .settings(javaOnlySettings)
   .settings(
@@ -42,6 +41,7 @@ lazy val `transitive`: Project = project
 
 lazy val root: Project = project
   .in(file("."))
+  .enablePlugins(SbtAvro)
   .settings(commonSettings)
   .settings(
     name := "publishing-test",

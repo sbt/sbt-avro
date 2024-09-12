@@ -2,7 +2,7 @@
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
-  if (orig.endsWith("-SNAPSHOT")) "3.5.1-SNAPSHOT" else orig
+  if (orig.endsWith("-SNAPSHOT")) "4.0.0-SNAPSHOT" else orig
 }
 
 // metadata
@@ -57,7 +57,18 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
-lazy val `avro-compiler-api`: Project = project
+lazy val `sbt-avro-parent`: Project = project
+  .in(file("."))
+  .settings(
+    publish / skip := true
+  )
+  .aggregate(
+    `sbt-avro-compiler-api`,
+    `sbt-avro-compiler-bridge`,
+    `sbt-avro`
+  )
+
+lazy val `sbt-avro-compiler-api`: Project = project
   .in(file("api"))
   .settings(
     crossPaths := false,
@@ -67,32 +78,31 @@ lazy val `avro-compiler-api`: Project = project
     )
   )
 
-lazy val `avro-compiler-bridge`: Project = project
+lazy val `sbt-avro-compiler-bridge`: Project = project
   .in(file("bridge"))
-  .dependsOn(`avro-compiler-api`)
+  .dependsOn(`sbt-avro-compiler-api`)
   .settings(
     crossPaths := false,
     autoScalaLibrary := false,
     libraryDependencies ++= Seq(
-      Dependencies.Provided.AvroCompiler
+      Dependencies.Provided.AvroCompiler,
+      Dependencies.Test.Specs2Core
     )
   )
 
 lazy val `sbt-avro`: Project = project
   .in(file("plugin"))
   .dependsOn(
-    `avro-compiler-api`,
-    `avro-compiler-bridge` % "test"
+    `sbt-avro-compiler-api`,
+    `sbt-avro-compiler-bridge` % "test"
   )
-  .enablePlugins(SbtPlugin)
+  .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .settings(
     description := "Sbt plugin for compiling Avro sources",
+    buildInfoKeys := Seq[BuildInfoKey](name, version),
+    buildInfoPackage := "com.github.sbt.avro",
     pluginCrossBuild / sbtVersion := "1.3.0",
     Compile / scalacOptions ++= Seq("-deprecation"),
-    libraryDependencies ++= Seq(
-      Dependencies.Test.AvroCompiler,
-      Dependencies.Test.Specs2Core
-    ),
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",
       "-Dplugin.version=" + version.value

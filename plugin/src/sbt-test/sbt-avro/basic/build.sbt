@@ -1,41 +1,18 @@
 ThisBuild / scalaVersion := "2.13.11"
 
-lazy val basic: Project = project
+lazy val basic = crossProject(
+    Avro("1.12.0"),
+    Avro("1.11.3"),
+    Avro("1.10.0"),
+    Avro("1.9.2"),
+    Avro("1.8.2"),
+  )
+  .crossType(CrossType.Pure)
   .in(file("."))
-  .settings(
-    libraryDependencies += "org.apache.avro" % "avro" % avroVersion.value
+  .avroSettings("1.9.2")(
+      libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
   )
-
-lazy val `avro-11`: Project = project
-  .in(file(".avro_11"))
-  .settings(
-    avroVersion := "1.11.3",
-    libraryDependencies += "org.apache.avro" % "avro" % avroVersion.value,
-    sourceDirectory := (basic / sourceDirectory).value
+  .avroSettings("1.8.2")(
+    libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
   )
-
-lazy val `avro-10`: Project = project
-  .in(file(".avro_10"))
-  .settings(
-    avroVersion := "1.10.2",
-    libraryDependencies += "org.apache.avro" % "avro" % avroVersion.value,
-    sourceDirectory := (basic / sourceDirectory).value
-  )
-
-lazy val `avro-9`: Project = project
-  .in(file(".avro_9"))
-  .settings(
-    avroVersion := "1.9.2",
-    libraryDependencies += "org.apache.avro" % "avro" % avroVersion.value,
-    sourceDirectory := (basic / sourceDirectory).value
-  )
-
-lazy val `avro-8`: Project = project
-  .in(file(".avro_8"))
-  .settings(
-    avroVersion := "1.8.2",
-    libraryDependencies += "org.apache.avro" % "avro" % avroVersion.value,
-    sourceDirectory := (basic / sourceDirectory).value
-  )
-
 
