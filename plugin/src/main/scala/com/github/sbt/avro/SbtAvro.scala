@@ -1,15 +1,12 @@
 package com.github.sbt.avro
 
 import sbt.Keys.*
-import sbt.*
-import CrossVersion.partialVersion
+import sbt.{Def, *}
 import Path.relativeTo
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
 import java.net.URLClassLoader
-import java.util.jar.JarFile
-import scala.collection.JavaConverters.*
 
 /**
  * Simple plugin for generating the Java sources for Avro schemas and protocols.
@@ -37,13 +34,13 @@ object SbtAvro extends AutoPlugin {
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public. Default: public.")
     val avroIncludes = settingKey[Seq[File]]("Avro schema includes.")
     val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields. Default: false.")
-    val avroSpecificRecords = settingKey[Seq[Class[_]]]("List of avro records to recompile with current avro version and settings.")
+    val avroSpecificRecords = settingKey[Seq[String]]("List of avro records to recompile with current avro version and settings. Classes must be part of the Avro library dependencies.")
     // val avroSchemaParserBuilder = settingKey[SchemaParserBuilder](".avsc schema parser builder")
     val avroSource = settingKey[File]("Default Avro source directory.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc. Default: false.")
-    val avroVersion = settingKey[String]("")
+    val avroVersion = settingKey[String]("Avro version to use in the project. default: 1.12.0")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
     val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
@@ -64,8 +61,9 @@ object SbtAvro extends AutoPlugin {
       ivyConfigurations ++= Seq(Avro),
       avroVersion := "1.12.0",
       libraryDependencies ++= Seq(
-        "com.github.sbt" % "avro-compiler-bridge" % "3.5.1-SNAPSHOT" % Avro,
+        "com.github.sbt" % "sbt-avro-compiler-bridge" % BuildInfo.version % Avro,
         "org.apache.avro" % "avro-compiler" % avroVersion.value % Avro,
+        "org.apache.avro" % "avro" % avroVersion.value,
       )
     )
 
@@ -102,11 +100,11 @@ object SbtAvro extends AutoPlugin {
 
   import autoImport._
 
-  def packageAvroMappings = Def.task {
+  def packageAvroMappings: Def.Initialize[Task[Seq[(File, String)]]] = Def.task {
     (avroSource.value ** AvroFilter) pair relativeTo(avroSource.value)
   }
 
-  override def trigger: PluginTrigger = allRequirements
+  override def trigger: PluginTrigger = noTrigger
 
   override def requires: Plugins = sbt.plugins.JvmPlugin
 
@@ -188,7 +186,6 @@ object SbtAvro extends AutoPlugin {
     val useNs = avroUseNamespace.value
     val createSetters = avroCreateSetters.value
     val optionalGetters = avroOptionalGetters.value
-    // val builder = avroSchemaParserBuilder.value
 
     val cachedCompile = {
       import sbt.util.CacheStoreFactory
@@ -203,7 +200,7 @@ object SbtAvro extends AutoPlugin {
       val inCache = Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
       val outCache = Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
 
-      (inputs: Set[File], records: Seq[Class[_]]) =>
+      (inputs: Set[File], records: Seq[String]) =>
         lastCache { lastCache =>
           inCache(inputs) { inReport =>
             outCache { outReport =>
@@ -212,10 +209,8 @@ object SbtAvro extends AutoPlugin {
                 // - no previous cache and we have records to recompile
                 // - input files have changed
                 // - output files are missing
-                val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
-                val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
-                val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
+                // TODO Cache class loader
                 val avroClassLoader = new URLClassLoader(
                   "AvroClassLoader",
                   (Avro / managedClasspath).value.map(_.data.toURI.toURL).toArray,
@@ -228,9 +223,16 @@ object SbtAvro extends AutoPlugin {
                   .newInstance()
                   .asInstanceOf[AvroCompiler]
 
+                val recs = records.map(avroClassLoader.loadClass)
+                val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
+                val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
+                val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
+
+                out.log
+
                 compiler
                   .compileAvroSchema(
-                    records.toArray,
+                    recs.toArray,
                     avdls.toArray,
                     avscs.toArray,
                     avprs.toArray,

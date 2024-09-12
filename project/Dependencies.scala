@@ -7,8 +7,6 @@ object Dependencies {
     val Specs2 = "4.20.8"
   }
 
-  val
-
   object Provided {
     val AvroCompiler =  "org.apache.avro" % "avro-compiler" % Versions.Avro % "provided"
   }
