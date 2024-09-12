@@ -32,5 +32,3 @@ $ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/te
 $ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
 $ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
 $ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
-
-> clean

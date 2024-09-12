@@ -4,6 +4,7 @@ import sbt.Keys.*
 import sbt.*
 import Path.relativeTo
 import sbt.librarymanagement.DependencyFilter
+import xsbti.Logger
 
 import java.io.File
 import java.net.URLClassLoader
@@ -33,7 +34,6 @@ object SbtAvro extends AutoPlugin {
     val avroIncludes = settingKey[Seq[File]]("Avro schema includes.")
     val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields. Default: false.")
     val avroSpecificRecords = settingKey[Seq[String]]("List of avro records to recompile with current avro version and settings. Classes must be part of the Avro library dependencies.")
-    // val avroSchemaParserBuilder = settingKey[SchemaParserBuilder](".avsc schema parser builder")
     val avroSource = settingKey[File]("Default Avro source directory.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
@@ -116,7 +116,6 @@ object SbtAvro extends AutoPlugin {
     avroUseNamespace := false,
     avroOptionalGetters := false,
     avroCreateSetters := true
-    // avroSchemaParserBuilder := DefaultSchemaParserBuilder.default()
   )
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
@@ -184,6 +183,7 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
+    val version = avroVersion.value
     val srcDir = avroSource.value
     val externalSrcDir = (avroUnpackDependencies / target).value
     val includes = avroIncludes.value
@@ -232,39 +232,47 @@ object SbtAvro extends AutoPlugin {
 
                 val compiler = avroClassLoader
                   .loadClass("com.github.sbt.avro.AvroCompilerBridge")
-                  .getDeclaredConstructor()
-                  .newInstance()
-                  .asInstanceOf[AvroCompiler]
-
-                val recs = records.map(avroClassLoader.loadClass)
-                val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
-                val avscs = srcDirs.flatMap(d =>
-                  (d ** AvroAvscFilter).get.map(avsc =>
-                    new AvroFileRef(d, avsc.relativeTo(d).get.toString)
+                  .getDeclaredConstructor(
+                    classOf[Logger],
+                    classOf[String],
+                    classOf[String],
+                    classOf[Boolean],
+                    classOf[Boolean],
+                    classOf[Boolean],
+                    classOf[Boolean]
                   )
-                )
-                val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
-
-                out.log
-
-                compiler
-                  .compileAvroSchema(
-                    recs.toArray,
-                    avdls.toArray,
-                    avscs.toArray,
-                    avprs.toArray,
-                    outDir,
+                  .newInstance(
+                    out.log,
                     strType,
                     fieldVis,
-                    enbDecimal,
-                    useNs,
-                    createSetters,
-                    optionalGetters
+                    Boolean.box(useNs),
+                    Boolean.box(enbDecimal),
+                    Boolean.box(createSetters),
+                    Boolean.box(optionalGetters)
                   )
+                  .asInstanceOf[AvroCompiler]
 
-                avroClassLoader.close()
+                try {
+                  val recs = records.map(avroClassLoader.loadClass)
+                  val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
+                  val avscs = srcDirs.flatMap(d =>
+                    (d ** AvroAvscFilter).get.map(avsc =>
+                      new AvroFileRef(d, avsc.relativeTo(d).get.toString)
+                    )
+                  )
+                  val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
-                (outDir ** SbtAvro.JavaFileFilter).get.toSet
+                  out.log.info(s"Avro compiler $version using stringType=$strType")
+
+                  compiler.recompile(recs.toArray, outDir)
+                  compiler.compileIdls(avdls.toArray, outDir)
+                  compiler.compileAvscs(avscs.toArray, outDir)
+                  compiler.compileAvprs(avprs.toArray, outDir)
+
+                  (outDir ** SbtAvro.JavaFileFilter).get.toSet
+                } finally {
+                  avroClassLoader.close()
+                }
               } else {
                 outReport.checked
               }

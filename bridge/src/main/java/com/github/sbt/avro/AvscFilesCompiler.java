@@ -6,19 +6,15 @@ import org.apache.avro.compiler.specific.SpecificCompiler;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.specific.SpecificData;
 import org.apache.avro.specific.SpecificRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AvscFilesCompiler {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AvscFilesCompiler.class);
-
-  // private final SchemaParserBuilder builder;
   private Schema.Parser schemaParser;
   private String templateDirectory;
   private GenericData.StringType stringType;
@@ -29,7 +25,6 @@ public class AvscFilesCompiler {
   private Boolean gettersReturnOptional;
   private Boolean optionalGettersForNullableFieldsOnly;
   private Map<AvroFileRef, Exception> compileExceptions;
-  private boolean logCompileExceptions;
 
   public AvscFilesCompiler() {
     // this.builder = builder;
@@ -66,9 +61,6 @@ public class AvscFilesCompiler {
       for (AvroFileRef file : uncompiledFiles) {
         Exception e = compileExceptions.get(file);
         if (e != null) {
-          if (logCompileExceptions) {
-            LOG.error(file.toString(), e);
-          }
           ex.addSuppressed(e);
         }
       }
@@ -107,9 +99,6 @@ public class AvscFilesCompiler {
       for (Class<?> clazz : uncompiledClasses) {
         Exception e = compileExceptions.get(clazz);
         if (e != null) {
-          if (logCompileExceptions) {
-            LOG.error(clazz.toString(), e);
-          }
           ex.addSuppressed(e);
         }
       }
@@ -212,10 +201,6 @@ public class AvscFilesCompiler {
 
   public void setCreateSetters(boolean createSetters) {
     this.createSetters = createSetters;
-  }
-
-  public void setLogCompileExceptions(final boolean logCompileExceptions) {
-    this.logCompileExceptions = logCompileExceptions;
   }
 
   public void setGettersReturnOptional(final boolean gettersReturnOptional) {
