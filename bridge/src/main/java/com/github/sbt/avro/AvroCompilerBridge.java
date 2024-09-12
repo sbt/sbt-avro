@@ -1,30 +1,53 @@
 package com.github.sbt.avro;
 
+import org.apache.avro.Schema;
+import org.apache.avro.specific.SpecificRecord;
+import xsbti.Logger;
+
 import org.apache.avro.Protocol;
 import org.apache.avro.compiler.idl.Idl;
-import org.apache.avro.compiler.idl.ParseException;
 import org.apache.avro.compiler.specific.SpecificCompiler;
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility;
 import org.apache.avro.generic.GenericData.StringType;
-import org.apache.avro.specific.SpecificRecord;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AvroCompilerBridge implements AvroCompiler {
 
-    void recompile(
-            Class<? extends SpecificRecord>[] records,
-            File target,
-            StringType stringType,
-            FieldVisibility fieldVisibility,
-            Boolean enableDecimalLogicalType,
-            Boolean useNamespace,
-            Boolean optionalGetters,
-            Boolean createSetters
-            // builder: SchemaParserBuilder
+    private final Logger logger;
+    private final StringType stringType;
+    private final FieldVisibility fieldVisibility;
+    private final boolean useNamespace;
+    private final boolean enableDecimalLogicalType;
+    private final boolean createSetters;
+    private final boolean optionalGetters;
+
+    public AvroCompilerBridge(
+        Logger logger,
+        String stringType,
+        String fieldVisibility,
+        boolean useNamespace,
+        boolean enableDecimalLogicalType,
+        boolean createSetters,
+        boolean optionalGetters
     ) {
+        this.logger = logger;
+        this.stringType = StringType.valueOf(stringType);
+        this.fieldVisibility = FieldVisibility.valueOf(fieldVisibility);
+        this.useNamespace = useNamespace;
+        this.enableDecimalLogicalType = enableDecimalLogicalType;
+        this.createSetters = createSetters;
+        this.optionalGetters = optionalGetters;
+    }
+
+    protected Schema.Parser createParser() {
+        return new Schema.Parser();
+    }
+
+    @Override
+    public void recompile(Class<?>[] records, File target) throws Exception {
         AvscFilesCompiler compiler = new AvscFilesCompiler();
         compiler.setStringType(stringType);
         compiler.setFieldVisibility(fieldVisibility);
@@ -37,22 +60,20 @@ public class AvroCompilerBridge implements AvroCompiler {
         if (AvroVersion.getMinor() > 9) {
             compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
         }
-        compiler.setLogCompileExceptions(true);
         compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/");
-        compiler.compileClasses(Set.of(records), target);
+
+        Set<Class<? extends SpecificRecord>> classes = new HashSet<>();
+        for (Class<?> record : records) {
+            logger.info(() -> "Recompiling Avro record: " + record.getName());
+            classes.add((Class<? extends SpecificRecord>) record);
+        }
+        compiler.compileClasses(classes, target);
     }
 
-    void compileIdls(
-        File[] idls,
-        File target,
-        StringType stringType,
-        FieldVisibility fieldVisibility,
-        Boolean enableDecimalLogicalType,
-        Boolean optionalGetters,
-        Boolean createSetters
-    ) throws IOException, ParseException {
+    @Override
+    public void compileIdls(File[] idls, File target) throws Exception {
         for (File idl : idls) {
-//            log.info(s"Compiling Avro IDL $idl")
+            logger.info(() -> "Compiling Avro IDL " + idl);
             Idl parser = new Idl(idl);
             Protocol protocol = parser.CompilationUnit();
             SpecificCompiler compiler = new SpecificCompiler(protocol);
@@ -70,17 +91,8 @@ public class AvroCompilerBridge implements AvroCompiler {
         }
     }
 
-    void compileAvscs(
-            AvroFileRef[] avscs,
-            File target,
-            StringType stringType,
-            FieldVisibility fieldVisibility,
-            Boolean enableDecimalLogicalType,
-            Boolean useNamespace,
-            Boolean optionalGetters,
-            Boolean createSetters
-            // builder: SchemaParserBuilder
-    ) {
+    @Override
+    public void compileAvscs(AvroFileRef[] avscs, File target) throws Exception {
         AvscFilesCompiler compiler = new AvscFilesCompiler();
         compiler.setStringType(stringType);
         compiler.setFieldVisibility(fieldVisibility);
@@ -93,23 +105,20 @@ public class AvroCompilerBridge implements AvroCompiler {
         if (AvroVersion.getMinor() > 9) {
             compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
         }
-        compiler.setLogCompileExceptions(true);
         compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/");
 
+        Set<AvroFileRef> files = new HashSet<>();
+        for (AvroFileRef ref: avscs) {
+            logger.info(() -> "Compiling Avro schema: " + ref.getFile());
+            files.add(ref);
+        }
         compiler.compileFiles(Set.of(avscs), target);
     }
 
-    void compileAvprs(
-            File[] avprs,
-            File target,
-            StringType stringType,
-            FieldVisibility fieldVisibility,
-            Boolean enableDecimalLogicalType,
-            Boolean optionalGetters,
-            Boolean createSetters
-    ) throws IOException {
+    @Override
+    public void compileAvprs(File[] avprs, File target) throws Exception {
         for (File avpr : avprs) {
-//            log.info(s"Compiling Avro protocol $avpr")
+            logger.info(() -> "Compiling Avro protocol " + avpr);
             Protocol protocol = Protocol.parse(avpr);
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             compiler.setStringType(stringType);
@@ -123,34 +132,6 @@ public class AvroCompilerBridge implements AvroCompiler {
                 compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
             }
             compiler.compileToDestination(null, target);
-        }
-    }
-
-
-    @Override
-    public void compileAvroSchema(
-            Class<?>[] records,
-            File[] avdls,
-            AvroFileRef[] avscs,
-            File[] avprs,
-            File target,
-            String stringType,
-            String fieldVisibility,
-            Boolean enableDecimalLogicalType,
-            Boolean useNamespace,
-            Boolean optionalGetters,
-            Boolean createSetters) {
-        StringType stringTypeEnum = StringType.valueOf(stringType);
-        FieldVisibility fieldVisibilityEnum = FieldVisibility.valueOf(fieldVisibility);
-
-        try {
-            recompile((Class<? extends SpecificRecord>[]) records, target, stringTypeEnum, fieldVisibilityEnum, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters);
-
-            compileIdls(avdls, target, stringTypeEnum, fieldVisibilityEnum, enableDecimalLogicalType, optionalGetters, createSetters);
-            compileAvscs(avscs, target,stringTypeEnum, fieldVisibilityEnum, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters);
-            compileAvprs(avprs, target, stringTypeEnum, fieldVisibilityEnum, enableDecimalLogicalType, optionalGetters, createSetters);
-        } catch (Exception e) {
-            throw new RuntimeException("Avro schema compilation failed: " + e.getMessage(), e);
         }
     }
 }

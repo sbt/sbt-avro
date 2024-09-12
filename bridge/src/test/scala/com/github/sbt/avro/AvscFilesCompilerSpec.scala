@@ -3,16 +3,28 @@ package com.github.sbt.avro
 import com.github.sbt.avro.test.{TestSpecificRecord, TestSpecificRecordParent}
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
+import org.apache.avro.specific.SpecificRecord
 import org.specs2.mutable.Specification
 
 import java.io.File
 import java.nio.file.Files
+import scala.collection.JavaConverters._
 
-class AvroCompilerBridgeSpec extends Specification {
+class AvscFilesCompilerSpec extends Specification {
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
 
   val targetDir = Files.createTempDirectory("sbt-avro-compiler-bridge").toFile
   val packageDir = new File(targetDir, "com/github/sbt/avro/test")
+
+  val compiler = new AvscFilesCompiler()
+  compiler.setUseNamespace(false)
+  compiler.setStringType(StringType.CharSequence)
+  compiler.setFieldVisibility(FieldVisibility.PRIVATE)
+  compiler.setEnableDecimalLogicalType(true)
+  compiler.setGettersReturnOptional(true)
+  compiler.setOptionalGettersForNullableFieldsOnly(true)
+  compiler.setCreateSetters(true)
+  compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/")
 
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
     val fullyQualifiedNames = Seq(
@@ -58,17 +70,7 @@ class AvroCompilerBridgeSpec extends Specification {
     _eJavaFile.delete()
 
     val refs = sourceFiles.map(s => new AvroFileRef(sourceDir, s.getName))
-    val compiler = new AvroCompilerBridge
-    compiler.compileAvscs(
-      refs.toArray,
-      targetDir,
-      StringType.CharSequence,
-      FieldVisibility.PRIVATE,
-      true,
-      false,
-      false,
-      true
-    )
+    compiler.compileFiles(refs.toSet.asJava, targetDir)
 
     aJavaFile.isFile must beTrue
     bJavaFile.isFile must beTrue
@@ -85,20 +87,13 @@ class AvroCompilerBridgeSpec extends Specification {
 
   "It should be possible to compile types depending on others if classes are provided in right order" >> {
     // TestSpecificRecordParent and TestSpecificRecord were previously generated from test_records.avsc
-    val compiler = new AvroCompilerBridge
-    compiler.recompile(
-      Array(
+    compiler.compileClasses(
+      Set[Class[_ <: SpecificRecord]](
         // put parent 1st
         classOf[TestSpecificRecordParent],
         classOf[TestSpecificRecord]
-      ),
-      targetDir,
-      StringType.CharSequence,
-      FieldVisibility.PRIVATE,
-      true,
-      false,
-      false,
-      true
+      ).asJava,
+      targetDir
     )
 
     val record = new File(packageDir, "TestSpecificRecord.java")

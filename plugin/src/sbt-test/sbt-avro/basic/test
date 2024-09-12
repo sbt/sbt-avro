@@ -1,5 +1,3 @@
-#> set avroSchemaParserBuilder := com.github.sbt.avro.NameValidatorSchemaParserBuilder(validateDefaults = false)
-
 > avroGenerate
 
 $ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/A.java
@@ -39,10 +37,3 @@ $ exists .avro-12/target/scala-2.13/src_managed/compiled_avro/test/com/github/sb
 $ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/X.class
 $ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/Y.class
 $ exists .avro-12/target/scala-2.13/test-classes/com/github/sbt/avro/test/Z.class
-
-> clean
-
-#> set avroSchemaParserBuilder := com.github.sbt.avro.NameValidatorSchemaParserBuilder(validateDefaults = true)
-
-# should fail because f.avsc has invalid default value
-#-> avroGenerate

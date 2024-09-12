@@ -1,20 +1,10 @@
 package com.github.sbt.avro;
 
 import java.io.File;
-import java.io.IOException;
 
 public interface AvroCompiler {
-    void compileAvroSchema(
-            Class<?>[] records,
-            File[] avdls,
-            AvroFileRef[] avscs,
-            File[] avprs,
-            File target,
-            String stringType,
-            String fieldVisibility,
-            Boolean enableDecimalLogicalType,
-            Boolean useNamespace,
-            Boolean optionalGetters,
-            Boolean createSetters
-    ) throws IOException;
+    void recompile(Class<?>[] records, File target) throws Exception;
+    void compileIdls(File[] idls, File target) throws Exception;
+    void compileAvscs(AvroFileRef[] avscs, File target) throws Exception;
+    void compileAvprs(File[] avprs, File target) throws Exception;
 }
