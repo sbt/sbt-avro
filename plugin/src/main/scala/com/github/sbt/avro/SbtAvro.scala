@@ -4,7 +4,6 @@ import sbt.Keys.*
 import sbt.*
 import Path.relativeTo
 import sbt.librarymanagement.DependencyFilter
-import xsbti.Logger
 
 import java.io.File
 import java.net.URLClassLoader
@@ -27,14 +26,15 @@ object SbtAvro extends AutoPlugin {
     import Defaults._
 
     // format: off
+    val avroAdditionalDependencies = settingKey[Seq[ModuleID]]("Additional dependencies to be added to library dependencies.")
+    val avroCompiler = settingKey[String]("Sbt avro compiler class. Default: com.github.sbt.avro.AvroCompilerBridge")
     val avroCreateSetters = settingKey[Boolean]("Generate setters. Default: true")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\". Default: true.")
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public. Default: public.")
-    val avroIncludes = settingKey[Seq[File]]("Avro schema includes.")
     val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields. Default: false.")
     val avroSpecificRecords = settingKey[Seq[String]]("List of avro records to recompile with current avro version and settings. Classes must be part of the Avro library dependencies.")
-    val avroSource = settingKey[File]("Default Avro source directory.")
+    val avroSources = settingKey[Seq[File]]("Avro source directories.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc. Default: false.")
@@ -47,11 +47,20 @@ object SbtAvro extends AutoPlugin {
     lazy val avroArtifactTasks: Seq[TaskKey[File]] = Seq(Compile, Test).map(_ / packageAvro)
 
     lazy val defaultSettings: Seq[Setting[_]] = Seq(
+      // compiler
+      avroCompiler := "com.github.sbt.avro.AvroCompilerBridge",
+      avroCreateSetters := true,
+      avroEnableDecimalLogicalType := true,
+      avroFieldVisibility := "public",
+      avroOptionalGetters := false,
+      avroStringType := "CharSequence",
+      avroUseNamespace := false,
+
+      // dependency management
       avroDependencyIncludeFilter := artifactFilter(
         `type` = Artifact.SourceType,
         classifier = AvroClassifier
       ),
-      avroIncludes := Seq(),
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
@@ -61,24 +70,17 @@ object SbtAvro extends AutoPlugin {
       // setup avro configuration. Use library management to fetch the compiler
       ivyConfigurations ++= Seq(Avro),
       avroVersion := "1.12.0",
-      libraryDependencies ++= Seq(
+      avroAdditionalDependencies := Seq(
         "com.github.sbt" % "sbt-avro-compiler-bridge" % BuildInfo.version % Avro,
         "org.apache.avro" % "avro-compiler" % avroVersion.value % Avro,
         "org.apache.avro" % "avro" % avroVersion.value
-      )
-    )
-
-    lazy val avroScopedSettings: Seq[Setting[_]] = Seq(
-      managedClasspath := Classpaths.managedJars(
-        Avro,
-        classpathTypes.value,
-        update.value
-      )
+      ),
+      libraryDependencies ++= avroAdditionalDependencies.value
     )
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
-      avroSource := sourceDirectory.value / "avro",
+      avroSources := Seq(sourceDirectory.value / "avro"),
       avroSpecificRecords := Seq.empty,
       // dependencies
       avroUnpackDependencies / includeFilter := AllPassFilter,
@@ -102,24 +104,15 @@ object SbtAvro extends AutoPlugin {
   import autoImport._
 
   def packageAvroMappings: Def.Initialize[Task[Seq[(File, String)]]] = Def.task {
-    (avroSource.value ** AvroFilter) pair relativeTo(avroSource.value)
+    avroSources.value.flatMap(src => (src ** AvroFilter).pair(relativeTo(src)))
   }
 
   override def trigger: PluginTrigger = noTrigger
 
   override def requires: Plugins = sbt.plugins.JvmPlugin
 
-  override lazy val globalSettings: Seq[Setting[_]] = Seq(
-    avroStringType := "CharSequence",
-    avroFieldVisibility := "public",
-    avroEnableDecimalLogicalType := true,
-    avroUseNamespace := false,
-    avroOptionalGetters := false,
-    avroCreateSetters := true
-  )
-
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
-    inConfig(Avro)(avroScopedSettings) ++
+    inConfig(Avro)(Defaults.configSettings) ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
   private def unpack(
@@ -183,18 +176,9 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
-    val version = avroVersion.value
-    val srcDir = avroSource.value
     val externalSrcDir = (avroUnpackDependencies / target).value
-    val includes = avroIncludes.value
-    val srcDirs = Seq(externalSrcDir, srcDir) ++ includes
+    val srcDirs = Seq(externalSrcDir) ++ avroSources.value
     val outDir = (key / target).value
-    val strType = avroStringType.value
-    val fieldVis = avroFieldVisibility.value.toUpperCase
-    val enbDecimal = avroEnableDecimalLogicalType.value
-    val useNs = avroUseNamespace.value
-    val createSetters = avroCreateSetters.value
-    val optionalGetters = avroOptionalGetters.value
 
     val cachedCompile = {
       import sbt.util.CacheStoreFactory
@@ -226,31 +210,22 @@ object SbtAvro extends AutoPlugin {
                 // TODO Cache class loader
                 val avroClassLoader = new URLClassLoader(
                   "AvroClassLoader",
-                  (Avro / managedClasspath).value.map(_.data.toURI.toURL).toArray,
+                  (Avro / dependencyClasspath).value.map(_.data.toURI.toURL).toArray,
                   this.getClass.getClassLoader
                 )
 
                 val compiler = avroClassLoader
-                  .loadClass("com.github.sbt.avro.AvroCompilerBridge")
-                  .getDeclaredConstructor(
-                    classOf[Logger],
-                    classOf[String],
-                    classOf[String],
-                    classOf[Boolean],
-                    classOf[Boolean],
-                    classOf[Boolean],
-                    classOf[Boolean]
-                  )
-                  .newInstance(
-                    out.log,
-                    strType,
-                    fieldVis,
-                    Boolean.box(useNs),
-                    Boolean.box(enbDecimal),
-                    Boolean.box(createSetters),
-                    Boolean.box(optionalGetters)
-                  )
+                  .loadClass(avroCompiler.value)
+                  .getDeclaredConstructor()
+                  .newInstance()
                   .asInstanceOf[AvroCompiler]
+
+                compiler.setStringType(avroStringType.value)
+                compiler.setFieldVisibility(avroFieldVisibility.value.toUpperCase)
+                compiler.setUseNamespace(avroUseNamespace.value)
+                compiler.setEnableDecimalLogicalType(avroEnableDecimalLogicalType.value)
+                compiler.setCreateSetters(avroOptionalGetters.value)
+                compiler.setOptionalGetters(avroCreateSetters.value)
 
                 try {
                   val recs = records.map(avroClassLoader.loadClass)
@@ -262,7 +237,9 @@ object SbtAvro extends AutoPlugin {
                   )
                   val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
-                  out.log.info(s"Avro compiler $version using stringType=$strType")
+                  out.log.info(
+                    s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
+                  )
 
                   compiler.recompile(recs.toArray, outDir)
                   compiler.compileIdls(avdls.toArray, outDir)

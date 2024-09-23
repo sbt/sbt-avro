@@ -1,6 +1,7 @@
 package com.github.sbt.avro
 
 import com.github.sbt.avro.test.{TestSpecificRecord, TestSpecificRecordParent}
+import org.apache.avro.Schema
 import org.apache.avro.compiler.specific.SpecificCompiler.FieldVisibility
 import org.apache.avro.generic.GenericData.StringType
 import org.apache.avro.specific.SpecificRecord
@@ -16,7 +17,7 @@ class AvscFilesCompilerSpec extends Specification {
   val targetDir = Files.createTempDirectory("sbt-avro-compiler-bridge").toFile
   val packageDir = new File(targetDir, "com/github/sbt/avro/test")
 
-  val compiler = new AvscFilesCompiler()
+  val compiler = new AvscFilesCompiler(() => new Schema.Parser())
   compiler.setUseNamespace(false)
   compiler.setStringType(StringType.CharSequence)
   compiler.setFieldVisibility(FieldVisibility.PRIVATE)
