@@ -1,0 +1,16 @@
+{
+  "name": "A",
+  "namespace": "com.github.sbt.avro.test",
+  "type": "record",
+  "fields": [
+    {
+      "name": "supportsCustomRegisteredType",
+      "type": "B"
+    },
+    {
+      "name": "invalidDefaultValue",
+      "type": "boolean",
+      "default": "invalid default value"
+    }
+  ]
+}

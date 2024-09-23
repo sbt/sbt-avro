@@ -18,34 +18,35 @@ For instance, add the following lines to `project/plugins.sbt`:
 
 ```
 addSbtPlugin("com.github.sbt" % "sbt-avro" % "3.5.0")
-
-// Java sources compiled with one version of Avro might be incompatible with a
-// different version of the Avro library. Therefore we specify the compiler
-// version here explicitly.
-libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.12.0"
 ```
 
-Add the library dependency to `build.sbt`:
+Enable the plugin in your `build.sbt` and select the avro version to use:
 
 ```
-libraryDependencies += "org.apache.avro" % "avro" % avroCompilerVersion
+enablePlugins(SbtAvro)
+avroVersion := "1.12.0"
 ```
+
+## Config
+
+An `avro` configuration will be added to the project. Libraries defined with this scope will be loaded by the sbt plugin
+to generate the avro classes.
 
 ## Settings
 
 | Name                                       | Default                                       | Description                                                                             |
 |:-------------------------------------------|:----------------------------------------------|:----------------------------------------------------------------------------------------|
-| `avroSource`                               | `sourceDirectory` / `avro`                    | Source directory with `*.avsc`, `*.avdl` and `*.avpr` files.                            |
+| `avroSources`                              | `sourceDirectory` / `avro`                    | Source directories with `*.avsc`, `*.avdl` and `*.avpr` files.                          |
+| `avroAdditionalDependencies`               | `avro-compiler` % `avro`, `avro` % `compile`  | Additional dependencies to be added to library dependencies.                            | 
 | `avroSpecificRecords`                      | `Seq.empty`                                   | List of avro generated classes to recompile with current avro version and settings.     |
-| `avroSchemaParserBuilder`                  | `DefaultSchemaParserBuilder.default()`        | `.avsc` schema parser builder                                                           |
 | `avroUnpackDependencies` / `includeFilter` | All avro specifications                       | Avro specification files from dependencies to unpack                                    |
 | `avroUnpackDependencies` / `excludeFilter` | Hidden files                                  | Avro specification files from dependencies to exclude from unpacking                    |
 | `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`          | Target directory for schemas packaged in the dependencies                               |
 | `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config` | Source directory for generated `.java` files.                                           |
 | `avroDependencyIncludeFilter`              | `source` typed `avro` classifier artifacts    | Dependencies containing avro schema to be unpacked for generation                       |
-| `avroIncludes`                             | `Seq()`                                       | Paths with extra `*.avsc` files to be included in compilation.                          |
 | `packageAvro` / `artifactClassifier`       | `Some("avro")`                                | Classifier for avro artifact                                                            |
 | `packageAvro` / `publishArtifact`          | `false`                                       | Enable / Disable avro artifact publishing                                               |
+| `avroCompiler`                             | `com.github.sbt.avro.AvroCompilerBridge`      | Sbt avro compiler class.                                                                |
 | `avroStringType`                           | `CharSequence`                                | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
 | `avroUseNamespace`                         | `false`                                       | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`.     |
 | `avroFieldVisibility`                      | `public`                                      | Field Visibility for the properties. Possible values: `private`, `public`.              |
@@ -72,7 +73,7 @@ If you depend on an artifact with previously generated avro java classes with st
 you can recompile them with `String` by also adding the following
 
 ```sbt
-Compile / avroSpecificRecords += classOf[com.example.MyAvroRecord] // lib must be declared in project/plugins.sbt
+Compile / avroSpecificRecords += "com.example.MyAvroRecord" // lib must be added in the avro scope
 ```
 
 ## Packaging Avro files

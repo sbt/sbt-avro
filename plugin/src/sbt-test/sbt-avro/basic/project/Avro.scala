@@ -14,14 +14,11 @@ case class Avro(version: String) extends Platform {
     .enablePlugins(SbtAvro)
     .settings(
       avroVersion := version,
-      // favor shared folder if any
-      Compile / avroSource := (crossProjectCrossType.value.sharedSrcDir(baseDirectory.value, "main") match {
-        case Some(src) => src.getParentFile / "avro"
-        case None => (Compile / avroSource).value
-      }),
-      Test / avroSource := (crossProjectCrossType.value.sharedSrcDir(baseDirectory.value, "test") match {
-        case Some(src) => src.getParentFile / "avro"
-        case None => (Compile / avroSource).value
-      })
+      Compile / avroSources ++= crossProjectCrossType.value
+        .sharedSrcDir(baseDirectory.value, "main")
+        .map(_.getParentFile / "avro"),
+      Test / avroSources ++= crossProjectCrossType.value
+        .sharedSrcDir(baseDirectory.value, "test")
+        .map(_.getParentFile / "avro"),
     )
 }
