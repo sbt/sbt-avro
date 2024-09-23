@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
 
 public class AvscFilesCompiler {
 
+  private final Supplier<Schema.Parser> parserSupplier;
   private Schema.Parser schemaParser;
+
   private String templateDirectory;
   private GenericData.StringType stringType;
   private SpecificCompiler.FieldVisibility fieldVisibility;
@@ -26,9 +28,9 @@ public class AvscFilesCompiler {
   private Boolean optionalGettersForNullableFieldsOnly;
   private Map<AvroFileRef, Exception> compileExceptions;
 
-  public AvscFilesCompiler() {
-    // this.builder = builder;
-    this.schemaParser = new Schema.Parser(); //builder.build();
+  public AvscFilesCompiler(Supplier<Schema.Parser> parserSupplier) {
+    this.parserSupplier = parserSupplier;
+    this.schemaParser = parserSupplier.get();
   }
 
   public void compileFiles(Set<AvroFileRef> files, File outputDirectory) {
@@ -151,7 +153,7 @@ public class AvscFilesCompiler {
   private Schema.Parser stashParser() {
     // on failure Schema.Parser changes cache state.
     // We want last successful state.
-    Schema.Parser parser = new Schema.Parser(); // builder.build();
+    Schema.Parser parser = parserSupplier.get();
     Set<String> predefinedTypes = parser.getTypes().keySet();
     Map<String, Schema> compiledTypes = schemaParser.getTypes();
     compiledTypes.keySet().removeAll(predefinedTypes);
