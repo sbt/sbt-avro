@@ -13,5 +13,5 @@ avroFieldVisibility := "public"
 avroOptionalGetters := true
 avroEnableDecimalLogicalType := false
 Compile / avroSpecificRecords += "org.apache.avro.specific.TestRecordWithLogicalTypes"
-Compile / avroSources += (Compile / sourceDirectory).value / "avro_source"
+Compile / avroSource := (Compile / sourceDirectory).value / "avro_source"
 Compile / avroGenerate / target := (Compile / sourceManaged).value
