@@ -14,10 +14,10 @@ case class Avro(version: String) extends Platform {
     .enablePlugins(SbtAvro)
     .settings(
       avroVersion := version,
-      Compile / avroSources ++= crossProjectCrossType.value
+      Compile / avroUnmanagedSourceDirectories ++= crossProjectCrossType.value
         .sharedSrcDir(baseDirectory.value, "main")
         .map(_.getParentFile / "avro"),
-      Test / avroSources ++= crossProjectCrossType.value
+      Test / avroUnmanagedSourceDirectories ++= crossProjectCrossType.value
         .sharedSrcDir(baseDirectory.value, "test")
         .map(_.getParentFile / "avro"),
     )
