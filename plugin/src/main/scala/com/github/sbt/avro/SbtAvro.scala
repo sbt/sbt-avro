@@ -27,20 +27,21 @@ object SbtAvro extends AutoPlugin {
 
     // format: off
     val avroAdditionalDependencies = settingKey[Seq[ModuleID]]("Additional dependencies to be added to library dependencies.")
-    val avroCompiler = settingKey[String]("Sbt avro compiler class. Default: com.github.sbt.avro.AvroCompilerBridge")
-    val avroCreateSetters = settingKey[Boolean]("Generate setters. Default: true")
+    val avroCompiler = settingKey[String]("Sbt avro compiler class.")
+    val avroCreateSetters = settingKey[Boolean]("Generate setters.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
-    val avroEnableDecimalLogicalType = settingKey[Boolean]("Use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type \"decimal\". Default: true.")
-    val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public. Default: public.")
-    val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields. Default: false.")
-    val avroSpecificRecords = settingKey[Seq[String]]("List of avro records to recompile with current avro version and settings. Classes must be part of the Avro library dependencies.")
-    val avroSources = settingKey[Seq[File]]("Avro source directories.")
-    val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8. Default: CharSequence.")
-    val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
-    val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. src/main/avro/com/myorg/MyRecord.avsc. Default: false.")
-    val avroVersion = settingKey[String]("Avro version to use in the project. default: 1.12.0")
+    val avroEnableDecimalLogicalType = settingKey[Boolean]("Use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type decimal.")
+    val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public.")
+    val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields.")
+    val avroSpecificRecords = settingKey[Seq[String]]("List of fully qualified Avro record class names to recompile with current avro version and settings. Classes must be part of the Avro library dependencies scope.")
+    val avroSource = settingKey[File]("Default Avro source directory for *.avsc, *.avdl and *.avpr files.")
+    val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8.")
+    val avroUnmanagedSourceDirectories = settingKey[Seq[File]]("Unmanaged Avro source directories, which contain manually created sources.")
+    val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. com/myorg/MyRecord.avsc.")
+    val avroVersion = settingKey[String]("Avro version to use in the project.")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
+    val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
     val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
 
@@ -80,7 +81,8 @@ object SbtAvro extends AutoPlugin {
 
     // settings to be applied for both Compile and Test
     lazy val configScopedSettings: Seq[Setting[_]] = Seq(
-      avroSources := Seq(sourceDirectory.value / "avro"),
+      avroSource := sourceDirectory.value / "avro",
+      avroUnmanagedSourceDirectories := Seq(avroSource.value),
       avroSpecificRecords := Seq.empty,
       // dependencies
       avroUnpackDependencies / includeFilter := AllPassFilter,
@@ -104,7 +106,7 @@ object SbtAvro extends AutoPlugin {
   import autoImport._
 
   def packageAvroMappings: Def.Initialize[Task[Seq[(File, String)]]] = Def.task {
-    avroSources.value.flatMap(src => (src ** AvroFilter).pair(relativeTo(src)))
+    avroUnmanagedSourceDirectories.value.flatMap(src => (src ** AvroFilter).pair(relativeTo(src)))
   }
 
   override def trigger: PluginTrigger = noTrigger
@@ -177,7 +179,7 @@ object SbtAvro extends AutoPlugin {
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
     val externalSrcDir = (avroUnpackDependencies / target).value
-    val srcDirs = Seq(externalSrcDir) ++ avroSources.value
+    val srcDirs = avroUnmanagedSourceDirectories.value :+ externalSrcDir
     val outDir = (key / target).value
 
     val cachedCompile = {
