@@ -4,7 +4,7 @@ ThisBuild / version := {
   val orig = (ThisBuild / version).value
   if (orig.endsWith("-SNAPSHOT")) "3.5.1-SNAPSHOT" else orig
 }
-ThisBuild / scalaVersion := "2.12.19"
+ThisBuild / scalaVersion := "2.12.20"
 
 // sbt-github-actions
 ThisBuild / githubWorkflowBuild := Seq(
