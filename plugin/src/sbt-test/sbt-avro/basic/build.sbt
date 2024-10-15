@@ -10,9 +10,8 @@ lazy val basic = crossProject(
   .crossType(CrossType.Pure)
   .in(file("."))
   .avroSettings("1.9.2")(
-      libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
+    libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
   )
   .avroSettings("1.8.2")(
     libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
   )
-

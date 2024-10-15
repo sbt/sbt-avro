@@ -11,6 +11,9 @@ import java.net.URLClassLoader
 /** Simple plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {
 
+  // Force Log4J to not use JMX to avoid duplicate mbeans registration due to multiple classloader
+  sys.props("log4j2.disableJmx") = "true"
+
   val Avro: Configuration = config("avro")
   val AvroClassifier = "avro"
 
