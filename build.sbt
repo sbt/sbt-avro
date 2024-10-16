@@ -49,7 +49,7 @@ lazy val `sbt-avro`: Project = project
           url = url("https://michel.davit.fr")
         )
       ),
-      pluginCrossBuild / sbtVersion := "1.3.0",
+      pluginCrossBuild / sbtVersion := "1.3.13",
       Compile / scalacOptions ++= Seq("-deprecation"),
       libraryDependencies ++= Seq(
         Dependencies.Provided.AvroCompiler,
