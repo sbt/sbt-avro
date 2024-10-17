@@ -125,7 +125,7 @@ object SbtAvro extends AutoPlugin {
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
   private def unpack(
-    scala: String,
+    cacheBaseDirectory: File,
     deps: Seq[File],
     extractTarget: File,
     includeFilter: FileFilter,
@@ -134,7 +134,7 @@ object SbtAvro extends AutoPlugin {
   ): Seq[File] = {
     def cachedExtractDep(jar: File): Seq[File] = {
       val cached = FileFunction.cached(
-        streams.cacheDirectory / scala / jar.name,
+        cacheBaseDirectory / jar.name,
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { deps =>
@@ -160,7 +160,13 @@ object SbtAvro extends AutoPlugin {
   }
 
   private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
-    val scala = scalaVersion.value
+    val cacheBaseDirectory = Defaults.makeCrossTarget(
+      streams.value.cacheDirectory,
+      scalaBinaryVersion.value,
+      (pluginCrossBuild / sbtBinaryVersion).value,
+      sbtPlugin.value,
+      crossPaths.value
+    )
     val conf = configuration.value.toConfigRef
     val avroArtifacts = update
       .value
@@ -169,7 +175,7 @@ object SbtAvro extends AutoPlugin {
       .collect { case (`conf`, _, _, file) => file }
 
     unpack(
-      scala = scala,
+      cacheBaseDirectory = cacheBaseDirectory,
       deps = avroArtifacts,
       extractTarget = (key / target).value,
       includeFilter = (key / includeFilter).value,
