@@ -24,17 +24,30 @@ $ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/te
 $ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/external/Avsc.java
 $ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/transitive/Avsc.java
 
-> compile
+> +compile
 
 $ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avdl.class
 $ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avpr.class
 $ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avsc.class
 $ exists target/scala-2.13/classes/com/github/sbt/avro/test/transitive/Avsc.class
 
-> Test/compile
+
+$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avdl.class
+$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avpr.class
+$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avsc.class
+$ exists target/scala-2.12/classes/com/github/sbt/avro/test/transitive/Avsc.class
+
+> Test/avroUnpackDependencies
 
 $ exists target/scala-2.13/src_managed/avro/test/test.avsc
+
+> Test/avroGenerate
+
 $ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/transitive/Test.java
+
+> +Test/compile
+
 $ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/transitive/Test.class
+$ exists target/scala-2.12/test-classes/com/github/sbt/avro/test/transitive/Test.class
 
 > clean
