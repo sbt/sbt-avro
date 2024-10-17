@@ -17,9 +17,7 @@ import java.io.File
 import java.util.jar.JarFile
 import scala.collection.JavaConverters._
 
-/**
- * Simple plugin for generating the Java sources for Avro schemas and protocols.
- */
+/** Simple plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {
 
   val AvroClassifier = "avro"
@@ -68,7 +66,10 @@ object SbtAvro extends AutoPlugin {
     lazy val avroArtifactTasks: Seq[TaskKey[File]] = Seq(Compile, Test).map(_ / packageAvro)
 
     lazy val defaultSettings: Seq[Setting[_]] = Seq(
-      avroDependencyIncludeFilter := artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier),
+      avroDependencyIncludeFilter := artifactFilter(
+        `type` = Artifact.SourceType,
+        classifier = AvroClassifier
+      ),
       avroIncludes := Seq(),
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
@@ -95,7 +96,7 @@ object SbtAvro extends AutoPlugin {
       compile := compile.dependsOn(avroGenerate).value,
       // packaging
       packageAvro / artifactClassifier := Some(AvroClassifier),
-      packageAvro / publishArtifact := false,
+      packageAvro / publishArtifact := false
     ) ++ packageTaskSettings(packageAvro, packageAvroMappings) ++ Seq(
       packageAvro / artifact := (packageAvro / artifact).value.withType(Artifact.SourceType)
     )
@@ -168,8 +169,7 @@ object SbtAvro extends AutoPlugin {
       crossPaths.value
     )
     val conf = configuration.value.toConfigRef
-    val avroArtifacts = update
-      .value
+    val avroArtifacts = update.value
       .filter(avroDependencyIncludeFilter.value)
       .toSeq
       .collect { case (`conf`, _, _, file) => file }
@@ -180,7 +180,7 @@ object SbtAvro extends AutoPlugin {
       extractTarget = (key / target).value,
       includeFilter = (key / includeFilter).value,
       excludeFilter = (key / excludeFilter).value,
-      streams = (key / streams).value,
+      streams = (key / streams).value
     )
   }
 
@@ -303,14 +303,56 @@ object SbtAvro extends AutoPlugin {
     builder: SchemaParserBuilder
   ): Set[File] = {
     val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
-    val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString)))
+    val avscs = srcDirs.flatMap(d =>
+      (d ** AvroAvscFilter).get.map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString))
+    )
     val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
 
     log.info(s"Avro compiler $avroCompilerVersion using stringType=$stringType")
-    recompile(records, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
-    compileIdls(avdls, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
-    compileAvscs(avscs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, useNamespace, optionalGetters, createSetters, builder)
-    compileAvprs(avprs, target, log, stringType, fieldVisibility, enableDecimalLogicalType, optionalGetters, createSetters)
+    recompile(
+      records,
+      target,
+      log,
+      stringType,
+      fieldVisibility,
+      enableDecimalLogicalType,
+      useNamespace,
+      optionalGetters,
+      createSetters,
+      builder
+    )
+    compileIdls(
+      avdls,
+      target,
+      log,
+      stringType,
+      fieldVisibility,
+      enableDecimalLogicalType,
+      optionalGetters,
+      createSetters
+    )
+    compileAvscs(
+      avscs,
+      target,
+      log,
+      stringType,
+      fieldVisibility,
+      enableDecimalLogicalType,
+      useNamespace,
+      optionalGetters,
+      createSetters,
+      builder
+    )
+    compileAvprs(
+      avprs,
+      target,
+      log,
+      stringType,
+      fieldVisibility,
+      enableDecimalLogicalType,
+      optionalGetters,
+      createSetters
+    )
 
     (target ** JavaFileFilter).get.toSet
   }
@@ -330,7 +372,7 @@ object SbtAvro extends AutoPlugin {
     val createSetters = avroCreateSetters.value
     val optionalGetters = partialVersion(avroCompilerVersion) match {
       case Some((1, minor)) if minor >= 10 => Some(avroOptionalGetters.value)
-      case _ => None
+      case _                               => None
     }
     val builder = avroSchemaParserBuilder.value
     val cachedCompile = {
@@ -339,9 +381,11 @@ object SbtAvro extends AutoPlugin {
 
       val cacheStoreFactory = CacheStoreFactory(out.cacheDirectory / "avro")
       val lastCache = { (action: Option[Set[File]] => Set[File]) =>
-        Tracked.lastOutput[Unit, Set[File]](cacheStoreFactory.make("last-cache")) {
-          case (_, l) => action(l)
-        }.apply(())
+        Tracked
+          .lastOutput[Unit, Set[File]](cacheStoreFactory.make("last-cache")) { case (_, l) =>
+            action(l)
+          }
+          .apply(())
       }
       val inCache = Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
       val outCache = Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
@@ -350,7 +394,9 @@ object SbtAvro extends AutoPlugin {
         lastCache { lastCache =>
           inCache(inputs) { inReport =>
             outCache { outReport =>
-              if ((lastCache.isEmpty && records.nonEmpty) || inReport.modified.nonEmpty || outReport.modified.nonEmpty) {
+              if (
+                (lastCache.isEmpty && records.nonEmpty) || inReport.modified.nonEmpty || outReport.modified.nonEmpty
+              ) {
                 // compile if
                 // - no previous cache and we have records to recompile
                 // - input files have changed

@@ -8,7 +8,7 @@ object Dependencies {
   }
 
   object Provided {
-    val AvroCompiler =  "org.apache.avro" % "avro-compiler" % Versions.Avro % "provided"
+    val AvroCompiler = "org.apache.avro" % "avro-compiler" % Versions.Avro % "provided"
   }
 
   object Test {
