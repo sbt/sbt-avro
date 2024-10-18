@@ -69,10 +69,11 @@ public class AvroCompilerBridge implements AvroCompiler {
         compiler.setUseNamespace(useNamespace);
         compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
         compiler.setCreateSetters(createSetters);
+        if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+            compiler.setGettersReturnOptional(optionalGetters);
+        }
         if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
             compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
-        } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
-            compiler.setGettersReturnOptional(optionalGetters);
         }
         compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/");
 
@@ -95,10 +96,11 @@ public class AvroCompilerBridge implements AvroCompiler {
             compiler.setFieldVisibility(fieldVisibility);
             compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
             compiler.setCreateSetters(createSetters);
+            if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+                compiler.setGettersReturnOptional(optionalGetters);
+            }
             if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
                 compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
-            } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
-                compiler.setGettersReturnOptional(optionalGetters);
             }
             compiler.compileToDestination(null, target);
         }
@@ -138,10 +140,11 @@ public class AvroCompilerBridge implements AvroCompiler {
             compiler.setFieldVisibility(fieldVisibility);
             compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
             compiler.setCreateSetters(createSetters);
+            if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+                compiler.setGettersReturnOptional(optionalGetters);
+            }
             if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
                 compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
-            } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
-                compiler.setGettersReturnOptional(optionalGetters);
             }
             compiler.compileToDestination(null, target);
         }
