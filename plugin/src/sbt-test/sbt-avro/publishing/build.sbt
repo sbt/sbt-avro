@@ -1,6 +1,5 @@
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
-  publishTo := Some(Opts.resolver.sonatypeReleases),
   scalaVersion := "2.13.15"
 )
 
