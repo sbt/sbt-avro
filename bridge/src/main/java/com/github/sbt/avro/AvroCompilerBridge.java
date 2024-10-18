@@ -15,13 +15,18 @@ import java.util.Set;
 
 public class AvroCompilerBridge implements AvroCompiler {
 
+    private static final AvroVersion AVRO_1_9_0 = new AvroVersion(1, 9, 0);
+    private static final AvroVersion AVRO_1_10_0 = new AvroVersion(1, 10, 0);
+
+    private final AvroVersion avroVersion = AvroVersion.getRuntimeVersion();
+
     private StringType stringType;
     private FieldVisibility fieldVisibility;
     private boolean useNamespace;
     private boolean enableDecimalLogicalType;
     private boolean createSetters;
     private boolean optionalGetters;
-    
+
     protected Schema.Parser createParser() {
         return new Schema.Parser();
     }
@@ -64,8 +69,10 @@ public class AvroCompilerBridge implements AvroCompiler {
         compiler.setUseNamespace(useNamespace);
         compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
         compiler.setCreateSetters(createSetters);
-        if (AvroVersion.getMinor() > 9) {
+        if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
             compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
+        } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+            compiler.setGettersReturnOptional(optionalGetters);
         }
         compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/");
 
@@ -88,11 +95,10 @@ public class AvroCompilerBridge implements AvroCompiler {
             compiler.setFieldVisibility(fieldVisibility);
             compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
             compiler.setCreateSetters(createSetters);
-            if (AvroVersion.getMinor() > 8) {
-                compiler.setGettersReturnOptional(optionalGetters);
-            }
-            if (AvroVersion.getMinor() > 9) {
+            if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
                 compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
+            } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+                compiler.setGettersReturnOptional(optionalGetters);
             }
             compiler.compileToDestination(null, target);
         }
@@ -106,16 +112,16 @@ public class AvroCompilerBridge implements AvroCompiler {
         compiler.setUseNamespace(useNamespace);
         compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
         compiler.setCreateSetters(createSetters);
-        if (AvroVersion.getMinor() > 8) {
+        if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
             compiler.setGettersReturnOptional(optionalGetters);
         }
-        if (AvroVersion.getMinor() > 9) {
+        if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
             compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
         }
         compiler.setTemplateDirectory("/org/apache/avro/compiler/specific/templates/java/classic/");
 
         Set<AvroFileRef> files = new HashSet<>();
-        for (AvroFileRef ref: avscs) {
+        for (AvroFileRef ref : avscs) {
             System.out.println("Compiling Avro schema: " + ref.getFile());
             files.add(ref);
         }
@@ -132,11 +138,10 @@ public class AvroCompilerBridge implements AvroCompiler {
             compiler.setFieldVisibility(fieldVisibility);
             compiler.setEnableDecimalLogicalType(enableDecimalLogicalType);
             compiler.setCreateSetters(createSetters);
-            if (AvroVersion.getMinor() > 8) {
-                compiler.setGettersReturnOptional(optionalGetters);
-            }
-            if (AvroVersion.getMinor() > 9) {
+            if (avroVersion.compareTo(AVRO_1_10_0) >= 0) {
                 compiler.setOptionalGettersForNullableFieldsOnly(optionalGetters);
+            } else if (avroVersion.compareTo(AVRO_1_9_0) >= 0) {
+                compiler.setGettersReturnOptional(optionalGetters);
             }
             compiler.compileToDestination(null, target);
         }
