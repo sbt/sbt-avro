@@ -11,8 +11,8 @@ import scala.collection.JavaConverters.*
 case class LegacySchemaParserBuilder(
   types: Iterable[Schema] = LegacySchemaParserBuilder.DefaultTypes,
   validate: Boolean = LegacySchemaParserBuilder.DefaultValidate,
-  validateDefaults: Boolean = LegacySchemaParserBuilder.DefaultValidateDefaults)
-extends SchemaParserBuilder {
+  validateDefaults: Boolean = LegacySchemaParserBuilder.DefaultValidateDefaults
+) extends SchemaParserBuilder {
 
   override def build(): Schema.Parser = {
     val parser = new Schema.Parser
@@ -33,10 +33,10 @@ object LegacySchemaParserBuilder {
       .asInstanceOf[Schema.Parser]
 
   private def getValidate(parser: Schema.Parser): Boolean =
-      classOf[Schema.Parser]
-        .getMethod("getValidate")
-        .invoke(parser)
-        .asInstanceOf[Boolean]
+    classOf[Schema.Parser]
+      .getMethod("getValidate")
+      .invoke(parser)
+      .asInstanceOf[Boolean]
 
   private val defaultParser = new Schema.Parser
 

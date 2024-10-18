@@ -14,7 +14,6 @@ class SbtAvroSpec extends Specification {
   val builder = DefaultSchemaParserBuilder.default()
   val sourceDir = new File(getClass.getClassLoader.getResource("avro").toURI)
 
-
   val targetDir = Files.createTempDirectory("sbt-avro").toFile
   val packageDir = new File(targetDir, "com/github/sbt/avro/test")
   val logger = Logger.Null
@@ -25,14 +24,16 @@ class SbtAvroSpec extends Specification {
       new File(sourceDir, "b.avsc"),
       new File(sourceDir, "c.avsc"),
       new File(sourceDir, "d.avsc"),
-      new File(sourceDir, "e.avsc"))
+      new File(sourceDir, "e.avsc")
+    )
 
     val simpleNames = Seq(
       new File(sourceDir, "_a.avsc"),
       new File(sourceDir, "_b.avsc"),
       new File(sourceDir, "_c.avsc"),
       new File(sourceDir, "_d.avsc"),
-      new File(sourceDir, "_e.avsc"))
+      new File(sourceDir, "_e.avsc")
+    )
 
     val sourceFiles = fullyQualifiedNames ++ simpleNames
 
