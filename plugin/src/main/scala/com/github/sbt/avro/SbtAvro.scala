@@ -8,7 +8,7 @@ import sbt.librarymanagement.DependencyFilter
 import java.io.File
 import java.net.URLClassLoader
 
-/** Simple plugin for generating the Java sources for Avro schemas and protocols. */
+/** Plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {
 
   // Force Log4J to not use JMX to avoid duplicate mbeans registration due to multiple classloader
