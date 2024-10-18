@@ -80,7 +80,7 @@ public class AvroCompilerBridge implements AvroCompiler {
     @Override
     public void compileIdls(File[] idls, File target) throws Exception {
         for (File idl : idls) {
-            System.out.println("Compiling Avro IDL " + idl);
+            System.out.println("Compiling Avro IDL: " + idl);
             Idl parser = new Idl(idl);
             Protocol protocol = parser.CompilationUnit();
             SpecificCompiler compiler = new SpecificCompiler(protocol);
@@ -125,7 +125,7 @@ public class AvroCompilerBridge implements AvroCompiler {
     @Override
     public void compileAvprs(File[] avprs, File target) throws Exception {
         for (File avpr : avprs) {
-            System.out.println("Compiling Avro protocol " + avpr);
+            System.out.println("Compiling Avro protocol: " + avpr);
             Protocol protocol = Protocol.parse(avpr);
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             compiler.setStringType(stringType);
