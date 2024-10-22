@@ -8,6 +8,8 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2-core" % "4.20.9" % Test
 )
 
+// sut custom output for cross-build sbt v1 & v2
+avroGenerate / target := file("target") / "compiled_avro"
 avroStringType := "String"
 avroFieldVisibility := "public"
 avroOptionalGetters := true

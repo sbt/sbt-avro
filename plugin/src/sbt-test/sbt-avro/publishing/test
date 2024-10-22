@@ -1,53 +1,17 @@
-> external/packageAvro
-
-$ exists external/target/external-0.0.1-SNAPSHOT-avro.jar
-
 > external/publishLocal
-
 > transitive/publishLocal
 
 > avroUnpackDependencies
-
-$ exists target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/external/avdl.avdl
-$ exists target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/external/avpr.avpr
-$ exists target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/external/avsc.avsc
-$ absent target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/external/exclude.avsc
-
-$ exists target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/transitive/avsc.avsc
-
-$ absent target/scala-2.13/src_managed/avro/main/com/github/sbt/avro/test/transitive/test.avsc
+> checkUnpacked
 
 > avroGenerate
-
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/external/Avdl.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/external/Avpr.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/external/Avsc.java
-$ exists target/scala-2.13/src_managed/compiled_avro/main/com/github/sbt/avro/test/transitive/Avsc.java
+> checkGenerated
 
 > +compile
 
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avdl.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avpr.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/external/Avsc.class
-$ exists target/scala-2.13/classes/com/github/sbt/avro/test/transitive/Avsc.class
-
-
-$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avdl.class
-$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avpr.class
-$ exists target/scala-2.12/classes/com/github/sbt/avro/test/external/Avsc.class
-$ exists target/scala-2.12/classes/com/github/sbt/avro/test/transitive/Avsc.class
-
 > Test/avroUnpackDependencies
-
-$ exists target/scala-2.13/src_managed/avro/test/test.avsc
-
+> Test/checkUnpacked
 > Test/avroGenerate
-
-$ exists target/scala-2.13/src_managed/compiled_avro/test/com/github/sbt/avro/test/transitive/Test.java
-
+> Test/checkGenerated
 > +Test/compile
-
-$ exists target/scala-2.13/test-classes/com/github/sbt/avro/test/transitive/Test.class
-$ exists target/scala-2.12/test-classes/com/github/sbt/avro/test/transitive/Test.class
-
 > clean

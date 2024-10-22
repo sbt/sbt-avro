@@ -30,7 +30,10 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-ThisBuild / scalaVersion := "2.12.20"
+lazy val scala3 = "3.3.4"
+lazy val scala212 = "2.12.20"
+ThisBuild / scalaVersion := scala3
+ThisBuild / crossScalaVersions := Seq(scala3, scala212)
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(name = Some("Build project"), commands = List("compile", "test", "scripted"))
 )
@@ -96,9 +99,20 @@ lazy val `sbt-avro`: Project = project
   .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .settings(
     description := "Sbt plugin for compiling Avro sources",
+    (pluginCrossBuild / sbtVersion) := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.5.0"
+        case _      => "2.0.0-M2"
+      }
+    },
+    scriptedSbt := {
+      scalaBinaryVersion.value match {
+        case "2.12" => "1.10.3"
+        case _      => "2.0.0-M2"
+      }
+    },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
     buildInfoPackage := "com.github.sbt.avro",
-    pluginCrossBuild / sbtVersion := "1.3.0",
     Compile / scalacOptions ++= Seq("-deprecation"),
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",

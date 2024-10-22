@@ -1,8 +1,9 @@
 package com.github.sbt.avro
 
 import sbt.Keys.*
-import sbt.*
+import sbt.{*, given}
 import Path.relativeTo
+import PluginCompat.*
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
@@ -45,10 +46,11 @@ object SbtAvro extends AutoPlugin {
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
     val avroUnpackDependencies = taskKey[Seq[File]]("Unpack avro dependencies.")
-    val packageAvro = taskKey[File]("Produces an avro artifact, such as a jar containing avro schemas.")
+    val packageAvro = taskKey[FileRef]("Produces an avro artifact, such as a jar containing avro schemas.")
     // format: on
 
-    lazy val avroArtifactTasks: Seq[TaskKey[File]] = Seq(Compile, Test).map(_ / packageAvro)
+    lazy val avroArtifactTasks: Seq[TaskKey[FileRef]] =
+      Seq(Compile, Test).map(conf => conf / packageAvro)
 
     lazy val defaultSettings: Seq[Setting[_]] = Seq(
       // compiler
@@ -108,8 +110,11 @@ object SbtAvro extends AutoPlugin {
 
   import autoImport._
 
-  def packageAvroMappings: Def.Initialize[Task[Seq[(File, String)]]] = Def.task {
-    avroUnmanagedSourceDirectories.value.flatMap(src => (src ** AvroFilter).pair(relativeTo(src)))
+  def packageAvroMappings: Def.Initialize[Task[Seq[(FileRef, String)]]] = Def.task {
+    implicit val conv: xsbti.FileConverter = fileConverter.value
+    avroUnmanagedSourceDirectories.value
+      .flatMap(src => (src ** AvroFilter).pair(relativeTo(src)))
+      .map { case (p, path) => toFileRef(p) -> path }
   }
 
   override def trigger: PluginTrigger = noTrigger
@@ -158,6 +163,7 @@ object SbtAvro extends AutoPlugin {
   private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
     val cacheBaseDirectory = Defaults.makeCrossTarget(
       streams.value.cacheDirectory,
+      scalaVersion.value,
       scalaBinaryVersion.value,
       (pluginCrossBuild / sbtBinaryVersion).value,
       sbtPlugin.value,
@@ -184,6 +190,7 @@ object SbtAvro extends AutoPlugin {
     val externalSrcDir = (avroUnpackDependencies / target).value
     val srcDirs = avroUnmanagedSourceDirectories.value :+ externalSrcDir
     val outDir = (key / target).value
+    implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
 
     val cachedCompile = {
       import sbt.util.CacheStoreFactory
@@ -215,7 +222,10 @@ object SbtAvro extends AutoPlugin {
                 // TODO Cache class loader
                 val avroClassLoader = new URLClassLoader(
                   "AvroClassLoader",
-                  (Avro / dependencyClasspath).value.map(_.data.toURI.toURL).toArray,
+                  (Avro / dependencyClasspath).value
+                    .map(toNioPath)
+                    .map(_.toUri.toURL)
+                    .toArray,
                   this.getClass.getClassLoader
                 )
 
@@ -234,13 +244,13 @@ object SbtAvro extends AutoPlugin {
 
                 try {
                   val recs = records.map(avroClassLoader.loadClass)
-                  val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get)
+                  val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get())
                   val avscs = srcDirs.flatMap(d =>
-                    (d ** AvroAvscFilter).get.map(avsc =>
-                      new AvroFileRef(d, avsc.relativeTo(d).get.toString)
-                    )
+                    (d ** AvroAvscFilter)
+                      .get()
+                      .map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString))
                   )
-                  val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get)
+                  val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get())
 
                   out.log.info(
                     s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
@@ -251,7 +261,7 @@ object SbtAvro extends AutoPlugin {
                   compiler.compileAvscs(avscs.toArray, outDir)
                   compiler.compileAvprs(avprs.toArray, outDir)
 
-                  (outDir ** SbtAvro.JavaFileFilter).get.toSet
+                  (outDir ** SbtAvro.JavaFileFilter).get().toSet
                 } finally {
                   avroClassLoader.close()
                 }
@@ -263,7 +273,7 @@ object SbtAvro extends AutoPlugin {
         }
     }
 
-    cachedCompile((srcDirs ** AvroFilter).get.toSet, avroSpecificRecords.value).toSeq
+    cachedCompile((srcDirs ** AvroFilter).get().toSet, avroSpecificRecords.value).toSeq
   }
 
 }
