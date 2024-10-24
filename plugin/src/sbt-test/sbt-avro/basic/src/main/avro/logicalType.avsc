@@ -1,6 +1,6 @@
 {
   "name": "LogicalTypesTest",
-  "namespace": "org.apache.parquet.avro",
+  "namespace": "com.github.sbt.avro.test",
   "doc": "Record for testing logical types",
   "type": "record",
   "fields": [
