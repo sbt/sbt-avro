@@ -14,19 +14,19 @@ class SettingsSpec extends Specification {
 
   // avroStringType
   "avroStringType setting should be respected for *.avsc compilation" >> {
-    classOf[Avsc].getDeclaredField("stringField").getType == classOf[String]
+    classOf[Avsc].getDeclaredField("stringField").getType === classOf[String]
   }
 
   "avroStringType setting should be respected for *.avdl compilation" >> {
-    classOf[Avdl].getDeclaredField("stringField").getType == classOf[String]
+    classOf[Avdl].getDeclaredField("stringField").getType === classOf[String]
   }
 
   "avroStringType setting should be respected for *.avpr compilation" >> {
-    classOf[Avpr].getDeclaredField("stringField").getType == classOf[String]
+    classOf[Avpr].getDeclaredField("stringField").getType === classOf[String]
   }
 
   "stringField setting should be respected for recompiled record" >> {
-    classOf[TestRecordWithLogicalTypes].getDeclaredField("s").getType == classOf[String]
+    classOf[TestRecordWithLogicalTypes].getDeclaredField("s").getType === classOf[String]
   }
 
   // avroFieldVisibility
@@ -46,25 +46,42 @@ class SettingsSpec extends Specification {
     !classOf[TestRecordWithLogicalTypes].getDeclaredField("s").isAnnotationPresent(classOf[Deprecated])
   }
 
+  // avroCreateSetters
+  "avroCreateSetters setting should be respected for *.avsc compilation" >> {
+    classOf[Avsc].getDeclaredMethod("setStringField") must throwA[NoSuchMethodException]
+  }
+
+  "avroCreateSetters setting should be respected for *.avdl compilation" >> {
+    classOf[Avdl].getDeclaredMethod("setStringField") must throwA[NoSuchMethodException]
+  }
+
+  "avroCreateSetters setting should be respected for *.avpr compilation" >> {
+    classOf[Avpr].getDeclaredMethod("stringField") must throwA[NoSuchMethodException]
+  }
+
+  "avroCreateSetters setting should be respected for recompiled record" >> {
+    classOf[TestRecordWithLogicalTypes].getDeclaredMethod("setS") must throwA[NoSuchMethodException]
+  }
+
   // avroOptionalGetters
   "avroOptionalGetters setting should be respected for *.avsc compilation" >> {
-    classOf[Avsc].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+    classOf[Avsc].getDeclaredMethod("getStringField").getReturnType === classOf[Optional[String]]
   }
 
   "avroOptionalGetters setting should be respected for *.avdl compilation" >> {
-    classOf[Avdl].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+    classOf[Avdl].getDeclaredMethod("getStringField").getReturnType === classOf[Optional[String]]
   }
 
   "avroOptionalGetters setting should be respected for *.avpr compilation" >> {
-    classOf[Avpr].getDeclaredMethod("getStringField").getReturnType == classOf[Optional[String]]
+    classOf[Avpr].getDeclaredMethod("getStringField").getReturnType === classOf[Optional[String]]
   }
 
   "avroOptionalGetters setting should be respected for recompiled record" >> {
-    classOf[TestRecordWithLogicalTypes].getDeclaredMethod("getS").getReturnType == classOf[Optional[String]]
+    classOf[TestRecordWithLogicalTypes].getDeclaredMethod("getS").getReturnType === classOf[Optional[String]]
   }
 
   // avroEnableDecimalLogicalType
   "avroEnableDecimalLogicalType setting should be respected for recompiled record" >> {
-    classOf[TestRecordWithLogicalTypes].getDeclaredField("bd").getType == classOf[ByteBuffer]
+    classOf[TestRecordWithLogicalTypes].getDeclaredField("bd").getType === classOf[ByteBuffer]
   }
 }

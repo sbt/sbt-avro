@@ -239,8 +239,8 @@ object SbtAvro extends AutoPlugin {
                 compiler.setFieldVisibility(avroFieldVisibility.value.toUpperCase)
                 compiler.setUseNamespace(avroUseNamespace.value)
                 compiler.setEnableDecimalLogicalType(avroEnableDecimalLogicalType.value)
-                compiler.setCreateSetters(avroOptionalGetters.value)
-                compiler.setOptionalGetters(avroCreateSetters.value)
+                compiler.setCreateSetters(avroCreateSetters.value)
+                compiler.setOptionalGetters(avroOptionalGetters.value)
 
                 try {
                   val recs = records.map(avroClassLoader.loadClass)

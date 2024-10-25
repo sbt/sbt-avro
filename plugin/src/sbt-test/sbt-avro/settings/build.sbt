@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
 
 avroStringType := "String"
 avroFieldVisibility := "public"
+avroCreateSetters := false
 avroOptionalGetters := true
 avroEnableDecimalLogicalType := false
 Compile / avroSpecificRecords += "org.apache.avro.specific.TestRecordWithLogicalTypes"
