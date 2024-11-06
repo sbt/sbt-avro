@@ -6,10 +6,6 @@
     {
       "name": "stringField",
       "type": "string"
-    },
-    {
-      "name": "referencedTypeField",
-      "type": "com.github.sbt.avro.test.external.Avsc"
     }
   ]
 }

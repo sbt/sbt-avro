@@ -40,7 +40,7 @@ lazy val `transitive`: Project = project
     Compile / packageAvro / publishArtifact := true,
     Test / publishArtifact := true,
     libraryDependencies ++= Seq(
-      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" classifier "avro",
+      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro" classifier "avro",
     )
   )
 
@@ -52,12 +52,14 @@ lazy val root: Project = project
     name := "publishing-test",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" classifier "avro",
-      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % Test classifier "tests",
+      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro" classifier "avro", // must be explicit
+      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro" classifier "avro",
+      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro" classifier "tests",
       "org.specs2" %% "specs2-core" % "4.20.9" % Test
     ),
-    // add additional transitive test jar
-    avroDependencyIncludeFilter := avroDependencyIncludeFilter.value || artifactFilter(name = "transitive", classifier = "tests"),
+    // add additional avro source test jar
+    Test / avroDependencyIncludeFilter :=
+      configurationFilter("avro") && artifactFilter(name = "transitive", classifier = "tests"),
     // exclude specific avsc file
     Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc",
 
