@@ -9,40 +9,44 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.13.15"
 )
 
-lazy val javaOnlySettings = Seq(
+lazy val avroOnlySettings = Seq(
   crossScalaVersions := Seq.empty,
   crossPaths := false,
   autoScalaLibrary := false,
+  // only create avro jar
+  Compile / packageAvro / publishArtifact := true,
+  Compile / packageBin / publishArtifact := false,
+  Compile / packageSrc / publishArtifact := false,
+  Compile / packageDoc / publishArtifact := false,
 )
 
 lazy val `external`: Project = project
   .in(file("external"))
   .enablePlugins(SbtAvro)
   .settings(commonSettings)
-  .settings(javaOnlySettings)
+  .settings(avroOnlySettings)
   .settings(
     name := "external",
     version := "0.0.1-SNAPSHOT",
-    crossScalaVersions := Seq.empty,
-    crossPaths := false,
-    autoScalaLibrary := false,
-    Compile / packageAvro / publishArtifact := true
   )
 
 lazy val `transitive`: Project = project
   .in(file("transitive"))
   .enablePlugins(SbtAvro)
   .settings(commonSettings)
-  .settings(javaOnlySettings)
+  .settings(avroOnlySettings)
   .settings(
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
-    Compile / packageAvro / publishArtifact := true,
-    Test / publishArtifact := true,
     libraryDependencies ++= Seq(
-      // when using avro scope -> won't be part of the pom dependencies. intransitive
-      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro" classifier "avro",
-    )
+      // when using avro scope, it won't be part of the pom dependencies -> intransitive
+      // to declare transitive dependency use the compile scope
+      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" classifier "avro"
+    ),
+    transitiveClassifiers += "avro",
+    Compile / avroDependencyIncludeFilter := artifactFilter(classifier = "avro"),
+    // create a test jar with a schema as resource
+    Test / packageBin / publishArtifact := true,
   )
 
 lazy val root: Project = project
@@ -53,8 +57,7 @@ lazy val root: Project = project
     name := "publishing-test",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro" classifier "avro",
-      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro" classifier "avro",
+      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro" classifier "avro", // external as transitive
       "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "test" classifier "tests",
       "org.specs2" %% "specs2-core" % "4.20.9" % Test
     ),
