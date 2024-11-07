@@ -118,7 +118,7 @@ If some artifact is meant to be used in the test scope only, you can do the foll
 
 ```sbt
 libraryDependencies += "org" % "name" % "rev" % "avro" classifier "avro"
-Compile / avroDependencyIncludeFilter := (Compile / avroDependencyIncludeFilter).value -- moduleFilter(organization = "org", name = "name")
+Compile / avroDependencyIncludeFilter ~= { old => old -- moduleFilter(organization = "org", name = "name") }
 Test / avroDependencyIncludeFilter := configurationFilter("avro") && moduleFilter(organization = "org", name = "name")
 ```
 
