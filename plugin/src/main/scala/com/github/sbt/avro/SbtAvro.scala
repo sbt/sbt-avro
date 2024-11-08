@@ -245,26 +245,30 @@ object SbtAvro extends AutoPlugin {
                 compiler.setCreateSetters(avroCreateSetters.value)
                 compiler.setOptionalGetters(avroOptionalGetters.value)
 
+                val recs = records.map(avroClassLoader.loadClass)
+                val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get())
+                val avscs = srcDirs.flatMap(d =>
+                  (d ** AvroAvscFilter)
+                    .get()
+                    .map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString))
+                )
+                val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get())
+
+                out.log.info(
+                  s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
+                )
                 try {
-                  val recs = records.map(avroClassLoader.loadClass)
-                  val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get())
-                  val avscs = srcDirs.flatMap(d =>
-                    (d ** AvroAvscFilter)
-                      .get()
-                      .map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString))
-                  )
-                  val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get())
-
-                  out.log.info(
-                    s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
-                  )
-
                   compiler.recompile(recs.toArray, outDir)
                   compiler.compileIdls(avdls.toArray, outDir)
                   compiler.compileAvscs(avscs.toArray, outDir)
                   compiler.compileAvprs(avprs.toArray, outDir)
 
                   (outDir ** SbtAvro.JavaFileFilter).get().toSet
+                } catch {
+                  case e: Exception =>
+                    out.log.err(e.getMessage)
+                    // avoid stacktrace in sbt
+                    throw new AlreadyHandledException(e)
                 } finally {
                   avroClassLoader.close()
                 }
