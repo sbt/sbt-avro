@@ -62,18 +62,13 @@ object SbtAvro extends AutoPlugin {
       avroStringType := "CharSequence",
       avroUseNamespace := false,
 
-      // dependency management
-      avroDependencyIncludeFilter := artifactFilter(
-        `type` = Artifact.SourceType,
-        classifier = AvroClassifier
-      ),
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
       // use a custom folders to avoid potential conflict with other generators
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroGenerate / target := sourceManaged.value / "compiled_avro",
-      // setup avro configuration. Use library management to fetch the compiler
+      // setup avro configuration. Use library management to fetch the compiler and schema sources
       ivyConfigurations ++= Seq(Avro),
       avroVersion := "1.12.0",
       avroAdditionalDependencies := Seq(
@@ -90,6 +85,15 @@ object SbtAvro extends AutoPlugin {
       avroUnmanagedSourceDirectories := Seq(avroSource.value),
       avroSpecificRecords := Seq.empty,
       // dependencies
+      avroDependencyIncludeFilter := (configuration.value match {
+        case Compile =>
+          // avro classifier artifact in Avro config are considered for compile scope
+          configurationFilter(Avro.name) &&
+          artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier)
+        case _ =>
+          // ignore all dependencies for scopes other than compile
+          configurationFilter(NothingFilter)
+      }),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -120,6 +124,8 @@ object SbtAvro extends AutoPlugin {
   override def trigger: PluginTrigger = noTrigger
 
   override def requires: Plugins = sbt.plugins.JvmPlugin
+
+  override def projectConfigurations: Seq[Configuration] = Seq(Avro)
 
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
     inConfig(Avro)(Defaults.configSettings) ++
@@ -169,11 +175,11 @@ object SbtAvro extends AutoPlugin {
       sbtPlugin.value,
       crossPaths.value
     )
-    val conf = configuration.value.toConfigRef
+
     val avroArtifacts = update.value
       .filter(avroDependencyIncludeFilter.value)
       .toSeq
-      .collect { case (`conf`, _, _, file) => file }
+      .map { case (_, _, _, f) => f }
 
     unpack(
       cacheBaseDirectory = cacheBaseDirectory,
