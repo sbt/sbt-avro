@@ -88,8 +88,7 @@ object SbtAvro extends AutoPlugin {
       avroDependencyIncludeFilter := (configuration.value match {
         case Compile =>
           // avro classifier artifact in Avro config are considered for compile scope
-          configurationFilter(Avro.name) &&
-          artifactFilter(`type` = Artifact.SourceType, classifier = AvroClassifier)
+          configurationFilter(Avro.name) && artifactFilter(classifier = AvroClassifier)
         case _ =>
           // ignore all dependencies for scopes other than compile
           configurationFilter(NothingFilter)
@@ -107,9 +106,7 @@ object SbtAvro extends AutoPlugin {
       // packaging
       packageAvro / artifactClassifier := Some(AvroClassifier),
       packageAvro / publishArtifact := false
-    ) ++ packageTaskSettings(packageAvro, packageAvroMappings) ++ Seq(
-      packageAvro / artifact := (packageAvro / artifact).value.withType(Artifact.SourceType)
-    )
+    ) ++ packageTaskSettings(packageAvro, packageAvroMappings)
   }
 
   import autoImport._
