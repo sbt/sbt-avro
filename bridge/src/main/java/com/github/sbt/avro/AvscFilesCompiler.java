@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AvscFilesCompiler {
 
@@ -55,18 +56,10 @@ public class AvscFilesCompiler {
 
     if (!uncompiledFiles.isEmpty()) {
       String failedFiles = uncompiledFiles.stream()
-          .map(AvroFileRef::toString)
-          .collect(Collectors.joining(", "));
-      SchemaGenerationException ex = new SchemaGenerationException(
-          String.format("Can not compile schema files: %s", failedFiles));
+          .flatMap(f -> Stream.ofNullable(compileExceptions.get(f)).map(e -> f.getFile().getName() + ": " + e.getMessage()))
+          .collect(Collectors.joining(",\n"));
 
-      for (AvroFileRef file : uncompiledFiles) {
-        Exception e = compileExceptions.get(file);
-        if (e != null) {
-          ex.addSuppressed(e);
-        }
-      }
-      throw ex;
+      throw new SchemaGenerationException("Can not compile schema files:\n" + failedFiles);
     }
   }
 
@@ -92,19 +85,11 @@ public class AvscFilesCompiler {
     }
 
     if (!uncompiledClasses.isEmpty()) {
-      String failedFiles = uncompiledClasses.stream()
+      String failedClasses = uncompiledClasses.stream()
               .map(Class::toString)
-              .collect(Collectors.joining(", "));
-      SchemaGenerationException ex = new SchemaGenerationException(
-              String.format("Can not re-compile class: %s", failedFiles));
-
-      for (Class<?> clazz : uncompiledClasses) {
-        Exception e = compileExceptions.get(clazz);
-        if (e != null) {
-          ex.addSuppressed(e);
-        }
-      }
-      throw ex;
+              .flatMap(c -> Stream.ofNullable(compileExceptions.get(c)).map(e -> c + ": " + e.getMessage()))
+              .collect(Collectors.joining(",\n"));
+      throw new SchemaGenerationException("Can not re-compile classes:\n" + failedClasses);
     }
   }
 
