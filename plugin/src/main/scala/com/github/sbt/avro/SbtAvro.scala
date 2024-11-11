@@ -224,7 +224,6 @@ object SbtAvro extends AutoPlugin {
 
                 // TODO Cache class loader
                 val avroClassLoader = new URLClassLoader(
-                  "AvroClassLoader",
                   (Avro / dependencyClasspath).value
                     .map(toNioPath)
                     .map(_.toUri.toURL)

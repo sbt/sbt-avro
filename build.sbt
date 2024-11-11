@@ -60,6 +60,10 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
+// compilers
+ThisBuild / javacOptions ++= Seq("--release", "8")
+ThisBuild / scalacOptions ++= Seq("-release", "8")
+
 lazy val `sbt-avro-parent`: Project = project
   .in(file("."))
   .settings(
@@ -113,7 +117,6 @@ lazy val `sbt-avro`: Project = project
     },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
     buildInfoPackage := "com.github.sbt.avro",
-    Compile / scalacOptions ++= Seq("-deprecation"),
     scriptedLaunchOpts ++= Seq(
       "-Xmx1024M",
       "-Dplugin.version=" + version.value

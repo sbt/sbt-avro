@@ -56,7 +56,14 @@ public class AvscFilesCompiler {
 
     if (!uncompiledFiles.isEmpty()) {
       String failedFiles = uncompiledFiles.stream()
-          .flatMap(f -> Stream.ofNullable(compileExceptions.get(f)).map(e -> f.getFile().getName() + ": " + e.getMessage()))
+          .flatMap(f -> {
+            Exception e = compileExceptions.get(f);
+            if (e == null) {
+              return Stream.empty();
+            } else {
+              return Stream.of(f.getFile().getName() + ": " + e.getMessage());
+            }
+          })
           .collect(Collectors.joining(",\n"));
 
       throw new SchemaGenerationException("Can not compile schema files:\n" + failedFiles);
@@ -87,7 +94,14 @@ public class AvscFilesCompiler {
     if (!uncompiledClasses.isEmpty()) {
       String failedClasses = uncompiledClasses.stream()
               .map(Class::toString)
-              .flatMap(c -> Stream.ofNullable(compileExceptions.get(c)).map(e -> c + ": " + e.getMessage()))
+              .flatMap(c -> {
+                Exception e = compileExceptions.get(c);
+                if (e == null) {
+                  return Stream.empty();
+                } else {
+                  return Stream.of(c + ": " + e.getMessage());
+                }
+              })
               .collect(Collectors.joining(",\n"));
       throw new SchemaGenerationException("Can not re-compile classes:\n" + failedClasses);
     }
