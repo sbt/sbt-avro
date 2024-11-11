@@ -127,7 +127,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             System.out.println("Compiling Avro schema: " + ref.getFile());
             files.add(ref);
         }
-        compiler.compileFiles(Set.of(avscs), target);
+        compiler.compileFiles(files, target);
     }
 
     @Override
