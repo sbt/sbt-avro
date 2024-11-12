@@ -8,16 +8,18 @@ import java.util.Collections;
 
 public class CustomAvroCompiler extends AvroCompilerBridge {
 
-    @Override
-    protected Schema.Parser createParser() {
-        Schema.Parser parser = new Schema.Parser();
-        parser.setValidateDefaults(false);
-        Schema externalSchema = SchemaBuilder
-                .enumeration("B")
-                .namespace("com.github.sbt.avro.test")
-                .symbols("B1");
-        parser.addTypes(Collections.singletonList(externalSchema));
-        return parser;
-    }
+    private static final Schema EXTERNAL_SCHEMA = SchemaBuilder
+            .enumeration("B")
+            .namespace("com.github.sbt.avro.test")
+            .symbols("B1");
 
+    public CustomAvroCompiler() {
+        super();
+        this.parser = new AvscFilesParser(() -> {
+            Schema.Parser p = new Schema.Parser();
+            p.addTypes(Collections.singletonList(EXTERNAL_SCHEMA));
+            p.setValidateDefaults(false);
+            return p;
+        });
+    }
 }

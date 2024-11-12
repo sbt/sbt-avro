@@ -1,24 +1,11 @@
-[
-  {
-    "name": "TestSpecificRecord",
-    "namespace": "com.github.sbt.avro",
-    "type": "record",
-    "fields": [
-      {
-        "name": "value",
-        "type": "string"
-      }
-    ]
-  },
-  {
-    "name": "TestSpecificRecordParent",
-    "namespace": "com.github.sbt.avro",
-    "type": "record",
-    "fields": [
-      {
-        "name": "child",
-        "type": "TestSpecificRecord"
-      }
-    ]
-  }
-]
+{
+  "name": "TestSpecificRecordParent",
+  "namespace": "com.github.sbt.avro",
+  "type": "record",
+  "fields": [
+    {
+      "name": "child",
+      "type": "TestSpecificRecord"
+    }
+  ]
+}

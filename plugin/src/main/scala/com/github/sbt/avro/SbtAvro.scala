@@ -258,8 +258,8 @@ object SbtAvro extends AutoPlugin {
                 )
                 try {
                   compiler.recompile(recs.toArray, outDir)
-                  compiler.compileIdls(avdls.toArray, outDir)
                   compiler.compileAvscs(avscs.toArray, outDir)
+                  compiler.compileIdls(avdls.toArray, outDir)
                   compiler.compileAvprs(avprs.toArray, outDir)
 
                   (outDir ** SbtAvro.JavaFileFilter).get().toSet
