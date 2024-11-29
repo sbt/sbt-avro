@@ -4,6 +4,7 @@ import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -30,10 +31,10 @@ public class AvscFilesParser {
     }
   }
 
-  public Map<AvroFileRef, Schema> parseFiles(Collection<AvroFileRef> files) {
-    Set<AvroFileRef> unparsedFiles = new HashSet<>(files);
-    Map<AvroFileRef, Schema> parsedFiles = new HashMap<>();
-    Map<AvroFileRef, Exception> parseExceptions = new HashMap<>();
+  public Map<File, Schema> parseFiles(Collection<File> files) {
+    Set<File> unparsedFiles = new HashSet<>(files);
+    Map<File, Schema> parsedFiles = new HashMap<>();
+    Map<File, Exception> parseExceptions = new HashMap<>();
 
     Schema.Parser parser = unstashParser();
     boolean progressed = true;
@@ -41,9 +42,9 @@ public class AvscFilesParser {
       progressed = false;
       parseExceptions.clear();
 
-      for (AvroFileRef file : unparsedFiles) {
+      for (File file : unparsedFiles) {
         try {
-          Schema schema = parser.parse(file.getFile());
+          Schema schema = parser.parse(file);
           parsedFiles.put(file, schema);
           progressed = true;
           stashParser(parser);
@@ -64,7 +65,7 @@ public class AvscFilesParser {
                 String message = Optional.ofNullable(parseExceptions.get(f))
                         .map(Exception::getMessage)
                         .orElse("Unknown error");
-                return f.getFile().getName() + ": " + message;
+                return f.getName() + ": " + message;
               })
               .collect(Collectors.joining(",\n"));
 

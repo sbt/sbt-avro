@@ -45,7 +45,6 @@ to generate the avro classes.
 | `avroFieldVisibility`          | `public`                                                                 | Field visibility for the properties. Possible values: `private`, `public`.              |
 | `avroOptionalGetters`          | `false` (requires avro `1.10+`)                                          | Generate getters that return `Optional` for nullable fields.                            |
 | `avroStringType`               | `CharSequence`                                                           | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
-| `avroUseNamespace`             | `false`                                                                  | Validate that directory layout reflects namespaces, i.e. `com/myorg/MyRecord.avsc`.     |
 | `avroVersion`                  | `1.12.0`                                                                 | Avro version to use in the project.                                                     |
 
 ### Scoped settings (Compile/Test)

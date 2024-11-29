@@ -21,7 +21,6 @@ public class AvroCompilerBridge implements AvroCompiler {
 
     protected StringType stringType;
     protected FieldVisibility fieldVisibility;
-    protected boolean useNamespace;
     protected boolean enableDecimalLogicalType;
     protected boolean createSetters;
     protected boolean optionalGetters;
@@ -39,11 +38,6 @@ public class AvroCompilerBridge implements AvroCompiler {
     @Override
     public void setFieldVisibility(String fieldVisibility) {
         this.fieldVisibility = FieldVisibility.valueOf(fieldVisibility);
-    }
-
-    @Override
-    public void setUseNamespace(boolean useNamespace) {
-        this.useNamespace = useNamespace;
     }
 
     @Override
@@ -101,21 +95,16 @@ public class AvroCompilerBridge implements AvroCompiler {
     }
 
     @Override
-    public void compileAvscs(AvroFileRef[] avscs, File target) throws Exception {
-        List<AvroFileRef> files = new ArrayList<>(avscs.length);
-        for (AvroFileRef ref : avscs) {
-            System.out.println("Compiling Avro schema: " + ref.getFile());
-            files.add(ref);
+    public void compileAvscs(File[] avscs, File target) throws Exception {
+        List<File> files = new ArrayList<>(avscs.length);
+        for (File schema : avscs) {
+            System.out.println("Compiling Avro schema: " + schema);
+            files.add(schema);
         }
-        Map<AvroFileRef, Schema> schemas = parser.parseFiles(files);
-        if (useNamespace) {
-            for (Map.Entry<AvroFileRef, Schema> s: schemas.entrySet()) {
-                validateParsedSchema(s.getKey(), s.getValue());
-            }
-        }
+        Map<File, Schema> schemas = parser.parseFiles(files);
 
-        for (Map.Entry<AvroFileRef, Schema> entry: schemas.entrySet()) {
-            File file = entry.getKey().getFile();
+        for (Map.Entry<File, Schema> entry: schemas.entrySet()) {
+            File file = entry.getKey();
             Schema schema = entry.getValue();
             SpecificCompiler compiler = new SpecificCompiler(schema);
             configureCompiler(compiler);
@@ -131,26 +120,6 @@ public class AvroCompilerBridge implements AvroCompiler {
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             configureCompiler(compiler);
             compiler.compileToDestination(null, target);
-        }
-    }
-
-    private void validateParsedSchema(AvroFileRef src, Schema schema) {
-        if (useNamespace) {
-            if (schema.getType() != Schema.Type.RECORD && schema.getType() != Schema.Type.ENUM) {
-                throw new SchemaGenerationException(String.format(
-                        "Error compiling schema file %s. "
-                                + "Only one root RECORD or ENUM type is allowed per file.",
-                        src
-                ));
-            } else if (!src.pathToClassName().equals(schema.getFullName())) {
-                throw new SchemaGenerationException(String.format(
-                        "Error compiling schema file %s. "
-                                + "File class name %s does not match record class name %s",
-                        src,
-                        src.pathToClassName(),
-                        schema.getFullName()
-                ));
-            }
         }
     }
 }

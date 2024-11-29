@@ -69,11 +69,11 @@ lazy val root: Project = project
     Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc",
 
     Compile / checkUnpacked := {
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "avdl.avdl")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "avpr.avpr")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "avsc.avsc")
-      absent(crossTarget.value / "src_managed" / "avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "exclude.avsc")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "avsc.avsc")
+      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
+      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
+      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
+      absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "exclude.avsc")
+      exists(crossTarget.value / "src_managed" / "avro" / "main" / "transitive-avro" / "avsc.avsc")
     },
     Compile / checkGenerated := {
       exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
@@ -82,7 +82,7 @@ lazy val root: Project = project
       exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
     },
     Test / checkUnpacked := {
-      exists(crossTarget.value / "src_managed" / "avro" / "test" / "test.avsc")
+      exists(crossTarget.value / "src_managed" / "avro" / "test" / "transitive-tests" / "test.avsc")
     },
     Test / checkGenerated := {
       exists(crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Test.java")
