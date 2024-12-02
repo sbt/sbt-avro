@@ -16,19 +16,19 @@ class AvscFilesParserSpec extends Specification {
   "It should be possible to compile types depending on others if source files are provided in right order" >> {
     val parser = new AvscFilesParser()
     val fullyQualifiedNames = Seq(
-      new AvroFileRef(sourceDir, "a.avsc"),
-      new AvroFileRef(sourceDir, "b.avsc"),
-      new AvroFileRef(sourceDir, "c.avsc"),
-      new AvroFileRef(sourceDir, "d.avsc"),
-      new AvroFileRef(sourceDir, "e.avsc")
+      new File(sourceDir, "a.avsc"),
+      new File(sourceDir, "b.avsc"),
+      new File(sourceDir, "c.avsc"),
+      new File(sourceDir, "d.avsc"),
+      new File(sourceDir, "e.avsc")
     )
 
     val simpleNames = Seq(
-      new AvroFileRef(sourceDir, "_a.avsc"),
-      new AvroFileRef(sourceDir, "_b.avsc"),
-      new AvroFileRef(sourceDir, "_c.avsc"),
-      new AvroFileRef(sourceDir, "_d.avsc"),
-      new AvroFileRef(sourceDir, "_e.avsc")
+      new File(sourceDir, "_a.avsc"),
+      new File(sourceDir, "_b.avsc"),
+      new File(sourceDir, "_c.avsc"),
+      new File(sourceDir, "_d.avsc"),
+      new File(sourceDir, "_e.avsc")
     )
 
     val sourceFiles = fullyQualifiedNames ++ simpleNames
@@ -66,7 +66,7 @@ class AvscFilesParserSpec extends Specification {
           |  ]
           |}""".stripMargin
     )
-    val parent = new AvroFileRef(sourceDir, "test_records.avsc")
+    val parent = new File(sourceDir, "test_records.avsc")
     parser.addTypes(Seq(dependant).asJava)
     val schemas = parser.parseFiles(Seq(parent).asJava)
     val names = schemas.asScala.values.map(_.getFullName)

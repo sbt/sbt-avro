@@ -41,7 +41,6 @@ object SbtAvro extends AutoPlugin {
     val avroSource = settingKey[File]("Default Avro source directory for *.avsc, *.avdl and *.avpr files.")
     val avroStringType = settingKey[String]("Type for representing strings. Possible values: CharSequence, String, Utf8.")
     val avroUnmanagedSourceDirectories = settingKey[Seq[File]]("Unmanaged Avro source directories, which contain manually created sources.")
-    val avroUseNamespace = settingKey[Boolean]("Validate that directory layout reflects namespaces, i.e. com/myorg/MyRecord.avsc.")
     val avroVersion = settingKey[String]("Avro version to use in the project.")
 
     val avroGenerate = taskKey[Seq[File]]("Generate Java sources for Avro schemas.")
@@ -60,7 +59,6 @@ object SbtAvro extends AutoPlugin {
       avroFieldVisibility := "public",
       avroOptionalGetters := false,
       avroStringType := "CharSequence",
-      avroUseNamespace := false,
 
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
@@ -142,11 +140,13 @@ object SbtAvro extends AutoPlugin {
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { deps =>
-        IO.createDirectory(extractTarget)
+        // dedicated directory per artifact to avoid name conflicts
+        val depTarget = extractTarget / jar.base
+        IO.createDirectory(depTarget)
         deps.flatMap { dep =>
           val filter = includeFilter -- excludeFilter
           val (avroSpecs, filtered) = IO
-            .unzip(dep, extractTarget, AvroFilter)
+            .unzip(dep, depTarget, AvroFilter)
             .partition(filter.accept)
           IO.delete(filtered)
           if (avroSpecs.nonEmpty) {
@@ -178,7 +178,7 @@ object SbtAvro extends AutoPlugin {
       .toSeq
       .map { case (_, _, _, f) => f }
 
-    unpack(
+    val unpacked = unpack(
       cacheBaseDirectory = cacheBaseDirectory,
       deps = avroArtifacts,
       extractTarget = (key / target).value,
@@ -186,6 +186,11 @@ object SbtAvro extends AutoPlugin {
       excludeFilter = (key / excludeFilter).value,
       streams = (key / streams).value
     )
+
+    val previouslyUnpacked = key.previous.toSeq.flatten
+    IO.delete(previouslyUnpacked.diff(unpacked))
+
+    unpacked
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
@@ -239,18 +244,13 @@ object SbtAvro extends AutoPlugin {
 
                 compiler.setStringType(avroStringType.value)
                 compiler.setFieldVisibility(avroFieldVisibility.value.toUpperCase)
-                compiler.setUseNamespace(avroUseNamespace.value)
                 compiler.setEnableDecimalLogicalType(avroEnableDecimalLogicalType.value)
                 compiler.setCreateSetters(avroCreateSetters.value)
                 compiler.setOptionalGetters(avroOptionalGetters.value)
 
                 val recs = records.map(avroClassLoader.loadClass)
                 val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get())
-                val avscs = srcDirs.flatMap(d =>
-                  (d ** AvroAvscFilter)
-                    .get()
-                    .map(avsc => new AvroFileRef(d, avsc.relativeTo(d).get.toString))
-                )
+                val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get())
                 val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get())
 
                 out.log.info(
