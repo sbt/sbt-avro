@@ -1,0 +1,16 @@
+{
+    "namespace": "com.github.sbt.avro.test.external",
+    "protocol": "ProtocolAvpr",
+    "types": [
+        {
+            "name": "Avpr",
+            "type": "record",
+            "fields": [
+                {
+                    "name": "stringField",
+                    "type": "string"
+                }
+            ]
+        }
+    ]
+}

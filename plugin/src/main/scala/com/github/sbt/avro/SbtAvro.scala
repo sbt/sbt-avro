@@ -98,7 +98,10 @@ object SbtAvro extends AutoPlugin {
       // source generation
       avroGenerate / target := configSrcSub(avroGenerate / target).value,
       managedSourceDirectories += (avroGenerate / target).value,
-      avroGenerate := sourceGeneratorTask(avroGenerate).dependsOn(avroUnpackDependencies).value,
+      avroGenerate := sourceGeneratorTask(avroGenerate)
+        .dependsOn(avroUnpackDependencies)
+        .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
+        .value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
       // packaging
@@ -125,6 +128,13 @@ object SbtAvro extends AutoPlugin {
   override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
     inConfig(Avro)(Defaults.configSettings) ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
+
+  // This filter is meant evaluate for all dependant submodules
+  // eg. source files / unpack dependencies
+  private val filterDependsOn = ScopeFilter(
+    inDependencies(ThisProject, transitive = false),
+    inConfigurations(Compile)
+  )
 
   private def unpack(
     cacheBaseDirectory: File,
@@ -196,7 +206,11 @@ object SbtAvro extends AutoPlugin {
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]) = Def.task {
     val out = (key / streams).value
     val externalSrcDir = (avroUnpackDependencies / target).value
-    val srcDirs = avroUnmanagedSourceDirectories.value :+ externalSrcDir
+    val unmanagedSrcDirs = avroUnmanagedSourceDirectories.value
+    val dependsOnDirs = (avroUnpackDependencies / target).?.all(filterDependsOn).value.flatten ++
+      avroUnmanagedSourceDirectories.?.all(filterDependsOn).value.flatten.flatten
+    val srcDirs = Seq(externalSrcDir) ++ unmanagedSrcDirs ++ dependsOnDirs
+
     val outDir = (key / target).value
     implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
 
