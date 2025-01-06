@@ -51,7 +51,7 @@ object SbtAvro extends AutoPlugin {
     lazy val avroArtifactTasks: Seq[TaskKey[FileRef]] =
       Seq(Compile, Test).map(conf => conf / packageAvro)
 
-    lazy val defaultSettings: Seq[Setting[_]] = Seq(
+    lazy val defaultSettings: Seq[Setting[?]] = Seq(
       // compiler
       avroCompiler := "com.github.sbt.avro.AvroCompilerBridge",
       avroCreateSetters := true,
@@ -78,7 +78,7 @@ object SbtAvro extends AutoPlugin {
     )
 
     // settings to be applied for both Compile and Test
-    lazy val configScopedSettings: Seq[Setting[_]] = Seq(
+    lazy val configScopedSettings: Seq[Setting[?]] = Seq(
       avroSource := sourceDirectory.value / "avro",
       avroUnmanagedSourceDirectories := Seq(avroSource.value),
       avroSpecificRecords := Seq.empty,
@@ -125,7 +125,7 @@ object SbtAvro extends AutoPlugin {
 
   override def projectConfigurations: Seq[Configuration] = Seq(Avro)
 
-  override lazy val projectSettings: Seq[Setting[_]] = defaultSettings ++
+  override lazy val projectSettings: Seq[Setting[?]] = defaultSettings ++
     inConfig(Avro)(Defaults.configSettings) ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 

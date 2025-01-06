@@ -30,7 +30,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-lazy val scala3 = "3.3.4"
+lazy val scala3 = "3.6.2"
 lazy val scala212 = "2.12.20"
 ThisBuild / scalaVersion := scala3
 ThisBuild / crossScalaVersions := Seq(scala3, scala212)
@@ -106,13 +106,13 @@ lazy val `sbt-avro`: Project = project
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.0"
-        case _      => "2.0.0-M2"
+        case _      => "2.0.0-M3"
       }
     },
     scriptedSbt := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.10.3"
-        case _      => "2.0.0-M2"
+        case "2.12" => "1.10.7"
+        case _      => "2.0.0-M3"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
