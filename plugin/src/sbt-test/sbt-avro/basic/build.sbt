@@ -1,7 +1,7 @@
 ThisBuild / scalaVersion := "2.13.11"
 
 lazy val files = Seq(
-  "A", "B", "C", "D", "E", "_A", "_B", "_C", "_D", "_E", "LogicalTypesTest"
+  "A", "B", "C", "D", "E", "_A", "_B", "_C", "_D", "_E", "LogicalTypesTest", "LocalDateTimeTest"
 )
 
 lazy val testFiles = Seq(
