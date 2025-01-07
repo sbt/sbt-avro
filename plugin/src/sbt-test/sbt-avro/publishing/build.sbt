@@ -56,15 +56,14 @@ lazy val root: Project = project
     name := "publishing-test",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro" classifier "avro", // external as transitive
-      "com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "test" classifier "tests",
+      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro").classifier("avro"), // external as transitive
+      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro-test").classifier("tests").intransitive(),
       "org.specs2" %% "specs2-core" % "4.20.9" % Test
     ),
-    // add additional avro source test jar
+    // add additional avro source test jar whithout avro classifier
     Test / avroDependencyIncludeFilter := artifactFilter(name = "transitive", classifier = "tests"),
     // exclude specific avsc file
-    Compile / avroUnpackDependencies / excludeFilter := (Compile / avroUnpackDependencies / excludeFilter).value || "exclude.avsc",
-
+    Compile / avroUnpackDependencies / excludeFilter ~= { filter => filter || "exclude.avsc" },
     Compile / checkUnpacked := {
       exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
       exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")

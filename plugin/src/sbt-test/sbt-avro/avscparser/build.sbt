@@ -1,5 +1,3 @@
-
-
 lazy val parser = project
   .in(file("parser"))
   .settings(
@@ -14,7 +12,7 @@ lazy val parser = project
 lazy val root = project
   .in(file("."))
   .enablePlugins(SbtAvro)
-  .dependsOn(parser % "avro")
+  .dependsOn(parser % "avro-compiler")
   .settings(
     avroCompiler := "com.github.sbt.avro.CustomAvroCompiler"
   )

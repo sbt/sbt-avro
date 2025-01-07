@@ -15,7 +15,10 @@ object SbtAvro extends AutoPlugin {
   // Force Log4J to not use JMX to avoid duplicate mbeans registration due to multiple classloader
   sys.props("log4j2.disableJmx") = "true"
 
+  val AvroCompiler: Configuration = config("avro-compiler")
   val Avro: Configuration = config("avro")
+  val AvroTest: Configuration = config("avro-test")
+
   val AvroClassifier = "avro"
 
   private[avro] val AvroAvrpFilter: NameFilter = "*.avpr"
@@ -67,11 +70,11 @@ object SbtAvro extends AutoPlugin {
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroGenerate / target := sourceManaged.value / "compiled_avro",
       // setup avro configuration. Use library management to fetch the compiler and schema sources
-      ivyConfigurations ++= Seq(Avro),
+      ivyConfigurations ++= Seq(AvroCompiler, Avro, AvroTest),
       avroVersion := "1.12.0",
       avroAdditionalDependencies := Seq(
-        "com.github.sbt" % "sbt-avro-compiler-bridge" % BuildInfo.version % Avro,
-        "org.apache.avro" % "avro-compiler" % avroVersion.value % Avro,
+        "com.github.sbt" % "sbt-avro-compiler-bridge" % BuildInfo.version % AvroCompiler,
+        "org.apache.avro" % "avro-compiler" % avroVersion.value % AvroCompiler,
         "org.apache.avro" % "avro" % avroVersion.value
       ),
       libraryDependencies ++= avroAdditionalDependencies.value
@@ -84,13 +87,10 @@ object SbtAvro extends AutoPlugin {
       avroSpecificRecords := Seq.empty,
       // dependencies
       avroDependencyIncludeFilter := (configuration.value match {
-        case Compile =>
-          // avro classifier artifact in Avro config are considered for compile scope
-          configurationFilter(Avro.name) && artifactFilter(classifier = AvroClassifier)
-        case _ =>
-          // ignore all dependencies for scopes other than compile
-          configurationFilter(NothingFilter)
-      }),
+        case Compile => configurationFilter(Avro.name)
+        case Test    => configurationFilter(AvroTest.name)
+        case _       => configurationFilter(NothingFilter)
+      }) && artifactFilter(classifier = AvroClassifier),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -123,16 +123,16 @@ object SbtAvro extends AutoPlugin {
 
   override def requires: Plugins = sbt.plugins.JvmPlugin
 
-  override def projectConfigurations: Seq[Configuration] = Seq(Avro)
+  override def projectConfigurations: Seq[Configuration] = Seq(AvroCompiler, Avro, AvroTest)
 
   override lazy val projectSettings: Seq[Setting[?]] = defaultSettings ++
-    inConfig(Avro)(Defaults.configSettings) ++
+    Seq(AvroCompiler, Avro, AvroTest).flatMap(c => inConfig(c)(Defaults.configSettings)) ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
   // This filter is meant evaluate for all dependant submodules
   // eg. source files / unpack dependencies
   private val filterDependsOn = ScopeFilter(
-    inDependencies(ThisProject, transitive = false),
+    inDependencies(ThisProject),
     inConfigurations(Compile)
   )
 
@@ -150,14 +150,15 @@ object SbtAvro extends AutoPlugin {
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { deps =>
+        val filter = includeFilter -- excludeFilter
+
         // dedicated directory per artifact to avoid name conflicts
         val depTarget = extractTarget / jar.base
         IO.createDirectory(depTarget)
         deps.flatMap { dep =>
-          val filter = includeFilter -- excludeFilter
           val (avroSpecs, filtered) = IO
             .unzip(dep, depTarget, AvroFilter)
-            .partition(filter.accept)
+            .partition(_.relativeTo(depTarget).forall(filter.accept))
           IO.delete(filtered)
           if (avroSpecs.nonEmpty) {
             streams.log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
@@ -183,10 +184,12 @@ object SbtAvro extends AutoPlugin {
       crossPaths.value
     )
 
+    // Classpaths.managedJars does not cross-build
     val avroArtifacts = update.value
       .filter(avroDependencyIncludeFilter.value)
       .toSeq
       .map { case (_, _, _, f) => f }
+      .distinct
 
     val unpacked = unpack(
       cacheBaseDirectory = cacheBaseDirectory,
@@ -243,7 +246,7 @@ object SbtAvro extends AutoPlugin {
 
                 // TODO Cache class loader
                 val avroClassLoader = new URLClassLoader(
-                  (Avro / dependencyClasspath).value
+                  (AvroCompiler / dependencyClasspath).value
                     .map(toNioPath)
                     .map(_.toUri.toURL)
                     .toArray,

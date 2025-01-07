@@ -4,7 +4,7 @@ name := "settings-test"
 scalaVersion := "2.13.11"
 libraryDependencies ++= Seq(
   // depend on test jar to get some generated records in the build
-  "org.apache.avro" % "avro" % avroVersion.value % "avro" classifier "tests",
+  ("org.apache.avro" % "avro" % avroVersion.value % "avro-compiler").classifier("tests"),
   "org.specs2" %% "specs2-core" % "4.20.9" % Test
 )
 

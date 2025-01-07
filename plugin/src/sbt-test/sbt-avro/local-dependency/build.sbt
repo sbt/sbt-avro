@@ -39,19 +39,14 @@ lazy val `transitive`: Project = project
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
     libraryDependencies ++= Seq(
-      // when using avro scope, it won't be part of the pom dependencies -> intransitive
-      // to declare transitive dependency use the compile scope
-      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" classifier "avro"
-    ),
-    Compile / avroDependencyIncludeFilter := artifactFilter(classifier = "avro"),
-    // create a test jar with a schema as resource
-    Test / packageBin / publishArtifact := true,
+      ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
+    )
   )
 
 lazy val root: Project = project
   .in(file("."))
   .enablePlugins(SbtAvro)
-  .dependsOn(`transitive` % "avro->avro")
+  .dependsOn(`transitive` % "avro")
   .settings(commonSettings)
   .settings(
     name := "local-dependency",
@@ -59,9 +54,6 @@ lazy val root: Project = project
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "4.20.9" % Test
     ),
-    // add additional avro source test jar
-    Test / avroDependencyIncludeFilter := artifactFilter(name = "transitive", classifier = "tests"),
-
     Compile / checkUnpacked := {
       exists((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
       exists((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
