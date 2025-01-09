@@ -36,31 +36,31 @@ to generate the avro classes.
 
 ### Project settings
 
-| Name                           | Default                                                                  | Description                                                                             |
-|:-------------------------------|:-------------------------------------------------------------------------|:----------------------------------------------------------------------------------------|
-| `avroAdditionalDependencies`   | `avro-compiler % avroVersion % "avro"`, `avro % avroVersion % "compile"` | Additional dependencies to be added to library dependencies.                            | 
-| `avroCompiler`                 | `com.github.sbt.avro.AvroCompilerBridge`                                 | Sbt avro compiler class.                                                                |
-| `avroCreateSetters`            | `true`                                                                   | Generate setters.                                                                       |
-| `avroEnableDecimalLogicalType` | `true`                                                                   | Use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
-| `avroFieldVisibility`          | `public`                                                                 | Field visibility for the properties. Possible values: `private`, `public`.              |
-| `avroOptionalGetters`          | `false` (requires avro `1.10+`)                                          | Generate getters that return `Optional` for nullable fields.                            |
-| `avroStringType`               | `CharSequence`                                                           | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
-| `avroVersion`                  | `1.12.0`                                                                 | Avro version to use in the project.                                                     |
+| Name                           | Default                                                                             | Description                                                                             |
+|:-------------------------------|:------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------|
+| `avroAdditionalDependencies`   | `avro-compiler % avroVersion % "avro-compiler"`<br>`avro % avroVersion % "compile"` | Additional dependencies to be added to library dependencies.                            | 
+| `avroCompiler`                 | `com.github.sbt.avro.AvroCompilerBridge`                                            | Sbt avro compiler class.                                                                |
+| `avroCreateSetters`            | `true`                                                                              | Generate setters.                                                                       |
+| `avroEnableDecimalLogicalType` | `true`                                                                              | Use `java.math.BigDecimal` instead of `java.nio.ByteBuffer` for logical type `decimal`. |
+| `avroFieldVisibility`          | `public`                                                                            | Field visibility for the properties. Possible values: `private`, `public`.              |
+| `avroOptionalGetters`          | `false` (requires avro `1.10+`)                                                     | Generate getters that return `Optional` for nullable fields.                            |
+| `avroStringType`               | `CharSequence`                                                                      | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
+| `avroVersion`                  | `1.12.0`                                                                            | Avro version to use in the project.                                                     |
 
 ### Scoped settings (Compile/Test)
 
-| Name                                       | Default                                                                                  | Description                                                                                          |
-|:-------------------------------------------|:-----------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------|
-| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config`                                            | Source directory for generated `.java` files.                                                        |
-| `avroSource`                               | `sourceDirectory` / `$config` / `avro`                                                   | Default Avro source directory for `*.avsc`, `*.avdl` and `*.avpr` files.                             |
-| `avroSpecificRecords`                      | `Seq.empty`                                                                              | List of fully qualified Avro record class names to recompile with current avro version and settings. |
-| `avroDependencyIncludeFilter`              | `Compile`: `avro` classifier artifacts in `Avro` config<br>`Test`: nothing               | Filter for including modules containing avro dependencies.                              |
-| `avroUmanagedSourceDirectories`            | `Seq(avroSource)`                                                                        | Unmanaged Avro source directories, which contain manually created sources.                           |
-| `avroUnpackDependencies` / `excludeFilter` | `HiddenFileFilter`                                                                       | Filter for excluding avro specification files from unpacking.                                        |
-| `avroUnpackDependencies` / `includeFilter` | `AllPassFilter`                                                                          | Filter for including avro specification files to unpack.                                             |
-| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`                                                     | Target directory for schemas packaged in the dependencies                                            |
-| `packageAvro` / `artifactClassifier`       | `Some("avro")`                                                                           | Classifier for avro artifact                                                                         |
-| `packageAvro` / `publishArtifact`          | `false`                                                                                  | Enable / Disable avro artifact publishing                                                            |
+| Name                                       | Default                                                                                                         | Description                                                                                          |
+|:-------------------------------------------|:----------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------|
+| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config`                                                                   | Source directory for generated `.java` files.                                                        |
+| `avroSource`                               | `sourceDirectory` / `$config` / `avro`                                                                          | Default Avro source directory for `*.avsc`, `*.avdl` and `*.avpr` files.                             |
+| `avroSpecificRecords`                      | `Seq.empty`                                                                                                     | List of fully qualified Avro record class names to recompile with current avro version and settings. |
+| `avroDependencyIncludeFilter`              | `Compile`: avro classifier artifacts in `Avro` config<br>`Test`: avro classifier artifacts in `AvroTest` config | Filter for including modules containing avro dependencies.                                           |
+| `avroUmanagedSourceDirectories`            | `Seq(avroSource)`                                                                                               | Unmanaged Avro source directories, which contain manually created sources.                           |
+| `avroUnpackDependencies` / `excludeFilter` | `HiddenFileFilter`                                                                                              | Filter for excluding avro specification files from unpacking.                                        |
+| `avroUnpackDependencies` / `includeFilter` | `AllPassFilter`                                                                                                 | Filter for including avro specification files to unpack.                                             |
+| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`                                                                            | Target directory for schemas packaged in the dependencies                                            |
+| `packageAvro` / `artifactClassifier`       | `Some("avro")`                                                                                                  | Classifier for avro artifact                                                                         |
+| `packageAvro` / `publishArtifact`          | `false`                                                                                                         | Enable / Disable avro artifact publishing                                                            |
 
 
 ## Scoped Tasks (Compile/Test)
@@ -83,13 +83,14 @@ If you depend on an artifact with previously generated avro java classes with st
 you can recompile them with `String` by also adding the following
 
 ```sbt
-Compile / avroSpecificRecords += "com.example.MyAvroRecord" // lib must be added in the avro scope
+libraryDependencies +=  "org" % "name" % "rev" % "avro-compiler"
+Compile / avroSpecificRecords += "com.example.MyAvroRecord"
 ```
 
 ## Packaging Avro files
 
-Avro sources (`*.avsc`, `*.avdl` and `*.avpr` files) can be packaged in a separate jar with the `source` type and
-`avro` classifier by running `packageAvro`.
+Avro sources (`*.avsc`, `*.avdl` and `*.avpr` files) can be packaged in a separate jar with `avro` classifier
+by running `packageAvro`.
 
 By default, `sbt-avro` does not publish this. You can enable it with
 
@@ -102,23 +103,21 @@ Compile / packageAvro / publishArtifact := true
 You can specify a dependency on an avro source artifact that contains the schemas like so:
 
 ```sbt
-libraryDependencies += "org" % "name" % "rev" % "avro" classifier "avro"
+libraryDependencies += "org" % "name" % "rev" % "avro" classifier "avro" intransitive()
 ```
 
-If some avro schemas are not packaged in a `source/avro` artifact, you can update the `avroDependencyIncludeFilter`
+If some avro schemas are not packaged in a `avro` artifact, you can update the `avroDependencyIncludeFilter`
 setting to instruct the plugin to look for schemas in the desired dependency:
 
 ```sbt
-libraryDependencies += "org" % "name" % "rev" % "avro" // module containing avro schemas
+libraryDependencies += "org" % "name" % "rev" % "avro" intransitive() // module containing avro schemas
 Compile / avroDependencyIncludeFilter := configurationFilter("avro") && moduleFilter(organization = "org", name = "name")
 ```
 
 If some artifact is meant to be used in the test scope only, you can do the following
 
 ```sbt
-libraryDependencies += "org" % "name" % "rev" % "avro" classifier "avro"
-Compile / avroDependencyIncludeFilter ~= { old => old -- moduleFilter(organization = "org", name = "name") }
-Test / avroDependencyIncludeFilter := configurationFilter("avro") && moduleFilter(organization = "org", name = "name")
+libraryDependencies += "org" % "name" % "rev" % "avro-test" classifier "avro" intransitive()
 ```
 
 # License
@@ -127,8 +126,8 @@ This program is distributed under the BSD license. See the file `LICENSE` for mo
 
 # Credits
 
-`sbt-avro` is maintained by the [sbt Community](http://www.scala-sbt.org/release/docs/Community-Plugins.html). The
-initial code was based on a similar plugin: [`sbt-protobuf`](https://github.com/gseitz/sbt-protobuf). Feel free to file
+`sbt-avro` is maintained by the [sbt Community](http://www.scala-sbt.org/release/docs/Community-Plugins.html).
+The code was based on a similar plugin: [`sbt-protoc`](https://github.com/thesamet/sbt-protoc). Feel free to file
 issues or pull requests.
 
 # Contributors
