@@ -84,7 +84,7 @@ lazy val `sbt-avro-compiler-api`: Project = project
 
 lazy val `sbt-avro-compiler-bridge`: Project = project
   .in(file("bridge"))
-  .dependsOn(`sbt-avro-compiler-api`)
+  .dependsOn(`sbt-avro-compiler-api` % "provided")
   .settings(
     crossPaths := false,
     autoScalaLibrary := false,
