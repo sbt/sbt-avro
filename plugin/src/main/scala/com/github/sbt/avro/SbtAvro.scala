@@ -283,8 +283,7 @@ object SbtAvro extends AutoPlugin {
                 } catch {
                   case e: Exception =>
                     out.log.err(e.getMessage)
-                    // avoid stacktrace in sbt
-                    throw new AlreadyHandledException(e)
+                    throw new AvroGenerateFailedException
                 } finally {
                   avroClassLoader.close()
                 }
@@ -300,3 +299,7 @@ object SbtAvro extends AutoPlugin {
   }
 
 }
+
+class AvroGenerateFailedException
+    extends RuntimeException("Avro generate failed")
+    with FeedbackProvidedException
