@@ -7,7 +7,6 @@ import PluginCompat.*
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
-import java.util.ServiceLoader
 
 /** Plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {
@@ -253,10 +252,11 @@ object SbtAvro extends AutoPlugin {
                   this.getClass.getClassLoader
                 )
 
-                val compiler = ServiceLoader
-                  .load(classOf[AvroCompiler], avroClassLoader)
-                  .iterator()
-                  .next()
+                val compiler = avroClassLoader
+                  .loadClass(avroCompiler.value)
+                  .getDeclaredConstructor()
+                  .newInstance()
+                  .asInstanceOf[AvroCompiler]
 
                 compiler.setStringType(avroStringType.value)
                 compiler.setFieldVisibility(avroFieldVisibility.value.toUpperCase)
