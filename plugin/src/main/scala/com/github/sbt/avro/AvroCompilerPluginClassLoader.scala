@@ -18,4 +18,8 @@ private class AvroCompilerPluginClassLoader(urls: Array[URL], parent: ClassLoade
       super.findClass(name)
     }
   }
+
+  override def getResource(name: String): URL =
+    Option(super.findResource(name))
+      .getOrElse(parent.getResource(name))
 }
