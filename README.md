@@ -49,18 +49,18 @@ to generate the avro classes.
 
 ### Scoped settings (Compile/Test)
 
-| Name                                       | Default                                                                                                         | Description                                                                                          |
-|:-------------------------------------------|:----------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------|
-| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config`                                                                   | Source directory for generated `.java` files.                                                        |
-| `avroSource`                               | `sourceDirectory` / `$config` / `avro`                                                                          | Default Avro source directory for `*.avsc`, `*.avdl` and `*.avpr` files.                             |
-| `avroSpecificRecords`                      | `Seq.empty`                                                                                                     | List of fully qualified Avro record class names to recompile with current avro version and settings. |
-| `avroDependencyIncludeFilter`              | `Compile`: avro classifier artifacts in `Avro` config<br>`Test`: avro classifier artifacts in `AvroTest` config | Filter for including modules containing avro dependencies.                                           |
-| `avroUmanagedSourceDirectories`            | `Seq(avroSource)`                                                                                               | Unmanaged Avro source directories, which contain manually created sources.                           |
-| `avroUnpackDependencies` / `excludeFilter` | `HiddenFileFilter`                                                                                              | Filter for excluding avro specification files from unpacking.                                        |
-| `avroUnpackDependencies` / `includeFilter` | `AllPassFilter`                                                                                                 | Filter for including avro specification files to unpack.                                             |
-| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`                                                                            | Target directory for schemas packaged in the dependencies                                            |
-| `packageAvro` / `artifactClassifier`       | `Some("avro")`                                                                                                  | Classifier for avro artifact                                                                         |
-| `packageAvro` / `publishArtifact`          | `false`                                                                                                         | Enable / Disable avro artifact publishing                                                            |
+| Name                                       | Default                                                                         | Description                                                                                          |
+|:-------------------------------------------|:--------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------|
+| `avroGenerate` / `target`                  | `sourceManaged` / `compiled_avro` / `$config`                                   | Source directory for generated `.java` files.                                                        |
+| `avroSource`                               | `sourceDirectory` / `$config` / `avro`                                          | Default Avro source directory for `*.avsc`, `*.avdl` and `*.avpr` files.                             |
+| `avroSpecificRecords`                      | `Seq.empty`                                                                     | List of fully qualified Avro record class names to recompile with current avro version and settings. |
+| `avroDependencyIncludeFilter`              | `Compile`: artifacts in `Avro` config<br>`Test`: artifacts in `AvroTest` config | Filter for including modules containing avro dependencies.                                           |
+| `avroUmanagedSourceDirectories`            | `Seq(avroSource)`                                                               | Unmanaged Avro source directories, which contain manually created sources.                           |
+| `avroUnpackDependencies` / `excludeFilter` | `HiddenFileFilter`                                                              | Filter for excluding avro specification files from unpacking.                                        |
+| `avroUnpackDependencies` / `includeFilter` | `AllPassFilter`                                                                 | Filter for including avro specification files to unpack.                                             |
+| `avroUnpackDependencies` / `target`        | `sourceManaged` / `avro` / `$config`                                            | Target directory for schemas packaged in the dependencies                                            |
+| `packageAvro` / `artifactClassifier`       | `Some("avro")`                                                                  | Classifier for avro artifact                                                                         |
+| `packageAvro` / `publishArtifact`          | `false`                                                                         | Enable / Disable avro artifact publishing                                                            |
 
 
 ## Scoped Tasks (Compile/Test)
