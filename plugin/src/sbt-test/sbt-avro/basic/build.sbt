@@ -55,7 +55,7 @@ lazy val `basic8` = project
   .settings(
     avroVersion := "1.8.2",
     libraryDependencies += "joda-time" % "joda-time" % "2.12.7",
-    sourceDirectory := file(".") / "src"
+    sourceDirectory := baseDirectory.value.getParentFile / "src"
   )
 
 lazy val `basic9` = project
@@ -65,7 +65,7 @@ lazy val `basic9` = project
   .settings(
     avroVersion := "1.9.2",
     libraryDependencies += "joda-time" % "joda-time" % "2.12.7",
-    sourceDirectory := file(".") / "src"
+    sourceDirectory := baseDirectory.value.getParentFile / "src"
   )
 
 lazy val `basic10` = project
@@ -74,7 +74,7 @@ lazy val `basic10` = project
   .settings(checkSettings)
   .settings(
     avroVersion := "1.10.0",
-    sourceDirectory := file(".") / "src"
+    sourceDirectory := baseDirectory.value.getParentFile / "src"
   )
 
 lazy val `basic11` = project
@@ -83,7 +83,7 @@ lazy val `basic11` = project
   .settings(checkSettings)
   .settings(
     avroVersion := "1.11.3",
-    sourceDirectory := file(".") / "src"
+    sourceDirectory := baseDirectory.value.getParentFile / "src"
   )
 
 lazy val `basic12` = project
@@ -92,5 +92,5 @@ lazy val `basic12` = project
   .settings(checkSettings)
   .settings(
     avroVersion := "1.12.0",
-    sourceDirectory := file(".") / "src"
+    sourceDirectory := baseDirectory.value.getParentFile / "src"
   )
