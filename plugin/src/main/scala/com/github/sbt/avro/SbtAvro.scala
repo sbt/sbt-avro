@@ -90,7 +90,7 @@ object SbtAvro extends AutoPlugin {
         case Compile => configurationFilter(Avro.name)
         case Test    => configurationFilter(AvroTest.name)
         case _       => configurationFilter(NothingFilter)
-      }) && artifactFilter(classifier = AvroClassifier),
+      }),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
