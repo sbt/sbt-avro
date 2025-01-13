@@ -41,7 +41,7 @@ lazy val `transitive`: Project = project
     libraryDependencies ++= Seq(
       // when using avro scope, it won't be part of the pom dependencies -> intransitive
       // to declare transitive dependency use the compile scope
-      "com.github.sbt" % "external" % "0.0.1-SNAPSHOT" classifier "avro"
+      ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT").classifier("avro")
     ),
     Compile / avroDependencyIncludeFilter := artifactFilter(classifier = "avro"),
     // create a test jar with a schema as resource

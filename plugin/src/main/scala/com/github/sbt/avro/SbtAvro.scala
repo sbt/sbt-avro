@@ -7,13 +7,9 @@ import PluginCompat.*
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
-import java.net.URLClassLoader
 
 /** Plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {
-
-  // Force Log4J to not use JMX to avoid duplicate mbeans registration due to multiple classloader
-  sys.props("log4j2.disableJmx") = "true"
 
   val AvroCompiler: Configuration = config("avro-compiler")
   val Avro: Configuration = config("avro")
@@ -73,6 +69,9 @@ object SbtAvro extends AutoPlugin {
       ivyConfigurations ++= Seq(AvroCompiler, Avro, AvroTest),
       avroVersion := "1.12.0",
       avroAdditionalDependencies := Seq(
+        // disable slf4j logging in avro-compiler child 1st classloader
+        "org.slf4j" % "slf4j-api" % "2.0.16" % AvroCompiler,
+        "org.slf4j" % "slf4j-nop" % "2.0.16" % AvroCompiler,
         "com.github.sbt" % "sbt-avro-compiler-bridge" % BuildInfo.version % AvroCompiler,
         "org.apache.avro" % "avro-compiler" % avroVersion.value % AvroCompiler,
         "org.apache.avro" % "avro" % avroVersion.value
@@ -245,7 +244,7 @@ object SbtAvro extends AutoPlugin {
                 // - output files are missing
 
                 // TODO Cache class loader
-                val avroClassLoader = new URLClassLoader(
+                val avroClassLoader = new AvroCompilerPluginClassLoader(
                   (AvroCompiler / dependencyClasspath).value
                     .map(toNioPath)
                     .map(_.toUri.toURL)
