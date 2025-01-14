@@ -64,10 +64,17 @@ ThisBuild / githubWorkflowPublish := Seq(
 ThisBuild / javacOptions ++= Seq("--release", "8")
 ThisBuild / scalacOptions ++= Seq("-release", "8")
 
+lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
+  crossPaths := false,
+  autoScalaLibrary := false,
+  crossScalaVersions := Seq(scala3)
+)
+
 lazy val `sbt-avro-parent`: Project = project
   .in(file("."))
   .settings(
-    publish / skip := true
+    publish / skip := true,
+    crossScalaVersions := Nil
   )
   .aggregate(
     `sbt-avro-compiler-api`,
@@ -77,17 +84,13 @@ lazy val `sbt-avro-parent`: Project = project
 
 lazy val `sbt-avro-compiler-api`: Project = project
   .in(file("api"))
-  .settings(
-    crossPaths := false,
-    autoScalaLibrary := false
-  )
+  .settings(javaOnlySettings)
 
 lazy val `sbt-avro-compiler-bridge`: Project = project
   .in(file("bridge"))
   .dependsOn(`sbt-avro-compiler-api` % "provided")
+  .settings(javaOnlySettings)
   .settings(
-    crossPaths := false,
-    autoScalaLibrary := false,
     libraryDependencies ++= Seq(
       Dependencies.Provided.AvroCompiler,
       Dependencies.Test.Specs2Core
