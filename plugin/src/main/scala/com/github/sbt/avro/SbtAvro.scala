@@ -282,7 +282,7 @@ object SbtAvro extends AutoPlugin {
 
                   (outDir ** SbtAvro.JavaFileFilter).get().toSet
                 } catch {
-                  case e: Exception =>
+                  case e: RuntimeException =>
                     out.log.err(e.getMessage)
                     throw new AvroGenerateFailedException
                 } finally {
