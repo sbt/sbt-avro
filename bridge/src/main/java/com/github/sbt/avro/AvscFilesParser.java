@@ -31,7 +31,7 @@ public class AvscFilesParser {
     }
   }
 
-  public Map<File, Schema> parseFiles(Collection<File> files) {
+  public List<Schema> parseFiles(Collection<File> files) {
     Set<File> unparsedFiles = new HashSet<>(files);
     Map<File, Schema> parsedFiles = new HashMap<>();
     Map<File, Exception> parseExceptions = new HashMap<>();
@@ -72,7 +72,7 @@ public class AvscFilesParser {
       throw new SchemaGenerationException("Can not parse schema files:\n" + failedFiles);
     }
 
-    return parsedFiles;
+    return new ArrayList<>(parsedFiles.values());
   }
 
   private void stashParser(Schema.Parser parser) {
