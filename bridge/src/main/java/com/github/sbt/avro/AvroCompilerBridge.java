@@ -90,7 +90,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             Protocol protocol = parser.CompilationUnit();
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             configureCompiler(compiler);
-            compiler.compileToDestination(idl, target);
+            compiler.compileToDestination(null, target);
         }
     }
 
@@ -101,15 +101,14 @@ public class AvroCompilerBridge implements AvroCompiler {
             System.out.println("Compiling Avro schema: " + schema);
             files.add(schema);
         }
-        Map<File, Schema> schemas = parser.parseFiles(files);
+        List<Schema> schemas = parser.parseFiles(files);
 
-        for (Map.Entry<File, Schema> entry: schemas.entrySet()) {
-            File file = entry.getKey();
-            Schema schema = entry.getValue();
-            SpecificCompiler compiler = new SpecificCompiler(schema);
-            configureCompiler(compiler);
-            compiler.compileToDestination(file, target);
-        }
+        // This is a trick to use a single instance on the SpecificCompiler for all schemas
+        // only avro 1.12+ SpecificCompiler has a constructor accepting a schema collection
+        Schema schema = Schema.createUnion(schemas);
+        SpecificCompiler compiler = new SpecificCompiler(schema);
+        configureCompiler(compiler);
+        compiler.compileToDestination(null, target);
     }
 
     @Override
