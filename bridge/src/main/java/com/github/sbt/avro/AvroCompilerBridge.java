@@ -96,16 +96,11 @@ public class AvroCompilerBridge implements AvroCompiler {
 
     @Override
     public void compileAvscs(File[] avscs, File target) throws Exception {
-        List<File> files = new ArrayList<>(avscs.length);
-        for (File schema : avscs) {
-            System.out.println("Compiling Avro schema: " + schema);
-            files.add(schema);
-        }
-        Map<File, Schema> schemas = parser.parseFiles(files);
-
+        Map<File, Schema> schemas = parser.parseFiles(Arrays.asList(avscs));
         for (Map.Entry<File, Schema> entry: schemas.entrySet()) {
             File file = entry.getKey();
             Schema schema = entry.getValue();
+            System.out.println("Compiling Avro schema: " + file + ":" + schema.getFullName());
             SpecificCompiler compiler = new SpecificCompiler(schema);
             configureCompiler(compiler);
             compiler.compileToDestination(file, target);
@@ -119,7 +114,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             Protocol protocol = Protocol.parse(avpr);
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             configureCompiler(compiler);
-            compiler.compileToDestination(null, target);
+            compiler.compileToDestination(avpr, target);
         }
     }
 }
