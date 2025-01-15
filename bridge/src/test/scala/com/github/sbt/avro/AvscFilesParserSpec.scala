@@ -33,7 +33,7 @@ class AvscFilesParserSpec extends Specification {
 
     val sourceFiles = fullyQualifiedNames ++ simpleNames
     val schemas = parser.parseFiles(sourceFiles.asJava)
-    val names = schemas.asScala.map(_.getFullName)
+    val names = schemas.asScala.values.map(_.getFullName)
     names must contain(
       exactly(
         "com.github.sbt.avro.test.A",
@@ -69,7 +69,7 @@ class AvscFilesParserSpec extends Specification {
     val parent = new File(sourceDir, "test_records.avsc")
     parser.addTypes(Seq(dependant).asJava)
     val schemas = parser.parseFiles(Seq(parent).asJava)
-    val names = schemas.asScala.map(_.getFullName)
+    val names = schemas.asScala.values.map(_.getFullName)
     names must contain(exactly("com.github.sbt.avro.TestSpecificRecordParent"))
   }
 
