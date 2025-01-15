@@ -242,8 +242,6 @@ object SbtAvro extends AutoPlugin {
                 // - no previous cache and we have records to recompile
                 // - input files have changed
                 // - output files are missing
-
-                // TODO Cache class loader
                 val avroClassLoader = new AvroCompilerPluginClassLoader(
                   (AvroCompiler / dependencyClasspath).value
                     .map(toNioPath)
@@ -287,7 +285,6 @@ object SbtAvro extends AutoPlugin {
                     throw new AvroGenerateFailedException
                 } finally {
                   Thread.currentThread().setContextClassLoader(initLoader)
-                  avroClassLoader.close()
                 }
               } else {
                 outReport.checked
