@@ -17,7 +17,7 @@ lazy val avroOnlySettings = Seq(
   Compile / packageAvro / publishArtifact := true,
   Compile / packageBin / publishArtifact := false,
   Compile / packageSrc / publishArtifact := false,
-  Compile / packageDoc / publishArtifact := false,
+  Compile / packageDoc / publishArtifact := false
 )
 
 lazy val `external`: Project = project
@@ -27,7 +27,7 @@ lazy val `external`: Project = project
   .settings(avroOnlySettings)
   .settings(
     name := "external",
-    version := "0.0.1-SNAPSHOT",
+    version := "0.0.1-SNAPSHOT"
   )
 
 lazy val `transitive`: Project = project
@@ -52,17 +52,31 @@ lazy val root: Project = project
     name := "local-dependency",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      "org.specs2" %% "specs2-core" % "4.20.9" % Test
+      "org.specs2" %% "specs2-core" % "5.5.8" % Test
     ),
     Compile / checkUnpacked := {
-      exists((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
-      exists((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
-      exists((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
+      exists(
+        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl"
+      )
+      exists(
+        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr"
+      )
+      exists(
+        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc"
+      )
     },
     Compile / checkGenerated := {
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
+      )
     }
   )

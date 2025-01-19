@@ -17,7 +17,7 @@ lazy val avroOnlySettings = Seq(
   Compile / packageAvro / publishArtifact := true,
   Compile / packageBin / publishArtifact := false,
   Compile / packageSrc / publishArtifact := false,
-  Compile / packageDoc / publishArtifact := false,
+  Compile / packageDoc / publishArtifact := false
 )
 
 lazy val `external`: Project = project
@@ -27,7 +27,7 @@ lazy val `external`: Project = project
   .settings(avroOnlySettings)
   .settings(
     name := "external",
-    version := "0.0.1-SNAPSHOT",
+    version := "0.0.1-SNAPSHOT"
   )
 
 lazy val `transitive`: Project = project
@@ -45,7 +45,7 @@ lazy val `transitive`: Project = project
     ),
     Compile / avroDependencyIncludeFilter := artifactFilter(classifier = "avro"),
     // create a test jar with a schema as resource
-    Test / packageBin / publishArtifact := true,
+    Test / packageBin / publishArtifact := true
   )
 
 lazy val root: Project = project
@@ -56,9 +56,12 @@ lazy val root: Project = project
     name := "publishing-test",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro").classifier("avro"), // external as transitive
-      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro-test").classifier("tests").intransitive(),
-      "org.specs2" %% "specs2-core" % "4.20.9" % Test
+      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro")
+        .classifier("avro"), // external as transitive
+      ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro-test")
+        .classifier("tests")
+        .intransitive(),
+      "org.specs2" %% "specs2-core" % "5.5.8" % Test
     ),
     // add additional avro source test jar whithout avro classifier
     Test / avroDependencyIncludeFilter := artifactFilter(name = "transitive", classifier = "tests"),
@@ -72,15 +75,25 @@ lazy val root: Project = project
       exists(crossTarget.value / "src_managed" / "avro" / "main" / "transitive-avro" / "avsc.avsc")
     },
     Compile / checkGenerated := {
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java"
+      )
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
+      )
     },
     Test / checkUnpacked := {
       exists(crossTarget.value / "src_managed" / "avro" / "test" / "transitive-tests" / "test.avsc")
     },
     Test / checkGenerated := {
-      exists(crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Test.java")
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Test.java"
+      )
     }
   )
