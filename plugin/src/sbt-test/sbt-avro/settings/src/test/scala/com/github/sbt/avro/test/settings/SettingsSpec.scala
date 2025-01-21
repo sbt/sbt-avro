@@ -43,7 +43,9 @@ class SettingsSpec extends Specification {
   }
 
   "avroFieldVisibility setting should be respected for recompiled record" >> {
-    !classOf[TestRecordWithLogicalTypes].getDeclaredField("s").isAnnotationPresent(classOf[Deprecated])
+    !classOf[TestRecordWithLogicalTypes]
+      .getDeclaredField("s")
+      .isAnnotationPresent(classOf[Deprecated])
   }
 
   // avroCreateSetters
@@ -77,7 +79,9 @@ class SettingsSpec extends Specification {
   }
 
   "avroOptionalGetters setting should be respected for recompiled record" >> {
-    classOf[TestRecordWithLogicalTypes].getDeclaredMethod("getS").getReturnType === classOf[Optional[String]]
+    classOf[TestRecordWithLogicalTypes]
+      .getDeclaredMethod("getS")
+      .getReturnType === classOf[Optional[String]]
   }
 
   // avroEnableDecimalLogicalType
