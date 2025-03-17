@@ -61,7 +61,7 @@ lazy val root: Project = project
       ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro-test")
         .classifier("tests")
         .intransitive(),
-      "org.specs2" %% "specs2-core" % "4.20.9" % Test
+      "org.specs2" %% "specs2-core" % "4.21.0" % Test
     ),
     // add additional avro source test jar whithout avro classifier
     Test / avroDependencyIncludeFilter := artifactFilter(name = "transitive", classifier = "tests"),

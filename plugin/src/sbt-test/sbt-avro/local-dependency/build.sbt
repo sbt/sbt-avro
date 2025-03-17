@@ -52,7 +52,7 @@ lazy val root: Project = project
     name := "local-dependency",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
     libraryDependencies ++= Seq(
-      "org.specs2" %% "specs2-core" % "4.20.9" % Test
+      "org.specs2" %% "specs2-core" % "4.21.0" % Test
     ),
     Compile / checkUnpacked := {
       exists(
