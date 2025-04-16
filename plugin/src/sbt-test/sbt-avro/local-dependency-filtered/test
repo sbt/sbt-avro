@@ -1,0 +1,7 @@
+> external/publishLocal
+
+> avroGenerate
+> checkUnpacked
+> checkGenerated
+
+> +compile
