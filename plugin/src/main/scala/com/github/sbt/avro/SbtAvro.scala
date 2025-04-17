@@ -100,11 +100,10 @@ object SbtAvro extends AutoPlugin {
       // source generation
       avroGenerate / target := configSrcSub(avroGenerate / target).value,
       managedSourceDirectories += (avroGenerate / target).value,
-      avroGenerate := {
-        sourceGeneratorTask(avroGenerate)
-          .dependsOn(avroUnpackDependencies)
-          .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
-      }.value,
+      avroGenerate := sourceGeneratorTask(avroGenerate)
+        .dependsOn(avroUnpackDependencies)
+        .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
+        .value,
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(avroGenerate).value,
       // packaging
