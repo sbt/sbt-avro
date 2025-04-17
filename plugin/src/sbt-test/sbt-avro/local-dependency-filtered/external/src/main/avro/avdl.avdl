@@ -1,6 +1,0 @@
-@namespace("com.github.sbt.avro.test.external")
-protocol ProtocolAvdl {
-    record Avdl {
-        string stringField;
-    }
-}

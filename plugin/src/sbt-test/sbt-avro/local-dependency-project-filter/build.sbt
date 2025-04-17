@@ -51,12 +51,9 @@ lazy val app: Project = project
   .settings(
     name := "local-dependency",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
-    Compile / avroProjectIncludeFilter := ScopeFilter(
-      inProjects(`app`),
-      inAnyConfiguration
-    ),
+    Compile / avroProjectIncludeFilter := inProjects(`app`),
     Compile / checkGenerated := {
-      // Check that transitive deps have not been unpacked or generated
+      // Check that transitive deps have not been unpacked or generated in `app` project
       absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
       absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
       absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
@@ -65,7 +62,7 @@ lazy val app: Project = project
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
 
-      // Compiled transitive classes should still be available
+      // Compiled classes from `transitive` should still be available on classpath
       exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
       exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java")
       exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")

@@ -4,6 +4,7 @@ import sbt.Keys.*
 import sbt.{*, given}
 import Path.relativeTo
 import PluginCompat.*
+import sbt.ScopeFilter.ProjectFilter
 import sbt.librarymanagement.DependencyFilter
 
 import java.io.File
@@ -33,7 +34,7 @@ object SbtAvro extends AutoPlugin {
     val avroCompiler = settingKey[String]("Sbt avro compiler class.")
     val avroCreateSetters = settingKey[Boolean]("Generate setters.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
-    val avroProjectIncludeFilter = settingKey[ScopeFilter]("Filter for including SBT dependent subprojects containing avro dependencies.")
+    val avroProjectIncludeFilter = settingKey[ProjectFilter]("Filter for including SBT dependent subprojects containing avro dependencies.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type decimal.")
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public.")
     val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields.")
@@ -91,10 +92,7 @@ object SbtAvro extends AutoPlugin {
         case Test    => configurationFilter(AvroTest.name)
         case _       => configurationFilter(NothingFilter)
       }),
-      avroProjectIncludeFilter := ScopeFilter(
-        inDependencies(ThisProject),
-        inConfigurations(Compile)
-      ),
+      avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -168,7 +166,7 @@ object SbtAvro extends AutoPlugin {
           if (avroSpecs.nonEmpty) {
             streams.log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
           } else {
-            streams.log.info(s"No Avro specification extracted from $dep")
+            streams.log.debug(s"No Avro specification extracted from $dep")
           }
           avroSpecs
         }
@@ -179,55 +177,53 @@ object SbtAvro extends AutoPlugin {
     deps.flatMap(cachedExtractDep)
   }
 
-  private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.taskDyn {
-    Def.task {
-      val cacheBaseDirectory = Defaults.makeCrossTarget(
-        streams.value.cacheDirectory,
-        scalaVersion.value,
-        scalaBinaryVersion.value,
-        (pluginCrossBuild / sbtBinaryVersion).value,
-        sbtPlugin.value,
-        crossPaths.value
-      )
+  private def unpackDependenciesTask(key: TaskKey[Seq[File]]) = Def.task {
+    val cacheBaseDirectory = Defaults.makeCrossTarget(
+      streams.value.cacheDirectory,
+      scalaVersion.value,
+      scalaBinaryVersion.value,
+      (pluginCrossBuild / sbtBinaryVersion).value,
+      sbtPlugin.value,
+      crossPaths.value
+    )
 
-      // Classpaths.managedJars does not cross-build
-      val avroArtifacts = update.value
-        .filter(avroDependencyIncludeFilter.value)
-        .toSeq
-        .map { case (_, _, _, f) => f }
-        .distinct
+    // Classpaths.managedJars does not cross-build
+    val avroArtifacts = update.value
+      .filter(avroDependencyIncludeFilter.value)
+      .toSeq
+      .map { case (_, _, _, f) => f }
+      .distinct
 
-      val unpacked = unpack(
-        cacheBaseDirectory = cacheBaseDirectory,
-        deps = avroArtifacts,
-        extractTarget = (key / target).value,
-        includeFilter = (key / includeFilter).value,
-        excludeFilter = (key / excludeFilter).value,
-        streams = (key / streams).value
-      )
+    val unpacked = unpack(
+      cacheBaseDirectory = cacheBaseDirectory,
+      deps = avroArtifacts,
+      extractTarget = (key / target).value,
+      includeFilter = (key / includeFilter).value,
+      excludeFilter = (key / excludeFilter).value,
+      streams = (key / streams).value
+    )
 
-      val previouslyUnpacked = key.previous.toSeq.flatten
-      IO.delete(previouslyUnpacked.diff(unpacked))
+    val previouslyUnpacked = key.previous.toSeq.flatten
+    IO.delete(previouslyUnpacked.diff(unpacked))
 
-      unpacked
-    }
+    unpacked
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
     Def.taskDyn[Seq[File]] {
-      val pf = avroProjectIncludeFilter.value
+      val projectFilter =
+        ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(configuration.value))
       Def.task {
         val out = (avroGenerate / streams).value
         val externalSrcDir = (avroUnpackDependencies / target).value
         val unmanagedSrcDirs = avroUnmanagedSourceDirectories.value
 
         val dependsOnDirs = (
-          (avroUnpackDependencies / target).?.all(pf).value.flatten ++
-            avroUnmanagedSourceDirectories.?.all(pf).value.flatten.flatten
+          (avroUnpackDependencies / target).?.all(projectFilter).value.flatten ++
+            avroUnmanagedSourceDirectories.?.all(projectFilter).value.flatten.flatten
         ).toSet
 
         val srcDirs = Seq(externalSrcDir) ++ unmanagedSrcDirs ++ dependsOnDirs
-        println(s"[debug] Source dirs for ${name.value}=${srcDirs}")
 
         val outDir = (key / target).value
         implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
