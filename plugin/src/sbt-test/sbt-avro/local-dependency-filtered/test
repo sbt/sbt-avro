@@ -1,7 +1,4 @@
 > external/publishLocal
 
-> avroGenerate
-> checkUnpacked
+> app/compile
 > checkGenerated
-
-> +compile

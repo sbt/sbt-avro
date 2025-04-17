@@ -27,8 +27,7 @@ lazy val `external`: Project = project
   .settings(avroOnlySettings)
   .settings(
     name := "external",
-    version := "0.0.1-SNAPSHOT",
-    avroStringType := "CharSequence"
+    version := "0.0.1-SNAPSHOT"
   )
 
 lazy val `transitive`: Project = project
@@ -39,35 +38,37 @@ lazy val `transitive`: Project = project
   .settings(
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
-    avroStringType := "String",
     libraryDependencies ++= Seq(
       ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
     )
   )
 
-lazy val root: Project = project
-  .in(file("."))
+lazy val app: Project = project
+  .in(file("app"))
   .enablePlugins(SbtAvro)
-  .dependsOn(`transitive` % "avro")
+  .dependsOn(`transitive`)
   .settings(commonSettings)
   .settings(
     name := "local-dependency",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
-    avroStringType := "CharSequence",
     Compile / avroProjectIncludeFilter := ScopeFilter(
-      inProjects(`root`),
+      inProjects(`app`),
       inAnyConfiguration
     ),
-    // should not unpack transitive dependencies, but only pull in generated Java classes
-    Compile / checkUnpacked := {
-      absent((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
-      absent((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
-      absent((`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
-    },
     Compile / checkGenerated := {
+      // Check that transitive deps have not been unpacked or generated
+      absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
+      absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
+      absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java")
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")
       absent(crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
+
+      // Compiled transitive classes should still be available
+      exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java")
+      exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java")
+      exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java")
+      exists((`transitive` / crossTarget).value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java")
     }
   )
