@@ -65,6 +65,7 @@ object SbtAvro extends AutoPlugin {
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
       // use a custom folders to avoid potential conflict with other generators
+      avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroGenerate / target := sourceManaged.value / "compiled_avro",
       // setup avro configuration. Use library management to fetch the compiler and schema sources
@@ -92,7 +93,6 @@ object SbtAvro extends AutoPlugin {
         case Test    => configurationFilter(AvroTest.name)
         case _       => configurationFilter(NothingFilter)
       }),
-      avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -210,8 +210,7 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
     Def.taskDyn[Seq[File]] {
-      val projectFilter =
-        ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(configuration.value))
+      val projectFilter = ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(Compile))
       Def.task {
         val out = (avroGenerate / streams).value
         val externalSrcDir = (avroUnpackDependencies / target).value
