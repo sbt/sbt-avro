@@ -7,7 +7,7 @@ libraryDependencies ++= Seq(
   ("org.apache.avro" % "avro" % avroVersion.value % "avro-compiler")
     .classifier("tests")
     .intransitive(),
-  "org.specs2" %% "specs2-core" % "4.20.9" % Test
+  "org.specs2" %% "specs2-core" % "4.21.0" % Test
 )
 
 avroStringType := "String"
