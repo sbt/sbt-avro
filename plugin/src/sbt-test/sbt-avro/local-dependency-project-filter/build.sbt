@@ -26,6 +26,16 @@ lazy val `external`: Project = project
     version := "0.0.1-SNAPSHOT"
   )
 
+lazy val `external2`: Project = project
+  .in(file("external2"))
+  .enablePlugins(SbtAvro)
+  .settings(commonSettings)
+  .settings(avroSettings)
+  .settings(
+    name := "external2",
+    version := "0.0.1-SNAPSHOT"
+  )
+
 lazy val `transitive`: Project = project
   .in(file("transitive"))
   .enablePlugins(SbtAvro)
@@ -34,9 +44,7 @@ lazy val `transitive`: Project = project
   .settings(
     name := "transitive",
     version := "0.0.1-SNAPSHOT",
-    libraryDependencies ++= Seq(
-      ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
-    )
+    libraryDependencies += ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
   )
 
 lazy val app: Project = project
@@ -47,7 +55,8 @@ lazy val app: Project = project
   .settings(
     name := "app",
     crossScalaVersions := Seq("2.13.15", "2.12.20"),
-    avroProjectIncludeFilter := inProjects(`app`),
+    avroProjectIncludeFilter := inProjects(thisProjectRef.value),
+    libraryDependencies += ("com.github.sbt" % "external2" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive(),
     Compile / checkGenerated := {
       // Check that transitive deps have not been unpacked or generated in `app` project
       absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")

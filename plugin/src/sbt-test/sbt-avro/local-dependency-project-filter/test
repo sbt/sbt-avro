@@ -1,4 +1,5 @@
 > external/publishLocal
+> external2/publishLocal
 
 > app/compile
 > checkGenerated
