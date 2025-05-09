@@ -30,7 +30,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-lazy val scala3 = "3.6.4"
+lazy val scala3 = "3.7.0"
 lazy val scala212 = "2.12.20"
 ThisBuild / scalaVersion := scala3
 ThisBuild / crossScalaVersions := Seq(scala3, scala212)
