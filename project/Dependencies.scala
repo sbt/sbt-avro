@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val Avro = "1.12.0"
+    val Avro = "1.12.1"
     val Specs2 = "4.21.0"
   }
 
