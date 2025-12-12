@@ -69,7 +69,7 @@ lazy val app: Project = project
   .settings(commonSettings)
   .settings(
     name := "app",
-    crossScalaVersions := Seq("2.13.15", "2.12.20"),
+    crossScalaVersions := Seq("2.13.15", "2.12.21"),
     avroProjectIncludeFilter := inProjects(thisProjectRef.value, `transitive2`),
     libraryDependencies += ("com.github.sbt" % "external2" % "0.0.1-SNAPSHOT" % "avro")
       .classifier("avro")
