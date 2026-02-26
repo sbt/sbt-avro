@@ -212,7 +212,7 @@ object SbtAvro extends AutoPlugin {
     Def.taskDyn[Seq[File]] {
       val projectFilter = ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(Compile))
       Def.task {
-        val out = (avroGenerate / streams).value
+        val out = streams.value
         val cacheDir = Defaults.makeCrossTarget(
           out.cacheDirectory,
           scalaVersion.value,
