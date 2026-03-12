@@ -212,7 +212,15 @@ object SbtAvro extends AutoPlugin {
     Def.taskDyn[Seq[File]] {
       val projectFilter = ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(Compile))
       Def.task {
-        val out = (avroGenerate / streams).value
+        val out = streams.value
+        val cacheDir = Defaults.makeCrossTarget(
+          out.cacheDirectory,
+          scalaVersion.value,
+          scalaBinaryVersion.value,
+          (pluginCrossBuild / sbtBinaryVersion).value,
+          sbtPlugin.value,
+          crossPaths.value
+        )
         val externalSrcDir = (avroUnpackDependencies / target).value
         val unmanagedSrcDirs = avroUnmanagedSourceDirectories.value
 
@@ -230,7 +238,7 @@ object SbtAvro extends AutoPlugin {
           import sbt.util.CacheStoreFactory
           import sbt.util.CacheImplicits._
 
-          val cacheStoreFactory = CacheStoreFactory(out.cacheDirectory / "avro")
+          val cacheStoreFactory = CacheStoreFactory(cacheDir / "avro")
           val lastCache = { (action: Option[Set[File]] => Set[File]) =>
             Tracked
               .lastOutput[Unit, Set[File]](cacheStoreFactory.make("last-cache")) { case (_, l) =>
