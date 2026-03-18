@@ -54,7 +54,7 @@ lazy val root: Project = project
   .settings(commonSettings)
   .settings(
     name := "publishing-test",
-    crossScalaVersions := Seq("2.13.15", "2.12.20"),
+    crossScalaVersions := Seq("2.13.15", "2.12.21"),
     libraryDependencies ++= Seq(
       ("com.github.sbt" % "transitive" % "0.0.1-SNAPSHOT" % "avro")
         .classifier("avro"), // external as transitive

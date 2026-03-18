@@ -50,7 +50,7 @@ lazy val root: Project = project
   .settings(commonSettings)
   .settings(
     name := "local-dependency",
-    crossScalaVersions := Seq("2.13.15", "2.12.20"),
+    crossScalaVersions := Seq("2.13.15", "2.12.21"),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "4.21.0" % Test
     ),
