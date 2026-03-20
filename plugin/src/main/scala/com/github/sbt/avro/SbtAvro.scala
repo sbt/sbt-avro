@@ -63,7 +63,7 @@ object SbtAvro extends AutoPlugin {
 
       // addArtifact doesn't take publishArtifact setting in account
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
-      packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
+      packagedArtifacts ++= Def.uncached(Classpaths.packaged(avroArtifactTasks).value),
       // use a custom folders to avoid potential conflict with other generators
       avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / target := sourceManaged.value / "avro",
@@ -105,7 +105,7 @@ object SbtAvro extends AutoPlugin {
         .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
         .value,
       sourceGenerators += avroGenerate.taskValue,
-      compile := compile.dependsOn(avroGenerate).value,
+      compile := Def.uncached(compile.dependsOn(avroGenerate).value),
       // packaging
       packageAvro / artifactClassifier := Some(AvroClassifier),
       packageAvro / publishArtifact := false
