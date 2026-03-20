@@ -11,4 +11,8 @@ private[avro] object PluginCompat {
   def toNioPath(a: Attributed[File])(implicit conv: FileConverter): NioPath =
     a.data.toPath()
   def toFileRef(f: File): FileRef = f
+
+  implicit class DefOps(private val singleton: Def.type) extends AnyVal {
+    def uncached[A](a: A): A = a
+  }
 }

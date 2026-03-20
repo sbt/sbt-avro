@@ -30,7 +30,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-lazy val scala3 = "3.6.4"
+lazy val scala3 = "3.7.4"
 lazy val scala212 = "2.12.21"
 ThisBuild / scalaVersion := scala3
 ThisBuild / crossScalaVersions := Seq(scala3, scala212)
@@ -92,6 +92,7 @@ lazy val `sbt-avro-compiler-bridge`: Project = project
   .settings(javaOnlySettings)
   .settings(
     libraryDependencies ++= Seq(
+      "org.scala-lang" %% "scala3-library" % scalaVersion.value % Test,
       Dependencies.Provided.AvroCompiler,
       Dependencies.Test.Specs2Core
     )
@@ -109,13 +110,13 @@ lazy val `sbt-avro`: Project = project
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.0"
-        case _      => "2.0.0-M3"
+        case _      => "2.0.0-RC8"
       }
     },
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.10.7"
-        case _      => "2.0.0-M3"
+        case _      => "2.0.0-RC8"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
