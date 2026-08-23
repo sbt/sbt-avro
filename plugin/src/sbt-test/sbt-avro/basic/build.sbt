@@ -111,6 +111,6 @@ lazy val `basic12` = project
   .enablePlugins(SbtAvro)
   .settings(checkSettings)
   .settings(
-    avroVersion := "1.12.0",
+    avroVersion := "1.12.2",
     sourceDirectory := baseDirectory.value.getParentFile / "src"
   )

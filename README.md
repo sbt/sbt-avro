@@ -24,7 +24,7 @@ Enable the plugin in your `build.sbt` and select the desired avro version to use
 
 ```
 enablePlugins(SbtAvro)
-avroVersion := "1.12.0"
+avroVersion := "1.12.2"
 ```
 
 ## Config
@@ -45,7 +45,7 @@ to generate the avro classes.
 | `avroFieldVisibility`          | `public`                                                                            | Field visibility for the properties. Possible values: `private`, `public`.              |
 | `avroOptionalGetters`          | `false` (requires avro `1.10+`)                                                     | Generate getters that return `Optional` for nullable fields.                            |
 | `avroStringType`               | `CharSequence`                                                                      | Type for representing strings. Possible values: `CharSequence`, `String`, `Utf8`.       |
-| `avroVersion`                  | `1.12.0`                                                                            | Avro version to use in the project.                                                     |
+| `avroVersion`                  | `1.12.2`                                                                            | Avro version to use in the project.                                                     |
 
 ### Scoped settings (Compile/Test)
 
