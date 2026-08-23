@@ -30,7 +30,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-lazy val scala3 = "3.6.4"
+lazy val scala3 = "3.8.4"
 lazy val scala212 = "2.12.21"
 ThisBuild / scalaVersion := scala3
 ThisBuild / crossScalaVersions := Seq(scala3, scala212)
@@ -38,7 +38,7 @@ ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(name = Some("Build project"), commands = List("compile", "test", "scripted"))
 )
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("11"))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowTargetTags := Seq("v*")
 ThisBuild / githubWorkflowBuildPreamble := Seq(
   WorkflowStep.Sbt(
@@ -61,13 +61,18 @@ ThisBuild / githubWorkflowPublish := Seq(
 )
 
 // compilers
-ThisBuild / javacOptions ++= Seq("--release", "8")
-ThisBuild / scalacOptions ++= Seq("-release", "8")
+ThisBuild / javacOptions ++= Seq("--release", "17")
+ThisBuild / scalacOptions ++= Seq("-release", "17")
 
 lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
   crossPaths := false,
   autoScalaLibrary := false,
-  crossScalaVersions := Seq(scala3)
+  crossScalaVersions := Seq(scala3),
+  dependencyOverrides ++= Seq(
+    // tests are written in scala. pin the library to the compiler version so the transitive
+    // (older) one from the test framework does not end up alone on the classpath
+    "org.scala-lang" %% "scala3-library" % scalaVersion.value
+  )
 )
 
 lazy val `sbt-avro-parent`: Project = project
@@ -106,16 +111,17 @@ lazy val `sbt-avro`: Project = project
   .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .settings(
     description := "Sbt plugin for compiling Avro sources",
+    addSbtPlugin(Dependencies.SbtPlugin.Sbt2Compat),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.5.0"
-        case _      => "2.0.0-M3"
+        case "2.12" => "1.9.0"
+        case _      => "2.0.0"
       }
     },
     scriptedSbt := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.10.7"
-        case _      => "2.0.0-M3"
+        case "2.12" => "1.13.0"
+        case _      => "2.0.0"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
