@@ -3,9 +3,9 @@ package com.github.sbt.avro
 import sbt.Keys.*
 import sbt.{*, given}
 import Path.relativeTo
-import PluginCompat.*
 import sbt.ScopeFilter.ProjectFilter
 import sbt.librarymanagement.DependencyFilter
+import sbtcompat.PluginCompat.*
 
 import java.io.File
 

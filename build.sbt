@@ -106,6 +106,7 @@ lazy val `sbt-avro`: Project = project
   .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .settings(
     description := "Sbt plugin for compiling Avro sources",
+    addSbtPlugin(Dependencies.SbtPlugin.Sbt2Compat),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.0"
