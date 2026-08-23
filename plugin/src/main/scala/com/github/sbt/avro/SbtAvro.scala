@@ -62,7 +62,7 @@ object SbtAvro extends AutoPlugin {
       avroStringType := "CharSequence",
 
       // addArtifact doesn't take publishArtifact setting in account
-      artifacts ++= Def.uncached(Classpaths.artifactDefs(avroArtifactTasks).value),
+      artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Def.uncached(Classpaths.packaged(avroArtifactTasks).value),
       // use a custom folders to avoid potential conflict with other generators
       avroProjectIncludeFilter := inDependencies(ThisProject),
