@@ -61,8 +61,8 @@ ThisBuild / githubWorkflowPublish := Seq(
 )
 
 // compilers
-ThisBuild / javacOptions ++= Seq("--release", "8")
-ThisBuild / scalacOptions ++= Seq("-release", "8")
+ThisBuild / javacOptions ++= Seq("--release", "17")
+ThisBuild / scalacOptions ++= Seq("-release", "17")
 
 lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
   crossPaths := false,
