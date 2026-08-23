@@ -70,7 +70,7 @@ object SbtAvro extends AutoPlugin {
       avroGenerate / target := sourceManaged.value / "compiled_avro",
       // setup avro configuration. Use library management to fetch the compiler and schema sources
       ivyConfigurations ++= Seq(AvroCompiler, Avro, AvroTest),
-      avroVersion := "1.12.0",
+      avroVersion := "1.12.2",
       avroAdditionalDependencies := Seq(
         // disable slf4j logging in avro-compiler child 1st classloader
         "org.slf4j" % "slf4j-api" % "2.0.16" % AvroCompiler,
