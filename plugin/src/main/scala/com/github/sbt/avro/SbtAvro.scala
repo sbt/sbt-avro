@@ -62,8 +62,8 @@ object SbtAvro extends AutoPlugin {
       avroStringType := "CharSequence",
 
       // addArtifact doesn't take publishArtifact setting in account
-      artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
-      packagedArtifacts ++= Classpaths.packaged(avroArtifactTasks).value,
+      artifacts ++= Def.uncached(Classpaths.artifactDefs(avroArtifactTasks).value),
+      packagedArtifacts ++= Def.uncached(Classpaths.packaged(avroArtifactTasks).value),
       // use a custom folders to avoid potential conflict with other generators
       avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / target := sourceManaged.value / "avro",
@@ -96,16 +96,18 @@ object SbtAvro extends AutoPlugin {
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
-      avroUnpackDependencies := unpackDependenciesTask(avroUnpackDependencies).value,
+      avroUnpackDependencies := Def.uncached(unpackDependenciesTask(avroUnpackDependencies).value),
       // source generation
       avroGenerate / target := configSrcSub(avroGenerate / target).value,
       managedSourceDirectories += (avroGenerate / target).value,
-      avroGenerate := sourceGeneratorTask(avroGenerate)
-        .dependsOn(avroUnpackDependencies)
-        .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
-        .value,
+      avroGenerate := Def.uncached(
+        sourceGeneratorTask(avroGenerate)
+          .dependsOn(avroUnpackDependencies)
+          .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
+          .value
+      ),
       sourceGenerators += avroGenerate.taskValue,
-      compile := compile.dependsOn(avroGenerate).value,
+      compile := compile.dependsOn(Def.uncached(avroGenerate)).value,
       // packaging
       packageAvro / artifactClassifier := Some(AvroClassifier),
       packageAvro / publishArtifact := false
@@ -148,7 +150,7 @@ object SbtAvro extends AutoPlugin {
   ): Seq[File] = {
     def cachedExtractDep(jar: File): Seq[File] = {
       val cached = FileFunction.cached(
-        cacheBaseDirectory / jar.name,
+        cacheBaseDirectory / jar.getName,
         inStyle = FilesInfo.lastModified,
         outStyle = FilesInfo.exists
       ) { deps =>
