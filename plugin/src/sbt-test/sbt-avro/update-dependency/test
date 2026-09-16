@@ -1,0 +1,13 @@
+# generate sources from the 1st version of the dependency
+> set external/version := "0.0.1-SNAPSHOT"
+> external/publishLocal
+> avroGenerate
+> checkGenerated
+
+# the dependency is updated: Avsc is renamed to Avsc2
+$ delete external/src/main/avro/avsc.avsc
+$ copy-file changes/avsc2.avsc external/src/main/avro/avsc2.avsc
+> set external/version := "0.0.2-SNAPSHOT"
+> external/publishLocal
+> avroGenerate
+> checkUpdated

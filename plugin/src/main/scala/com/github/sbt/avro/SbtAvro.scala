@@ -307,12 +307,15 @@ object SbtAvro extends AutoPlugin {
                         s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
                       )
                       Thread.currentThread().setContextClassLoader(avroClassLoader)
+
+                      // drop the sources of the previous run so records of removed schemas do not linger
+                      IO.delete((outDir ** JavaFileFilter).get())
                       compiler.recompile(recs.toArray, outDir)
                       compiler.compileAvscs(avscs.toArray, outDir)
                       compiler.compileIdls(avdls.toArray, outDir)
                       compiler.compileAvprs(avprs.toArray, outDir)
 
-                      (outDir ** SbtAvro.JavaFileFilter).get().toSet
+                      (outDir ** JavaFileFilter).get().toSet
                     } catch {
                       case e: RuntimeException =>
                         out.log.err(e.getMessage)
