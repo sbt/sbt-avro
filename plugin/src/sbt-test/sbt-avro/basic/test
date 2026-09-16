@@ -7,7 +7,7 @@
 > Test/checkGenerated
 > Test/checkCompiled
 
-> set avroVersion := "1.11.3"
+> set avroVersion := "1.11.5"
 > avroGenerate
 > checkGenerated
 > products
@@ -16,7 +16,7 @@
 > Test/checkGenerated
 > Test/checkCompiled
 
-> set avroVersion := "1.10.0"
+> set avroVersion := "1.10.2"
 > avroGenerate
 > checkGenerated
 > products
