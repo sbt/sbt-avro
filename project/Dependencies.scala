@@ -4,8 +4,8 @@ object Dependencies {
 
   object Versions {
     val Avro = "1.12.2"
-    val Specs2 = "4.23.0"
     val Sbt2Compat = "0.2.0"
+    val Slf4j = "2.0.19"
   }
 
   object Provided {
@@ -13,8 +13,9 @@ object Dependencies {
   }
 
   object Test {
-    val Specs2Core = "org.specs2" %% "specs2-core" % Versions.Specs2 % "test"
     val AvroCompiler = "org.apache.avro" % "avro-compiler" % Versions.Avro % "test"
+    val Slf4jSimple = "org.slf4j" % "slf4j-simple" % Versions.Slf4j % "test"
+    def jupiter(version: String) = "com.github.sbt.junit" % "jupiter-interface" % version % "test"
   }
 
   object SbtPlugin {

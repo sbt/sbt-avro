@@ -67,12 +67,7 @@ ThisBuild / scalacOptions ++= Seq("-release", "17")
 lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
   crossPaths := false,
   autoScalaLibrary := false,
-  crossScalaVersions := Seq(scala3),
-  dependencyOverrides ++= Seq(
-    // tests are written in scala. pin the library to the compiler version so the transitive
-    // (older) one from the test framework does not end up alone on the classpath
-    "org.scala-lang" %% "scala3-library" % scalaVersion.value
-  )
+  crossScalaVersions := Nil
 )
 
 lazy val `sbt-avro-parent`: Project = project
@@ -98,7 +93,8 @@ lazy val `sbt-avro-compiler-bridge`: Project = project
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Provided.AvroCompiler,
-      Dependencies.Test.Specs2Core
+      Dependencies.Test.Slf4jSimple,
+      Dependencies.Test.jupiter(JupiterKeys.jupiterVersion.value)
     )
   )
 
