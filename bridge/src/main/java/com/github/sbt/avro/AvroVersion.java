@@ -45,4 +45,9 @@ public class AvroVersion implements Comparable<AvroVersion> {
             return patch - o.patch;
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d.%d.%d", major, minor, patch);
+    }
 }

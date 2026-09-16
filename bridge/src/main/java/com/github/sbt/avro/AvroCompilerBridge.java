@@ -90,7 +90,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             Protocol protocol = parser.CompilationUnit();
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             configureCompiler(compiler);
-            compiler.compileToDestination(idl, target);
+            compiler.compileToDestination(null, target);
         }
     }
 
@@ -103,7 +103,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             System.out.println("Compiling Avro schema: " + file + ":" + schema.getFullName());
             SpecificCompiler compiler = new SpecificCompiler(schema);
             configureCompiler(compiler);
-            compiler.compileToDestination(file, target);
+            compiler.compileToDestination(null, target);
         }
     }
 
@@ -114,7 +114,7 @@ public class AvroCompilerBridge implements AvroCompiler {
             Protocol protocol = Protocol.parse(avpr);
             SpecificCompiler compiler = new SpecificCompiler(protocol);
             configureCompiler(compiler);
-            compiler.compileToDestination(avpr, target);
+            compiler.compileToDestination(null, target);
         }
     }
 }

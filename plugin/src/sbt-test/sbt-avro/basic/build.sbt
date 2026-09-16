@@ -60,57 +60,10 @@ val checkSettings = inConfig(Compile)(
 
 lazy val `basic` = project
   .in(file("."))
-  .aggregate(
-    `basic8`,
-    `basic9`,
-    `basic10`,
-    `basic11`,
-    `basic12`
-  )
-
-lazy val `basic8` = project
-  .in(file(".basic_8"))
   .enablePlugins(SbtAvro)
   .settings(checkSettings)
   .settings(
-    avroVersion := "1.8.2",
-    libraryDependencies += "joda-time" % "joda-time" % "2.12.7",
-    sourceDirectory := baseDirectory.value.getParentFile / "src"
-  )
-
-lazy val `basic9` = project
-  .in(file(".basic_9"))
-  .enablePlugins(SbtAvro)
-  .settings(checkSettings)
-  .settings(
-    avroVersion := "1.9.2",
-    libraryDependencies += "joda-time" % "joda-time" % "2.12.7",
-    sourceDirectory := baseDirectory.value.getParentFile / "src"
-  )
-
-lazy val `basic10` = project
-  .in(file(".basic_10"))
-  .enablePlugins(SbtAvro)
-  .settings(checkSettings)
-  .settings(
-    avroVersion := "1.10.0",
-    sourceDirectory := baseDirectory.value.getParentFile / "src"
-  )
-
-lazy val `basic11` = project
-  .in(file(".basic_11"))
-  .enablePlugins(SbtAvro)
-  .settings(checkSettings)
-  .settings(
-    avroVersion := "1.11.3",
-    sourceDirectory := baseDirectory.value.getParentFile / "src"
-  )
-
-lazy val `basic12` = project
-  .in(file(".basic_12"))
-  .enablePlugins(SbtAvro)
-  .settings(checkSettings)
-  .settings(
-    avroVersion := "1.12.2",
-    sourceDirectory := baseDirectory.value.getParentFile / "src"
+    // the avro version under test is set from the scripted test
+    // avro 1.8 & 1.9 generate joda-time based code for date/time logical types
+    libraryDependencies += "joda-time" % "joda-time" % "2.12.7"
   )
