@@ -7,3 +7,4 @@ target
 .bsp
 .metals
 .java-version
+metals.sbt
