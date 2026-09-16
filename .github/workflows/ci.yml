@@ -53,7 +53,7 @@ jobs:
         run: sbt '++ ${{ matrix.scala }}; compile; test; scripted'
 
       - name: Compress target directories
-        run: tar cf targets.tar target api/target bridge/target plugin/target project/target
+        run: tar cf targets.tar target/out/jvm target/out/jvm/u/sbt-avro-compiler-api target/out/jvm/u/sbt-avro-compiler-bridge project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v7
