@@ -91,6 +91,8 @@ lazy val `sbt-avro-compiler-bridge`: Project = project
   .dependsOn(`sbt-avro-compiler-api` % "provided")
   .settings(javaOnlySettings)
   .settings(
+    // tests read resource files
+    Test / exportJars := false,
     libraryDependencies ++= Seq(
       Dependencies.Provided.AvroCompiler,
       Dependencies.Test.Slf4jSimple,

@@ -16,8 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AvscFilesParserTest {
 
-  private static final File SOURCE_DIR = sourceDir();
-
   @Test
   void parseFilesWithDependantSchemas() {
     AvscFilesParser parser = new AvscFilesParser();
@@ -26,7 +24,7 @@ class AvscFilesParserTest {
             "a.avsc", "b.avsc", "c.avsc", "d.avsc", "e.avsc",
             // simple names
             "_a.avsc", "_b.avsc", "_c.avsc", "_d.avsc", "_e.avsc")
-        .map(name -> new File(SOURCE_DIR, name))
+        .map(name -> getResourceAsFile(name))
         .collect(Collectors.toList());
 
     Map<File, Schema> schemas = parser.parseFiles(sourceFiles);
@@ -62,7 +60,7 @@ class AvscFilesParserTest {
             }
           ]
         }""");
-    File parent = new File(SOURCE_DIR, "test_records.avsc");
+    File parent = getResourceAsFile("test_records.avsc");
 
     parser.addTypes(Collections.singletonList(dependant));
     Map<File, Schema> schemas = parser.parseFiles(Collections.singletonList(parent));
@@ -74,9 +72,9 @@ class AvscFilesParserTest {
     return schemas.values().stream().map(Schema::getFullName).sorted().collect(Collectors.toList());
   }
 
-  private static File sourceDir() {
+  private static File getResourceAsFile(String name) {
     try {
-      return new File(AvscFilesParserTest.class.getClassLoader().getResource("avro").toURI());
+      return new File(AvscFilesParserTest.class.getClassLoader().getResource("avro/" + name).toURI());
     } catch (URISyntaxException e) {
       throw new IllegalStateException(e);
     }
