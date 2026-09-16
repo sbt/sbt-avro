@@ -1,10 +1,44 @@
+> set avroVersion := "1.12.2"
 > avroGenerate
 > checkGenerated
-
-# use product instead of compile to get classes in classDirectory
 > products
 > checkCompiled
+> Test/products
+> Test/checkGenerated
+> Test/checkCompiled
 
+> set avroVersion := "1.11.3"
+> avroGenerate
+> checkGenerated
+> products
+> checkCompiled
+> Test/products
+> Test/checkGenerated
+> Test/checkCompiled
+
+> set avroVersion := "1.10.0"
+> avroGenerate
+> checkGenerated
+> products
+> checkCompiled
+> Test/products
+> Test/checkGenerated
+> Test/checkCompiled
+
+> set avroVersion := "1.9.2"
+> avroGenerate
+> checkGenerated
+> products
+> checkCompiled
+> Test/products
+> Test/checkGenerated
+> Test/checkCompiled
+
+> set avroVersion := "1.8.2"
+> avroGenerate
+> checkGenerated
+> products
+> checkCompiled
 > Test/products
 > Test/checkGenerated
 > Test/checkCompiled

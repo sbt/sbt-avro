@@ -236,30 +236,44 @@ object SbtAvro extends AutoPlugin {
         val outDir = (key / target).value
         implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
 
+        val records = avroSpecificRecords.value
+
+        // the sources are generated for a given compiler configuration: changing any of these
+        // invalidates the generated sources, even when the schemas are left untouched
+        val compilerSettings = Seq(
+          avroCompiler.value,
+          avroVersion.value,
+          avroStringType.value,
+          avroFieldVisibility.value,
+          avroEnableDecimalLogicalType.value.toString,
+          avroCreateSetters.value.toString,
+          avroOptionalGetters.value.toString
+        ) ++ avroSpecificRecords.value
+
         val cachedCompile = {
           import sbt.util.CacheStoreFactory
           import sbt.util.CacheImplicits._
 
           val cacheStoreFactory = CacheStoreFactory(cacheDir / "avro")
-          val lastCache = { (action: Option[Set[File]] => Set[File]) =>
+          val settingsCache = { (settings: Seq[String]) => (action: Boolean => Set[File]) =>
             Tracked
-              .lastOutput[Unit, Set[File]](cacheStoreFactory.make("last-cache")) { case (_, l) =>
-                action(l)
+              .inputChanged[Seq[String], Set[File]](cacheStoreFactory.make("settings-cache")) {
+                case (changed, _) => action(changed)
               }
-              .apply(())
+              .apply(settings)
           }
           val inCache = Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
           val outCache = Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
 
-          (inputs: Set[File], records: Seq[String]) =>
-            lastCache { lastCache =>
+          (inputs: Set[File], settings: Seq[String]) =>
+            settingsCache(settings) { settingsChanged =>
               inCache(inputs) { inReport =>
                 outCache { outReport =>
                   if (
-                    (lastCache.isEmpty && records.nonEmpty) || inReport.modified.nonEmpty || outReport.modified.nonEmpty
+                    settingsChanged || inReport.modified.nonEmpty || outReport.modified.nonEmpty
                   ) {
                     // compile if
-                    // - no previous cache and we have records to recompile
+                    // - the compiler settings have changed
                     // - input files have changed
                     // - output files are missing
                     val avroClassLoader = new AvroCompilerPluginClassLoader(
@@ -314,7 +328,7 @@ object SbtAvro extends AutoPlugin {
             }
         }
 
-        cachedCompile((srcDirs ** AvroFilter).get().toSet, avroSpecificRecords.value).toSeq
+        cachedCompile((srcDirs ** AvroFilter).get().toSet, compilerSettings).toSeq
       }
     }
 }
