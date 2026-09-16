@@ -8,24 +8,24 @@ ThisBuild / version := {
 // metadata
 ThisBuild / organization := "com.github.sbt"
 ThisBuild / organizationName := "sbt"
-ThisBuild / organizationHomepage := Some(url("https://www.scala-sbt.org/"))
-ThisBuild / homepage := Some(url("https://github.com/sbt/sbt-avro"))
-ThisBuild / licenses += ("BSD 3-Clause", url("https://github.com/sbt/sbt-avro/blob/main/LICENSE"))
+ThisBuild / organizationHomepage := Some(uri("https://www.scala-sbt.org/"))
+ThisBuild / homepage := Some(uri("https://github.com/sbt/sbt-avro"))
+ThisBuild / licenses += ("BSD 3-Clause", uri("https://github.com/sbt/sbt-avro/blob/main/LICENSE"))
 ThisBuild / scmInfo := Some(
-  ScmInfo(url("https://github.com/sbt/sbt-avro"), "scm:git:git@github.com:sbt/sbt-avro.git")
+  ScmInfo(uri("https://github.com/sbt/sbt-avro"), "scm:git:git@github.com:sbt/sbt-avro.git")
 )
 ThisBuild / developers := List(
   Developer(
     id = "nevillelyh",
     name = "Neville Li",
     email = "@nevillelyh",
-    url = url("https://www.lyh.me/")
+    url = uri("https://www.lyh.me/")
   ),
   Developer(
     id = "RustedBones",
     name = "Michel Davit",
     email = "michel@davit.fr",
-    url = url("https://michel.davit.fr")
+    url = uri("https://michel.davit.fr")
   )
 )
 
