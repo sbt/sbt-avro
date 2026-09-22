@@ -206,11 +206,12 @@ object SbtAvro extends AutoPlugin {
       val config = configuration.value
       avroScopeForConfig(config) match {
         case Some(avroScope) =>
+          // find all dependant projects with avro scope
           val projects = Classpaths
             .interSort(thisProjectRef.value, avroScope, settingsData.value, buildDependencies.value)
             .map(_._1)
             .distinct
-
+          // for avro tasks/settings to be run on root + dependent projects
           val avroTaskFilter = ScopeFilter(
             inProjects(projects *),
             inConfigurations(config)
