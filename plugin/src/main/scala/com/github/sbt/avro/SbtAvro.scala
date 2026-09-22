@@ -8,7 +8,6 @@ import sbt.librarymanagement.DependencyFilter
 import sbtcompat.PluginCompat.*
 
 import java.io.File
-import sbt.io.NothingFilter
 
 /** Plugin for generating the Java sources for Avro schemas and protocols. */
 object SbtAvro extends AutoPlugin {

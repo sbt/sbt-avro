@@ -76,6 +76,7 @@ lazy val root: Project = project
       )
     },
     Compile / checkGenerated := {
+      // source generated from avro scope dependency
       exists(
         crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
       )
@@ -88,12 +89,18 @@ lazy val root: Project = project
       exists(
         crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
       )
+      // no source generated from avro-test scope dependency
+      absent(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
+      )
+      // no source generated from compile scope dependency
       absent(
         crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "other" / "Avsc.java"
       )
     },
     Test / checkUnpacked := {},
     Test / checkGenerated := {
+      // source generated from avro-test scope dependency
       exists(
         crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
       )
