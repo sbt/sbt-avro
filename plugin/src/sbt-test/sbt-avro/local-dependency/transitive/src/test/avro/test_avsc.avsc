@@ -1,0 +1,11 @@
+{
+  "name": "TestAvsc",
+  "namespace": "com.github.sbt.avro.test.transitive",
+  "type": "record",
+  "fields": [
+    {
+      "name": "stringField",
+      "type": "string"
+    }
+  ]
+}
