@@ -86,7 +86,9 @@ object SbtAvro extends AutoPlugin {
       avroUnmanagedSourceDirectories := Seq(avroSource.value),
       avroSpecificRecords := Seq.empty,
       // dependencies
-      avroDependencyIncludeFilter := configurationFilter(avroScopeForConfig(configuration.value).name),
+      avroDependencyIncludeFilter := configurationFilter(
+        avroScopeForConfig(configuration.value).name
+      ),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -200,18 +202,24 @@ object SbtAvro extends AutoPlugin {
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
     Def.taskDyn {
-      val config = configuration.value
-      val avroScope = avroScopeForConfig(config)
-      // find all dependant projects with avro scope
-      val projects = Classpaths
-        .interSort(thisProjectRef.value, avroScope, settingsData.value, buildDependencies.value)
-        .map(_._1)
-        .distinct
-      // for avro tasks/settings to be run on root + dependent projects
-      val avroTaskFilter = ScopeFilter(
-        inProjects(projects *),
-        inConfigurations(config)
-      )
+      // find all project dependencies for the avro scope
+      val avroTaskFilter = Classpaths
+        .interSort(
+          thisProjectRef.value,
+          avroScopeForConfig(configuration.value),
+          settingsData.value,
+          buildDependencies.value
+        )
+        .map {
+          case (project, "avro") =>
+            ScopeFilter(inProjects(project), inConfigurations(Compile))
+          case (project, "avro-test") =>
+            // TODO do not re-generate sources from compile scope
+            ScopeFilter(inProjects(project), inConfigurations(Compile, Test))
+          case (project, config) =>
+            ScopeFilter(inProjects(project), inConfigurationsByRefs(ConfigRef(config)))
+        }
+        .reduce(_ || _)
 
       Def.task {
         val out = streams.value

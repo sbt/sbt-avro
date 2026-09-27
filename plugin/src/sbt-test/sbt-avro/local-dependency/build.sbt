@@ -55,7 +55,7 @@ lazy val root: Project = project
   .in(file("."))
   .enablePlugins(SbtAvro)
   .dependsOn(
-    `transitive` % "avro;avro-test",
+    `transitive` % "avro;avro-test->test",
     `other`, // compile scope only
   )
   .settings(commonSettings)
