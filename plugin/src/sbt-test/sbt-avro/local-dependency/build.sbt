@@ -1,9 +1,3 @@
-val checkUnpacked = TaskKey[Unit]("checkUnpacked")
-val checkGenerated = TaskKey[Unit]("checkGenerated")
-
-def exists(f: File): Unit = assert(f.exists(), s"$f does not exist")
-def absent(f: File): Unit = assert(!f.exists(), s"$f does exists")
-
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
   scalaVersion := "2.13.15",
@@ -40,7 +34,9 @@ lazy val `transitive`: Project = project
     name := "transitive",
     libraryDependencies ++= Seq(
       ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
-    )
+    ),
+    // set custom output for cross-build sbt v1 & v2
+    avroUnpackDependencies / target := baseDirectory.value / "target" / "avro"
   )
 
 lazy val `other`: Project = project
@@ -64,45 +60,6 @@ lazy val root: Project = project
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "4.23.0" % Test
     ),
-    Compile / checkUnpacked := {
-      exists(
-        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl"
-      )
-      exists(
-        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr"
-      )
-      exists(
-        (`transitive` / crossTarget).value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc"
-      )
-    },
-    Compile / checkGenerated := {
-      // source generated from avro scope dependency
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
-      )
-      // no source generated from avro-test scope dependency
-      absent(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
-      )
-      // no source generated from compile scope dependency
-      absent(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "other" / "Avsc.java"
-      )
-    },
-    Test / checkUnpacked := {},
-    Test / checkGenerated := {
-      // source generated from avro-test scope dependency
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
-      )
-    }
+    // set custom output for cross-build sbt v1 & v2
+    avroGenerate / target := baseDirectory.value / "target" / "compiled_avro"
   )

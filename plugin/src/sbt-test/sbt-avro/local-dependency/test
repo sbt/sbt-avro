@@ -1,11 +1,22 @@
 > external/publishLocal
 
 > avroGenerate
-> checkUnpacked
-> checkGenerated
+# schemas unpacked in the transitive project
+$ exists transitive/target/avro/main/external-avro/avdl.avdl
+$ exists transitive/target/avro/main/external-avro/avpr.avpr
+$ exists transitive/target/avro/main/external-avro/avsc.avsc
+# sources generated from the avro scope dependencies
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avdl.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avpr.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avsc.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/transitive/Avsc.java
+# no source generated from the avro-test scope dependency
+$ absent target/compiled_avro/main/com/github/sbt/avro/test/transitive/TestAvsc.java
+# no source generated from the compile scope dependency
+$ absent target/compiled_avro/main/com/github/sbt/avro/test/other/Avsc.java
 
 > +compile
 
 > Test/avroGenerate
-> Test/checkUnpacked
-> Test/checkGenerated
+# source generated from the avro-test scope dependency
+$ exists target/compiled_avro/test/com/github/sbt/avro/test/transitive/TestAvsc.java

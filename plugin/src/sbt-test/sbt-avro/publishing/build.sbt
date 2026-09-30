@@ -1,9 +1,3 @@
-val checkUnpacked = TaskKey[Unit]("checkUnpacked")
-val checkGenerated = TaskKey[Unit]("checkGenerated")
-
-def exists(f: File): Unit = assert(f.exists(), s"$f does not exist")
-def absent(f: File): Unit = assert(!f.exists(), s"$f does exists")
-
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
   scalaVersion := "2.13.15"
@@ -67,33 +61,7 @@ lazy val root: Project = project
     Test / avroDependencyIncludeFilter := artifactFilter(name = "transitive", classifier = "tests"),
     // exclude specific avsc file
     Compile / avroUnpackDependencies / excludeFilter ~= { filter => filter || "exclude.avsc" },
-    Compile / checkUnpacked := {
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avdl.avdl")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avpr.avpr")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "avsc.avsc")
-      absent(crossTarget.value / "src_managed" / "avro" / "main" / "external-avro" / "exclude.avsc")
-      exists(crossTarget.value / "src_managed" / "avro" / "main" / "transitive-avro" / "avsc.avsc")
-    },
-    Compile / checkGenerated := {
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avpr.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avsc.java"
-      )
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
-      )
-    },
-    Test / checkUnpacked := {
-      exists(crossTarget.value / "src_managed" / "avro" / "test" / "transitive-tests" / "test.avsc")
-    },
-    Test / checkGenerated := {
-      exists(
-        crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Test.java"
-      )
-    }
+    // set custom output for cross-build sbt v1 & v2
+    avroUnpackDependencies / target := baseDirectory.value / "target" / "avro",
+    avroGenerate / target := baseDirectory.value / "target" / "compiled_avro"
   )

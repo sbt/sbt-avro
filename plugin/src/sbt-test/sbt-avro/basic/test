@@ -1,44 +1,64 @@
 > set avroVersion := "1.12.2"
 > avroGenerate
-> checkGenerated
+$ exists target/**/compiled_avro/main/**/A.java target/**/compiled_avro/main/**/B.java target/**/compiled_avro/main/**/C.java target/**/compiled_avro/main/**/D.java target/**/compiled_avro/main/**/E.java
+$ exists target/**/compiled_avro/main/**/_A.java target/**/compiled_avro/main/**/_B.java target/**/compiled_avro/main/**/_C.java target/**/compiled_avro/main/**/_D.java target/**/compiled_avro/main/**/_E.java
+$ exists target/**/compiled_avro/main/**/LogicalTypesTest.java target/**/compiled_avro/main/**/LocalDateTimeTest.java
 > products
-> checkCompiled
+$ exists target/**/classes/**/A.class target/**/classes/**/B.class target/**/classes/**/C.class target/**/classes/**/D.class target/**/classes/**/E.class
+$ exists target/**/classes/**/_A.class target/**/classes/**/_B.class target/**/classes/**/_C.class target/**/classes/**/_D.class target/**/classes/**/_E.class
+$ exists target/**/classes/**/LogicalTypesTest.class target/**/classes/**/LocalDateTimeTest.class
 > Test/products
-> Test/checkGenerated
-> Test/checkCompiled
+$ exists target/**/compiled_avro/test/**/X.java target/**/compiled_avro/test/**/Y.java target/**/compiled_avro/test/**/Z.java
+$ exists target/**/test-classes/**/X.class target/**/test-classes/**/Y.class target/**/test-classes/**/Z.class
 
 > set avroVersion := "1.11.5"
 > avroGenerate
-> checkGenerated
+$ exists target/**/compiled_avro/main/**/A.java target/**/compiled_avro/main/**/B.java target/**/compiled_avro/main/**/C.java target/**/compiled_avro/main/**/D.java target/**/compiled_avro/main/**/E.java
+$ exists target/**/compiled_avro/main/**/_A.java target/**/compiled_avro/main/**/_B.java target/**/compiled_avro/main/**/_C.java target/**/compiled_avro/main/**/_D.java target/**/compiled_avro/main/**/_E.java
+$ exists target/**/compiled_avro/main/**/LogicalTypesTest.java target/**/compiled_avro/main/**/LocalDateTimeTest.java
 > products
-> checkCompiled
+$ exists target/**/classes/**/A.class target/**/classes/**/B.class target/**/classes/**/C.class target/**/classes/**/D.class target/**/classes/**/E.class
+$ exists target/**/classes/**/_A.class target/**/classes/**/_B.class target/**/classes/**/_C.class target/**/classes/**/_D.class target/**/classes/**/_E.class
+$ exists target/**/classes/**/LogicalTypesTest.class target/**/classes/**/LocalDateTimeTest.class
 > Test/products
-> Test/checkGenerated
-> Test/checkCompiled
+$ exists target/**/compiled_avro/test/**/X.java target/**/compiled_avro/test/**/Y.java target/**/compiled_avro/test/**/Z.java
+$ exists target/**/test-classes/**/X.class target/**/test-classes/**/Y.class target/**/test-classes/**/Z.class
 
 > set avroVersion := "1.10.2"
 > avroGenerate
-> checkGenerated
+$ exists target/**/compiled_avro/main/**/A.java target/**/compiled_avro/main/**/B.java target/**/compiled_avro/main/**/C.java target/**/compiled_avro/main/**/D.java target/**/compiled_avro/main/**/E.java
+$ exists target/**/compiled_avro/main/**/_A.java target/**/compiled_avro/main/**/_B.java target/**/compiled_avro/main/**/_C.java target/**/compiled_avro/main/**/_D.java target/**/compiled_avro/main/**/_E.java
+$ exists target/**/compiled_avro/main/**/LogicalTypesTest.java target/**/compiled_avro/main/**/LocalDateTimeTest.java
 > products
-> checkCompiled
+$ exists target/**/classes/**/A.class target/**/classes/**/B.class target/**/classes/**/C.class target/**/classes/**/D.class target/**/classes/**/E.class
+$ exists target/**/classes/**/_A.class target/**/classes/**/_B.class target/**/classes/**/_C.class target/**/classes/**/_D.class target/**/classes/**/_E.class
+$ exists target/**/classes/**/LogicalTypesTest.class target/**/classes/**/LocalDateTimeTest.class
 > Test/products
-> Test/checkGenerated
-> Test/checkCompiled
+$ exists target/**/compiled_avro/test/**/X.java target/**/compiled_avro/test/**/Y.java target/**/compiled_avro/test/**/Z.java
+$ exists target/**/test-classes/**/X.class target/**/test-classes/**/Y.class target/**/test-classes/**/Z.class
 
 > set avroVersion := "1.9.2"
 > avroGenerate
-> checkGenerated
+$ exists target/**/compiled_avro/main/**/A.java target/**/compiled_avro/main/**/B.java target/**/compiled_avro/main/**/C.java target/**/compiled_avro/main/**/D.java target/**/compiled_avro/main/**/E.java
+$ exists target/**/compiled_avro/main/**/_A.java target/**/compiled_avro/main/**/_B.java target/**/compiled_avro/main/**/_C.java target/**/compiled_avro/main/**/_D.java target/**/compiled_avro/main/**/_E.java
+$ exists target/**/compiled_avro/main/**/LogicalTypesTest.java target/**/compiled_avro/main/**/LocalDateTimeTest.java
 > products
-> checkCompiled
+$ exists target/**/classes/**/A.class target/**/classes/**/B.class target/**/classes/**/C.class target/**/classes/**/D.class target/**/classes/**/E.class
+$ exists target/**/classes/**/_A.class target/**/classes/**/_B.class target/**/classes/**/_C.class target/**/classes/**/_D.class target/**/classes/**/_E.class
+$ exists target/**/classes/**/LogicalTypesTest.class target/**/classes/**/LocalDateTimeTest.class
 > Test/products
-> Test/checkGenerated
-> Test/checkCompiled
+$ exists target/**/compiled_avro/test/**/X.java target/**/compiled_avro/test/**/Y.java target/**/compiled_avro/test/**/Z.java
+$ exists target/**/test-classes/**/X.class target/**/test-classes/**/Y.class target/**/test-classes/**/Z.class
 
 > set avroVersion := "1.8.2"
 > avroGenerate
-> checkGenerated
+$ exists target/**/compiled_avro/main/**/A.java target/**/compiled_avro/main/**/B.java target/**/compiled_avro/main/**/C.java target/**/compiled_avro/main/**/D.java target/**/compiled_avro/main/**/E.java
+$ exists target/**/compiled_avro/main/**/_A.java target/**/compiled_avro/main/**/_B.java target/**/compiled_avro/main/**/_C.java target/**/compiled_avro/main/**/_D.java target/**/compiled_avro/main/**/_E.java
+$ exists target/**/compiled_avro/main/**/LogicalTypesTest.java target/**/compiled_avro/main/**/LocalDateTimeTest.java
 > products
-> checkCompiled
+$ exists target/**/classes/**/A.class target/**/classes/**/B.class target/**/classes/**/C.class target/**/classes/**/D.class target/**/classes/**/E.class
+$ exists target/**/classes/**/_A.class target/**/classes/**/_B.class target/**/classes/**/_C.class target/**/classes/**/_D.class target/**/classes/**/_E.class
+$ exists target/**/classes/**/LogicalTypesTest.class target/**/classes/**/LocalDateTimeTest.class
 > Test/products
-> Test/checkGenerated
-> Test/checkCompiled
+$ exists target/**/compiled_avro/test/**/X.java target/**/compiled_avro/test/**/Y.java target/**/compiled_avro/test/**/Z.java
+$ exists target/**/test-classes/**/X.class target/**/test-classes/**/Y.class target/**/test-classes/**/Z.class
