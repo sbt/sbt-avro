@@ -240,6 +240,7 @@ object SbtAvro extends AutoPlugin {
         val srcFiles = (unpacked ++ unmanaged).distinct
 
         val outDir = (key / target).value
+        val outFilesFilter = outDir ** JavaFileFilter
         implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
 
         val records = avroSpecificRecords.value
@@ -277,13 +278,13 @@ object SbtAvro extends AutoPlugin {
             settingsCache(settings) { settingsChanged =>
               inCache(inputs) { inReport =>
                 outCache { outReport =>
+                  // recompile if
+                  // - the compiler settings have changed
+                  // - input files have changed
+                  // - output files are missing
                   if (
                     settingsChanged || inReport.modified.nonEmpty || outReport.modified.nonEmpty
                   ) {
-                    // compile if
-                    // - the compiler settings have changed
-                    // - input files have changed
-                    // - output files are missing
                     val avroClassLoader = new AvroCompilerPluginClassLoader(
                       (AvroCompiler / dependencyClasspath).value
                         .map(toNioPath)
@@ -315,12 +316,15 @@ object SbtAvro extends AutoPlugin {
                         s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
                       )
                       Thread.currentThread().setContextClassLoader(avroClassLoader)
+
+                      IO.delete(outFilesFilter.get())
+
                       compiler.recompile(recs.toArray, outDir)
                       compiler.compileAvscs(avscs.toArray, outDir)
                       compiler.compileIdls(avdls.toArray, outDir)
                       compiler.compileAvprs(avprs.toArray, outDir)
 
-                      (outDir ** SbtAvro.JavaFileFilter).get().toSet
+                      outFilesFilter.get().toSet
                     } catch {
                       case e: RuntimeException =>
                         out.log.err(e.getMessage)

@@ -1,5 +1,5 @@
 {
-    "name": "Record",
+    "name": "RecordB",
     "namespace": "com.github.sbt.avro.test",
     "type": "record",
     "fields": [
