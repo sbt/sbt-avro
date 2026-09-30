@@ -1,0 +1,11 @@
+{
+    "name": "RecordA",
+    "namespace": "com.github.sbt.avro.test",
+    "type": "record",
+    "fields": [
+        {
+            "name": "value",
+            "type": "string"
+        }
+    ]
+}

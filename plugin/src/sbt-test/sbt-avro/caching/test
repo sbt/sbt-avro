@@ -1,0 +1,72 @@
+# generate
+$ copy-file recordA.avsc src/main/avro/recordA.avsc
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+
+# generate with no changes: cache
+$ touch target/reference.txt
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/reference.txt target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+
+# generate with changes: re-generate
+$ touch target/reference.txt
+$ touch src/main/avro/recordA.avsc
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+
+# generate with missing output: re-generate
+$ touch target/reference.txt
+$ delete target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt 
+
+# generate after clean: re-generate
+$ touch target/reference.txt
+> clean
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+
+# generate after setting change: re-generate
+$ touch target/reference.txt
+> set avroStringType := "String"
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+
+# generate with new file: re-generate
+$ touch target/reference.txt
+$ copy-file recordB.avsc src/main/avro/recordB.avsc
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordB.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt 
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordB.java target/reference.txt
+
+# generate with deleted file: re-generate
+$ touch target/reference.txt
+$ delete src/main/avro/recordB.avsc
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ absent target/compiled_avro/main/com/github/sbt/avro/test/RecordB.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+
+# generate after new dependency: re-generate
+$ touch target/reference.txt
+> set libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.12.2" % "avro"
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ exists target/compiled_avro/main/org/apache/avro/data/Json.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+$ newer target/compiled_avro/main/org/apache/avro/data/Json.java target/reference.txt
+
+# generate with no changes: cache
+$ touch target/reference.txt
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ exists target/compiled_avro/main/org/apache/avro/data/Json.java
+$ newer target/reference.txt target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/reference.txt target/compiled_avro/main/org/apache/avro/data/Json.java
