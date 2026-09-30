@@ -53,3 +53,20 @@ $ delete src/main/avro/recordB.avsc
 $ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
 $ absent target/compiled_avro/main/com/github/sbt/avro/test/RecordB.java
 $ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+
+# generate after new dependency: re-generate
+$ touch target/reference.txt
+> set libraryDependencies += "org.apache.avro" % "avro-compiler" % "1.12.2" % "avro"
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ exists target/compiled_avro/main/org/apache/avro/data/Json.java
+$ newer target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java target/reference.txt
+$ newer target/compiled_avro/main/org/apache/avro/data/Json.java target/reference.txt
+
+# generate with no changes: cache
+$ touch target/reference.txt
+> avroGenerate
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ exists target/compiled_avro/main/org/apache/avro/data/Json.java
+$ newer target/reference.txt target/compiled_avro/main/com/github/sbt/avro/test/RecordA.java
+$ newer target/reference.txt target/compiled_avro/main/org/apache/avro/data/Json.java
