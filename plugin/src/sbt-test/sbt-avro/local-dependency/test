@@ -5,3 +5,7 @@
 > checkGenerated
 
 > +compile
+
+> Test/avroGenerate
+> Test/checkUnpacked
+> Test/checkGenerated

@@ -6,7 +6,8 @@ def absent(f: File): Unit = assert(!f.exists(), s"$f does exists")
 
 lazy val commonSettings = Seq(
   organization := "com.github.sbt",
-  scalaVersion := "2.13.15"
+  scalaVersion := "2.13.15",
+  crossScalaVersions := Seq("2.13.15", "2.12.21")
 )
 
 lazy val avroOnlySettings = Seq(
@@ -37,20 +38,29 @@ lazy val `transitive`: Project = project
   .settings(avroOnlySettings)
   .settings(
     name := "transitive",
-    version := "0.0.1-SNAPSHOT",
     libraryDependencies ++= Seq(
       ("com.github.sbt" % "external" % "0.0.1-SNAPSHOT" % "avro").classifier("avro").intransitive()
     )
   )
 
+lazy val `other`: Project = project
+  .in(file("other"))
+  .enablePlugins(SbtAvro)
+  .settings(commonSettings)
+  .settings(
+    name := "other"
+  )
+
 lazy val root: Project = project
   .in(file("."))
   .enablePlugins(SbtAvro)
-  .dependsOn(`transitive` % "avro")
+  .dependsOn(
+    `transitive` % "avro;avro-test->test",
+    `other`, // compile scope only
+  )
   .settings(commonSettings)
   .settings(
     name := "local-dependency",
-    crossScalaVersions := Seq("2.13.15", "2.12.21"),
     libraryDependencies ++= Seq(
       "org.specs2" %% "specs2-core" % "4.23.0" % Test
     ),
@@ -66,6 +76,7 @@ lazy val root: Project = project
       )
     },
     Compile / checkGenerated := {
+      // source generated from avro scope dependency
       exists(
         crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "external" / "Avdl.java"
       )
@@ -77,6 +88,21 @@ lazy val root: Project = project
       )
       exists(
         crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "Avsc.java"
+      )
+      // no source generated from avro-test scope dependency
+      absent(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
+      )
+      // no source generated from compile scope dependency
+      absent(
+        crossTarget.value / "src_managed" / "compiled_avro" / "main" / "com" / "github" / "sbt" / "avro" / "test" / "other" / "Avsc.java"
+      )
+    },
+    Test / checkUnpacked := {},
+    Test / checkGenerated := {
+      // source generated from avro-test scope dependency
+      exists(
+        crossTarget.value / "src_managed" / "compiled_avro" / "test" / "com" / "github" / "sbt" / "avro" / "test" / "transitive" / "TestAvsc.java"
       )
     }
   )

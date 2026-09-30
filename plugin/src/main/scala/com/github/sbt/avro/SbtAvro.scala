@@ -34,7 +34,6 @@ object SbtAvro extends AutoPlugin {
     val avroCompiler = settingKey[String]("Sbt avro compiler class.")
     val avroCreateSetters = settingKey[Boolean]("Generate setters.")
     val avroDependencyIncludeFilter = settingKey[DependencyFilter]("Filter for including modules containing avro dependencies.")
-    val avroProjectIncludeFilter = settingKey[ProjectFilter]("Filter for including SBT dependent subprojects containing avro dependencies.")
     val avroEnableDecimalLogicalType = settingKey[Boolean]("Use java.math.BigDecimal instead of java.nio.ByteBuffer for logical type decimal.")
     val avroFieldVisibility = settingKey[String]("Field visibility for the properties. Possible values: private, public.")
     val avroOptionalGetters = settingKey[Boolean]("Generate getters that return Optional for nullable fields.")
@@ -65,7 +64,6 @@ object SbtAvro extends AutoPlugin {
       artifacts ++= Classpaths.artifactDefs(avroArtifactTasks).value,
       packagedArtifacts ++= Def.uncached(Classpaths.packaged(avroArtifactTasks).value),
       // use a custom folders to avoid potential conflict with other generators
-      avroProjectIncludeFilter := inDependencies(ThisProject),
       avroUnpackDependencies / target := sourceManaged.value / "avro",
       avroGenerate / target := sourceManaged.value / "compiled_avro",
       // setup avro configuration. Use library management to fetch the compiler and schema sources
@@ -88,11 +86,9 @@ object SbtAvro extends AutoPlugin {
       avroUnmanagedSourceDirectories := Seq(avroSource.value),
       avroSpecificRecords := Seq.empty,
       // dependencies
-      avroDependencyIncludeFilter := (configuration.value match {
-        case Compile => configurationFilter(Avro.name)
-        case Test    => configurationFilter(AvroTest.name)
-        case _       => configurationFilter(NothingFilter)
-      }),
+      avroDependencyIncludeFilter := configurationFilter(
+        avroScopeForConfig(configuration.value).name
+      ),
       avroUnpackDependencies / includeFilter := AllPassFilter,
       avroUnpackDependencies / excludeFilter := HiddenFileFilter,
       avroUnpackDependencies / target := configSrcSub(avroUnpackDependencies / target).value,
@@ -100,12 +96,7 @@ object SbtAvro extends AutoPlugin {
       // source generation
       avroGenerate / target := configSrcSub(avroGenerate / target).value,
       managedSourceDirectories += (avroGenerate / target).value,
-      avroGenerate := Def.uncached(
-        sourceGeneratorTask(avroGenerate)
-          .dependsOn(avroUnpackDependencies)
-          .dependsOn(avroUnpackDependencies.?.all(filterDependsOn))
-          .value
-      ),
+      avroGenerate := Def.uncached(sourceGeneratorTask(avroGenerate).value),
       sourceGenerators += avroGenerate.taskValue,
       compile := compile.dependsOn(Def.uncached(avroGenerate)).value,
       // packaging
@@ -133,12 +124,11 @@ object SbtAvro extends AutoPlugin {
     Seq(AvroCompiler, Avro, AvroTest).flatMap(c => inConfig(c)(Defaults.configSettings)) ++
     Seq(Compile, Test).flatMap(c => inConfig(c)(configScopedSettings))
 
-  // This filter is meant evaluate for all dependant submodules
-  // eg. source files / unpack dependencies
-  private val filterDependsOn = ScopeFilter(
-    inDependencies(ThisProject),
-    inConfigurations(Compile)
-  )
+  private def avroScopeForConfig(config: Configuration) = config match {
+    case Compile => Avro
+    case Test    => AvroTest
+    case _       => throw new IllegalStateException(s"unsupported configuration ${config}")
+  }
 
   private def unpack(
     cacheBaseDirectory: File,
@@ -211,8 +201,26 @@ object SbtAvro extends AutoPlugin {
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
-    Def.taskDyn[Seq[File]] {
-      val projectFilter = ScopeFilter(avroProjectIncludeFilter.value, inConfigurations(Compile))
+    Def.taskDyn {
+      // find all project dependencies for the avro scope
+      val avroTaskFilter = Classpaths
+        .interSort(
+          thisProjectRef.value,
+          avroScopeForConfig(configuration.value),
+          settingsData.value,
+          buildDependencies.value
+        )
+        .map {
+          case (project, "avro") =>
+            ScopeFilter(inProjects(project), inConfigurations(Compile))
+          case (project, "avro-test") =>
+            // TODO do not re-generate sources from compile scope
+            ScopeFilter(inProjects(project), inConfigurations(Compile, Test))
+          case (project, config) =>
+            ScopeFilter(inProjects(project), inConfigurationsByRefs(ConfigRef(config)))
+        }
+        .reduce(_ || _)
+
       Def.task {
         val out = streams.value
         val cacheDir = Defaults.makeCrossTarget(
@@ -223,15 +231,13 @@ object SbtAvro extends AutoPlugin {
           sbtPlugin.value,
           crossPaths.value
         )
-        val externalSrcDir = (avroUnpackDependencies / target).value
-        val unmanagedSrcDirs = avroUnmanagedSourceDirectories.value
 
-        val dependsOnDirs = (
-          (avroUnpackDependencies / target).?.all(projectFilter).value.flatten ++
-            avroUnmanagedSourceDirectories.?.all(projectFilter).value.flatten.flatten
-        ).toSet
-
-        val srcDirs = Seq(externalSrcDir) ++ unmanagedSrcDirs ++ dependsOnDirs
+        val unpacked =
+          avroUnpackDependencies.?.all(avroTaskFilter).value.flatten.flatten
+        val unmanaged =
+          avroUnmanagedSourceDirectories.?.all(avroTaskFilter).value.flatten.flatten
+            .flatMap(d => (d ** AvroFilter).get())
+        val srcFiles = (unpacked ++ unmanaged).distinct
 
         val outDir = (key / target).value
         implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
@@ -262,8 +268,10 @@ object SbtAvro extends AutoPlugin {
               }
               .apply(settings)
           }
-          val inCache = Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
-          val outCache = Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
+          val inCache =
+            Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
+          val outCache =
+            Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
 
           (inputs: Set[File], settings: Seq[String]) =>
             settingsCache(settings) { settingsChanged =>
@@ -299,9 +307,9 @@ object SbtAvro extends AutoPlugin {
                       compiler.setOptionalGetters(avroOptionalGetters.value)
 
                       val recs = records.map(avroClassLoader.loadClass)
-                      val avdls = srcDirs.flatMap(d => (d ** AvroAvdlFilter).get())
-                      val avscs = srcDirs.flatMap(d => (d ** AvroAvscFilter).get())
-                      val avprs = srcDirs.flatMap(d => (d ** AvroAvrpFilter).get())
+                      val avdls = srcFiles.filter(AvroAvdlFilter.accept)
+                      val avscs = srcFiles.filter(AvroAvscFilter.accept)
+                      val avprs = srcFiles.filter(AvroAvrpFilter.accept)
 
                       out.log.info(
                         s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
@@ -328,7 +336,7 @@ object SbtAvro extends AutoPlugin {
             }
         }
 
-        cachedCompile((srcDirs ** AvroFilter).get().toSet, compilerSettings).toSeq
+        cachedCompile(srcFiles.toSet, compilerSettings).toSeq
       }
     }
 }

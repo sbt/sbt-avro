@@ -1,6 +1,6 @@
 {
-  "name": "Avsc",
-  "namespace": "com.github.sbt.avro.test.transitive2",
+  "name": "TestAvsc",
+  "namespace": "com.github.sbt.avro.test.transitive",
   "type": "record",
   "fields": [
     {
