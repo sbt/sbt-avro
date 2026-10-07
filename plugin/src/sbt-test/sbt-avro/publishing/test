@@ -2,16 +2,26 @@
 > transitive/publishLocal
 
 > avroUnpackDependencies
-> checkUnpacked
+$ exists target/avro/main/external-avro/avdl.avdl
+$ exists target/avro/main/external-avro/avpr.avpr
+$ exists target/avro/main/external-avro/avsc.avsc
+$ exists target/avro/main/transitive-avro/avsc.avsc
+# excluded from the unpacked sources
+$ absent target/avro/main/external-avro/exclude.avsc
 
 > avroGenerate
-> checkGenerated
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avdl.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avpr.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/external/Avsc.java
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/transitive/Avsc.java
 
 > +compile
 
 > Test/avroUnpackDependencies
-> Test/checkUnpacked
+$ exists target/avro/test/transitive-tests/test.avsc
+
 > Test/avroGenerate
-> Test/checkGenerated
+$ exists target/compiled_avro/test/com/github/sbt/avro/test/transitive/Test.java
+
 > +Test/compile
 > clean
