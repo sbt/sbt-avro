@@ -1,7 +1,7 @@
 package com.github.sbt.avro
 
 import sbt.Keys.*
-import sbt.{*, given}
+import sbt.*
 import Path.relativeTo
 import sbt.ScopeFilter.ProjectFilter
 import sbt.librarymanagement.DependencyFilter
@@ -18,12 +18,12 @@ object SbtAvro extends AutoPlugin {
 
   val AvroClassifier = "avro"
 
-  private[avro] val AvroAvrpFilter: NameFilter = "*.avpr"
-  private[avro] val AvroAvdlFilter: NameFilter = "*.avdl"
-  private[avro] val AvroAvscFilter: NameFilter = "*.avsc"
-  private[avro] val AvroFilter: NameFilter = AvroAvscFilter | AvroAvdlFilter | AvroAvrpFilter
+  private val AvroAvrpFilter: NameFilter = "*.avpr"
+  private val AvroAvdlFilter: NameFilter = "*.avdl"
+  private val AvroAvscFilter: NameFilter = "*.avsc"
+  private val AvroFilter: NameFilter = AvroAvscFilter | AvroAvdlFilter | AvroAvrpFilter
 
-  private[avro] val JavaFileFilter: NameFilter = "*.java"
+  private val JavaFileFilter: NameFilter = "*.java"
 
   object autoImport {
 
@@ -136,7 +136,7 @@ object SbtAvro extends AutoPlugin {
     extractTarget: File,
     includeFilter: FileFilter,
     excludeFilter: FileFilter,
-    streams: TaskStreams
+    log: Logger
   ): Seq[File] = {
     def cachedExtractDep(jar: File): Seq[File] = {
       val cached = FileFunction.cached(
@@ -155,9 +155,9 @@ object SbtAvro extends AutoPlugin {
             .partition(_.relativeTo(depTarget).forall(filter.accept))
           IO.delete(filtered)
           if (avroSpecs.nonEmpty) {
-            streams.log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
+            log.info("Extracted from " + dep + avroSpecs.mkString(":\n * ", "\n * ", ""))
           } else {
-            streams.log.debug(s"No Avro specification extracted from $dep")
+            log.debug(s"No Avro specification extracted from $dep")
           }
           avroSpecs
         }
@@ -191,13 +191,66 @@ object SbtAvro extends AutoPlugin {
       extractTarget = (key / target).value,
       includeFilter = (key / includeFilter).value,
       excludeFilter = (key / excludeFilter).value,
-      streams = (key / streams).value
+      log = (key / streams).value.log
     )
 
     val previouslyUnpacked = key.previous.toSeq.flatten
     IO.delete(previouslyUnpacked.diff(unpacked))
 
     unpacked
+  }
+
+  private def generate(
+    settings: AvroCompilerSettings,
+    srcFiles: Seq[File],
+    outDir: File,
+    log: Logger
+  ) = {
+    val avroClassLoader = new AvroCompilerPluginClassLoader(
+      settings.classpath.map(_.toURI.toURL).toArray,
+      this.getClass.getClassLoader
+    )
+    val initLoader = Thread.currentThread().getContextClassLoader
+    val outFilesFilter = outDir ** JavaFileFilter
+
+    try {
+      val compiler = avroClassLoader
+        .loadClass(settings.compiler)
+        .getDeclaredConstructor()
+        .newInstance()
+        .asInstanceOf[AvroCompiler]
+
+      compiler.setStringType(settings.stringType)
+      compiler.setFieldVisibility(settings.fieldVisibility.toUpperCase)
+      compiler.setEnableDecimalLogicalType(settings.enableDecimalLogicalType)
+      compiler.setCreateSetters(settings.createSetters)
+      compiler.setOptionalGetters(settings.optionalGetters)
+
+      val recs = settings.specificRecords.map(avroClassLoader.loadClass)
+      val avdls = srcFiles.filter(AvroAvdlFilter.accept)
+      val avscs = srcFiles.filter(AvroAvscFilter.accept)
+      val avprs = srcFiles.filter(AvroAvrpFilter.accept)
+
+      log.info(
+        s"Avro compiler ${settings.version} using stringType=${settings.stringType}"
+      )
+      Thread.currentThread().setContextClassLoader(avroClassLoader)
+
+      IO.delete(outFilesFilter.get())
+
+      compiler.recompile(recs.toArray, outDir)
+      compiler.compileAvscs(avscs.toArray, outDir)
+      compiler.compileIdls(avdls.toArray, outDir)
+      compiler.compileAvprs(avprs.toArray, outDir)
+
+      outFilesFilter.get().toSet
+    } catch {
+      case e: RuntimeException =>
+        log.err(e.getMessage)
+        throw new AvroGenerateFailedException
+    } finally {
+      Thread.currentThread().setContextClassLoader(initLoader)
+    }
   }
 
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
@@ -238,43 +291,43 @@ object SbtAvro extends AutoPlugin {
           avroUnmanagedSourceDirectories.?.all(avroTaskFilter).value.flatten.flatten
             .flatMap(d => (d ** AvroFilter).get())
         val srcFiles = (unpacked ++ unmanaged).distinct
-
         val outDir = (key / target).value
-        val outFilesFilter = outDir ** JavaFileFilter
-        implicit val conv: xsbti.FileConverter = fileConverter.value // used by PluginCompat
 
-        val records = avroSpecificRecords.value
-
-        // the sources are generated for a given compiler configuration: changing any of these
-        // invalidates the generated sources, even when the schemas are left untouched
-        val compilerSettings = Seq(
+        implicit val conv: xsbti.FileConverter = fileConverter.value
+        val compilerClasspath = (AvroCompiler / dependencyClasspath).value.files
+        val compilerSettings = AvroCompilerSettings(
+          compilerClasspath,
           avroCompiler.value,
           avroVersion.value,
           avroStringType.value,
           avroFieldVisibility.value,
-          avroEnableDecimalLogicalType.value.toString,
-          avroCreateSetters.value.toString,
-          avroOptionalGetters.value.toString
-        ) ++ avroSpecificRecords.value
+          avroEnableDecimalLogicalType.value,
+          avroCreateSetters.value,
+          avroOptionalGetters.value,
+          avroSpecificRecords.value
+        )
 
         val cachedCompile = {
           import sbt.util.CacheStoreFactory
           import sbt.util.CacheImplicits._
 
           val cacheStoreFactory = CacheStoreFactory(cacheDir / "avro")
-          val settingsCache = { (settings: Seq[String]) => (action: Boolean => Set[File]) =>
-            Tracked
-              .inputChanged[Seq[String], Set[File]](cacheStoreFactory.make("settings-cache")) {
-                case (changed, _) => action(changed)
-              }
-              .apply(settings)
+          val settingsCache = {
+            (settings: AvroCompilerSettings) => (action: Boolean => Set[File]) =>
+              Tracked
+                .inputChanged[AvroCompilerSettings, Set[File]](
+                  cacheStoreFactory.make("settings-cache")
+                ) { case (changed, _) =>
+                  action(changed)
+                }
+                .apply(settings)
           }
           val inCache =
             Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
           val outCache =
             Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
 
-          (inputs: Set[File], settings: Seq[String]) =>
+          (inputs: Set[File], settings: AvroCompilerSettings) =>
             settingsCache(settings) { settingsChanged =>
               inCache(inputs) { inReport =>
                 outCache { outReport =>
@@ -285,53 +338,7 @@ object SbtAvro extends AutoPlugin {
                   if (
                     settingsChanged || inReport.modified.nonEmpty || outReport.modified.nonEmpty
                   ) {
-                    val avroClassLoader = new AvroCompilerPluginClassLoader(
-                      (AvroCompiler / dependencyClasspath).value
-                        .map(toNioPath)
-                        .map(_.toUri.toURL)
-                        .toArray,
-                      this.getClass.getClassLoader
-                    )
-                    val initLoader = Thread.currentThread().getContextClassLoader
-
-                    try {
-                      val compiler = avroClassLoader
-                        .loadClass(avroCompiler.value)
-                        .getDeclaredConstructor()
-                        .newInstance()
-                        .asInstanceOf[AvroCompiler]
-
-                      compiler.setStringType(avroStringType.value)
-                      compiler.setFieldVisibility(avroFieldVisibility.value.toUpperCase)
-                      compiler.setEnableDecimalLogicalType(avroEnableDecimalLogicalType.value)
-                      compiler.setCreateSetters(avroCreateSetters.value)
-                      compiler.setOptionalGetters(avroOptionalGetters.value)
-
-                      val recs = records.map(avroClassLoader.loadClass)
-                      val avdls = srcFiles.filter(AvroAvdlFilter.accept)
-                      val avscs = srcFiles.filter(AvroAvscFilter.accept)
-                      val avprs = srcFiles.filter(AvroAvrpFilter.accept)
-
-                      out.log.info(
-                        s"Avro compiler ${avroVersion.value} using stringType=${avroStringType.value}"
-                      )
-                      Thread.currentThread().setContextClassLoader(avroClassLoader)
-
-                      IO.delete(outFilesFilter.get())
-
-                      compiler.recompile(recs.toArray, outDir)
-                      compiler.compileAvscs(avscs.toArray, outDir)
-                      compiler.compileIdls(avdls.toArray, outDir)
-                      compiler.compileAvprs(avprs.toArray, outDir)
-
-                      outFilesFilter.get().toSet
-                    } catch {
-                      case e: RuntimeException =>
-                        out.log.err(e.getMessage)
-                        throw new AvroGenerateFailedException
-                    } finally {
-                      Thread.currentThread().setContextClassLoader(initLoader)
-                    }
+                    generate(compilerSettings, srcFiles, outDir, out.log)
                   } else {
                     outReport.checked
                   }
