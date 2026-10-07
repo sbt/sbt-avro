@@ -207,7 +207,7 @@ object SbtAvro extends AutoPlugin {
     log: Logger
   ) = {
     val avroClassLoader = new AvroCompilerPluginClassLoader(
-      settings.classpath.map(_.toURI.toURL).toArray,
+      settings.classpath.toArray,
       this.getClass.getClassLoader
     )
     val initLoader = Thread.currentThread().getContextClassLoader
@@ -294,7 +294,9 @@ object SbtAvro extends AutoPlugin {
         val outDir = (key / target).value
 
         implicit val conv: xsbti.FileConverter = fileConverter.value
-        val compilerClasspath = (AvroCompiler / dependencyClasspath).value.files
+        val compilerClasspath = (AvroCompiler / dependencyClasspath).value
+          .map(toNioPath)
+          .map(_.toUri.toURL)
         val compilerSettings = AvroCompilerSettings(
           compilerClasspath,
           avroCompiler.value,
