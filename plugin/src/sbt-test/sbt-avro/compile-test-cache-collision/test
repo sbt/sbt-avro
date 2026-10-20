@@ -1,0 +1,11 @@
+# Compile and Test must each have their own avroGenerate cache.
+# Before the fix, both used one shared Global cache. That caused:
+# 1. Test/avroGenerate generates to compiled_avro/test and records those files in the cache.
+# 2. Compile/avroGenerate checks the same cache, sees unchanged inputs and existing outputs,
+#    and skips generation, so compiled_avro/main stays empty.
+
+> Test/avroGenerate
+> Compile/avroGenerate
+
+# Compile's output exists only if it used its own cache.
+$ exists target/compiled_avro/main/com/github/sbt/avro/test/Avsc.java
