@@ -274,8 +274,11 @@ object SbtAvro extends AutoPlugin {
         }
         .reduce(_ || _)
 
+      // Read the task stream here, in the outer (correctly config-scoped) task context.
+      // Reading `streams` inside the nested `Def.task` below resolves to Global scope,
+      // collapsing the Compile and Test caches onto a single shared store.
+      val out = (key / streams).value
       Def.task {
-        val out = streams.value
         val cacheDir = Defaults.makeCrossTarget(
           out.cacheDirectory,
           scalaVersion.value,
