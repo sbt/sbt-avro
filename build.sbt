@@ -67,7 +67,7 @@ ThisBuild / scalacOptions ++= Seq("-release", "17")
 lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
   crossPaths := false,
   autoScalaLibrary := false,
-  crossScalaVersions := Nil
+  crossScalaVersions := Seq((ThisBuild / scalaVersion).value)
 )
 
 lazy val `sbt-avro-parent`: Project = project
