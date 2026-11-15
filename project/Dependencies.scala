@@ -5,7 +5,7 @@ object Dependencies {
   object Versions {
     val Avro = "1.12.2"
     val Sbt2Compat = "0.2.0"
-    val Slf4j = "2.0.19"
+    val Slf4j = "2.0.20"
   }
 
   object Provided {
