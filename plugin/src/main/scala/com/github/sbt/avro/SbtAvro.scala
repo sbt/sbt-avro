@@ -253,107 +253,104 @@ object SbtAvro extends AutoPlugin {
     }
   }
 
+  private val avroSourcesTask = Def.taskDyn {
+    // find all project dependencies for the avro scope
+    val avroTaskFilter = Classpaths
+      .interSort(
+        thisProjectRef.value,
+        avroScopeForConfig(configuration.value),
+        settingsData.value,
+        buildDependencies.value
+      )
+      .map {
+        case (project, "avro") =>
+          ScopeFilter(inProjects(project), inConfigurations(Compile))
+        case (project, "avro-test") =>
+          // TODO do not re-generate sources from compile scope
+          ScopeFilter(inProjects(project), inConfigurations(Compile, Test))
+        case (project, config) =>
+          ScopeFilter(inProjects(project), inConfigurationsByRefs(ConfigRef(config)))
+      }
+      .reduce(_ || _)
+
+    Def.task {
+      val unpacked =
+        avroUnpackDependencies.?.all(avroTaskFilter).value.flatten.flatten
+      val unmanaged =
+        avroUnmanagedSourceDirectories.?.all(avroTaskFilter).value.flatten.flatten
+          .flatMap(d => (d ** AvroFilter).get())
+      (unpacked ++ unmanaged).distinct
+    }
+  }
+
   private def sourceGeneratorTask(key: TaskKey[Seq[File]]): Def.Initialize[Task[Seq[File]]] =
-    Def.taskDyn {
-      // find all project dependencies for the avro scope
-      val avroTaskFilter = Classpaths
-        .interSort(
-          thisProjectRef.value,
-          avroScopeForConfig(configuration.value),
-          settingsData.value,
-          buildDependencies.value
-        )
-        .map {
-          case (project, "avro") =>
-            ScopeFilter(inProjects(project), inConfigurations(Compile))
-          case (project, "avro-test") =>
-            // TODO do not re-generate sources from compile scope
-            ScopeFilter(inProjects(project), inConfigurations(Compile, Test))
-          case (project, config) =>
-            ScopeFilter(inProjects(project), inConfigurationsByRefs(ConfigRef(config)))
-        }
-        .reduce(_ || _)
-
-      // Read the task stream here, in the outer (correctly config-scoped) task context.
-      // Reading `streams` inside the nested `Def.task` below resolves to Global scope,
-      // collapsing the Compile and Test caches onto a single shared store.
+    Def.task {
+      val srcFiles = avroSourcesTask.value
       val out = (key / streams).value
-      Def.task {
-        val cacheDir = Defaults.makeCrossTarget(
-          out.cacheDirectory,
-          scalaVersion.value,
-          scalaBinaryVersion.value,
-          (pluginCrossBuild / sbtBinaryVersion).value,
-          sbtPlugin.value,
-          crossPaths.value
-        )
+      val outDir = (key / target).value
+      val cacheDir = Defaults.makeCrossTarget(
+        out.cacheDirectory,
+        scalaVersion.value,
+        scalaBinaryVersion.value,
+        (pluginCrossBuild / sbtBinaryVersion).value,
+        sbtPlugin.value,
+        crossPaths.value
+      )
 
-        val unpacked =
-          avroUnpackDependencies.?.all(avroTaskFilter).value.flatten.flatten
-        val unmanaged =
-          avroUnmanagedSourceDirectories.?.all(avroTaskFilter).value.flatten.flatten
-            .flatMap(d => (d ** AvroFilter).get())
-        val srcFiles = (unpacked ++ unmanaged).distinct
-        val outDir = (key / target).value
+      implicit val conv: xsbti.FileConverter = fileConverter.value
+      val compilerClasspath = (AvroCompiler / dependencyClasspath).value
+        .map(toNioPath)
+        .map(_.toUri.toURL)
+      val compilerSettings = AvroCompilerSettings(
+        compilerClasspath,
+        avroCompiler.value,
+        avroVersion.value,
+        avroStringType.value,
+        avroFieldVisibility.value,
+        avroEnableDecimalLogicalType.value,
+        avroCreateSetters.value,
+        avroOptionalGetters.value,
+        avroSpecificRecords.value
+      )
 
-        implicit val conv: xsbti.FileConverter = fileConverter.value
-        val compilerClasspath = (AvroCompiler / dependencyClasspath).value
-          .map(toNioPath)
-          .map(_.toUri.toURL)
-        val compilerSettings = AvroCompilerSettings(
-          compilerClasspath,
-          avroCompiler.value,
-          avroVersion.value,
-          avroStringType.value,
-          avroFieldVisibility.value,
-          avroEnableDecimalLogicalType.value,
-          avroCreateSetters.value,
-          avroOptionalGetters.value,
-          avroSpecificRecords.value
-        )
+      val cachedCompile = {
+        import sbt.util.CacheStoreFactory
+        import sbt.util.CacheImplicits._
 
-        val cachedCompile = {
-          import sbt.util.CacheStoreFactory
-          import sbt.util.CacheImplicits._
+        val cacheStoreFactory = CacheStoreFactory(cacheDir / "avro")
+        val settingsCache = { (settings: AvroCompilerSettings) => (action: Boolean => Set[File]) =>
+          Tracked
+            .inputChanged[AvroCompilerSettings, Set[File]](
+              cacheStoreFactory.make("settings-cache")
+            ) { case (changed, _) =>
+              action(changed)
+            }
+            .apply(settings)
+        }
+        val inCache =
+          Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
+        val outCache =
+          Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
 
-          val cacheStoreFactory = CacheStoreFactory(cacheDir / "avro")
-          val settingsCache = {
-            (settings: AvroCompilerSettings) => (action: Boolean => Set[File]) =>
-              Tracked
-                .inputChanged[AvroCompilerSettings, Set[File]](
-                  cacheStoreFactory.make("settings-cache")
-                ) { case (changed, _) =>
-                  action(changed)
-                }
-                .apply(settings)
-          }
-          val inCache =
-            Difference.inputs(cacheStoreFactory.make("in-cache"), FileInfo.lastModified)
-          val outCache =
-            Difference.outputs(cacheStoreFactory.make("out-cache"), FileInfo.exists)
-
-          (inputs: Set[File], settings: AvroCompilerSettings) =>
-            settingsCache(settings) { settingsChanged =>
-              inCache(inputs) { inReport =>
-                outCache { outReport =>
-                  // recompile if
-                  // - the compiler settings have changed
-                  // - input files have changed
-                  // - output files are missing
-                  if (
-                    settingsChanged || inReport.modified.nonEmpty || outReport.modified.nonEmpty
-                  ) {
-                    generate(compilerSettings, srcFiles, outDir, out.log)
-                  } else {
-                    outReport.checked
-                  }
+        (inputs: Set[File], settings: AvroCompilerSettings) =>
+          settingsCache(settings) { settingsChanged =>
+            inCache(inputs) { inReport =>
+              outCache { outReport =>
+                // recompile if
+                // - the compiler settings have changed
+                // - input files have changed
+                // - output files are missing
+                if (settingsChanged || inReport.modified.nonEmpty || outReport.modified.nonEmpty) {
+                  generate(compilerSettings, srcFiles, outDir, out.log)
+                } else {
+                  outReport.checked
                 }
               }
             }
-        }
-
-        cachedCompile(srcFiles.toSet, compilerSettings).toSeq
+          }
       }
+
+      cachedCompile(srcFiles.toSet, compilerSettings).toSeq
     }
 }
 
