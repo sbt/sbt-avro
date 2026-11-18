@@ -30,7 +30,7 @@ ThisBuild / developers := List(
 )
 
 // sbt-github-actions
-lazy val scala3 = "3.8.4"
+lazy val scala3 = "3.9.0"
 lazy val scala212 = "2.12.21"
 ThisBuild / scalaVersion := scala3
 ThisBuild / crossScalaVersions := Seq(scala3, scala212)
@@ -38,7 +38,11 @@ ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(name = Some("Build project"), commands = List("compile", "test", "scripted"))
 )
 ThisBuild / githubWorkflowTargetBranches := Seq("main")
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
+ThisBuild / githubWorkflowJavaVersions := Seq(
+  JavaSpec.temurin("17"),
+  JavaSpec.temurin("21"),
+  JavaSpec.temurin("25")
+)
 ThisBuild / githubWorkflowTargetTags := Seq("v*")
 ThisBuild / githubWorkflowBuildPreamble := Seq(
   WorkflowStep.Sbt(
@@ -67,7 +71,7 @@ ThisBuild / scalacOptions ++= Seq("-release", "17")
 lazy val javaOnlySettings: Seq[Setting[?]] = Seq(
   crossPaths := false,
   autoScalaLibrary := false,
-  crossScalaVersions := Seq((ThisBuild / scalaVersion).value)
+  crossScalaVersions := Seq(scala3)
 )
 
 lazy val `sbt-avro-parent`: Project = project
@@ -109,17 +113,20 @@ lazy val `sbt-avro`: Project = project
   .enablePlugins(BuildInfoPlugin, SbtPlugin)
   .settings(
     description := "Sbt plugin for compiling Avro sources",
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.12") Seq("-Xsource:3") else Nil
+    },
     addSbtPlugin(Dependencies.SbtPlugin.Sbt2Compat),
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.9.0"
-        case _      => "2.0.0"
+        case _      => "2.1.0"
       }
     },
     scriptedSbt := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.13.0"
-        case _      => "2.0.0"
+        case _      => "2.1.0"
       }
     },
     buildInfoKeys := Seq[BuildInfoKey](name, version),
@@ -130,3 +137,5 @@ lazy val `sbt-avro`: Project = project
     ),
     scriptedBufferLog := false
   )
+
+ThisBuild / githubWorkflowPublishJavaVersion := JavaSpec.temurin("17")

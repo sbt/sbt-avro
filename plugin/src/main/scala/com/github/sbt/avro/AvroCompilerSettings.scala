@@ -3,7 +3,6 @@ package com.github.sbt.avro
 import sjsonnew.*
 import sjsonnew.BasicJsonProtocol.*
 import java.net.URL
-import scala.annotation.nowarn
 
 private case class AvroCompilerSettings(
   classpath: Seq[URL],
@@ -21,7 +20,28 @@ private object AvroCompilerSettings {
 
   implicit val format: JsonFormat[AvroCompilerSettings] =
     BasicJsonProtocol.caseClass(
-      AvroCompilerSettings.apply _: @nowarn, // silence scala3 deprecation
+      (
+        classpath: Seq[URL],
+        compiler: String,
+        version: String,
+        stringType: String,
+        fieldVisibility: String,
+        enableDecimalLogicalType: Boolean,
+        createSetters: Boolean,
+        optionalGetters: Boolean,
+        specificRecords: Seq[String]
+      ) =>
+        AvroCompilerSettings(
+          classpath,
+          compiler,
+          version,
+          stringType,
+          fieldVisibility,
+          enableDecimalLogicalType,
+          createSetters,
+          optionalGetters,
+          specificRecords
+        ),
       (s: AvroCompilerSettings) =>
         Some(
           (
